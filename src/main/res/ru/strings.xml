@@ -1,0 +1,9 @@
+<resources>
+    <string name="drawerOpen">Открыть</string>
+    <string name="drawerClose">Закрыть</string>
+
+    <string name="menu_map">Карта</string>
+    <string name="menu_user_details">Профиль</string>
+
+
+</resources>

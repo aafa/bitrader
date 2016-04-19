@@ -1,0 +1,5 @@
+/proguard-sbt.txt
+local.properties
+target/
+.DS_Store
+.idea
