@@ -23,10 +23,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="app.bitrader.activity.UserDetailsActivity"/>
         <activity android:name="app.bitrader.activity.TabActivity"/>
-        <activity android:name="app.bitrader.activity.drawerabove.DrawerAboveActivity"/>
-        <activity android:name="app.bitrader.activity.drawerbelow.DrawerBelowActivity"/>
 
     </application>
 
