@@ -12,11 +12,11 @@ import macroid.{ContextWrapper, Contexts}
 /**
   * Created by Alexey Afanasev on 15.02.16.
   */
-class UserDetailsFragment extends Fragment with Contexts[Fragment] with UserDetailsLayout{
+class PairsList extends Fragment with Contexts[Fragment] with PairsListLayout{
   override def onCreateView(inflater: LayoutInflater, container: ViewGroup, savedInstanceState: Bundle): View = ui
 }
 
-trait UserDetailsLayout extends Styles{
+trait PairsListLayout extends Styles{
   def ui(implicit c: ContextWrapper) = {
     l[CoordinatorLayout](
 

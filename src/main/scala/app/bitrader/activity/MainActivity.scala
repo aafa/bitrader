@@ -4,7 +4,7 @@ package app.bitrader.activity
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import app.bitrader.R
-import app.bitrader.activity.menu.UserDetailsFragment
+import app.bitrader.activity.menu.PairsList
 import app.bitrader.helpers.ActivityOperations
 import io.github.aafa.drawer.{DrawerMenuItem, SingleViewDrawerActivity}
 import io.github.aafa.toolbar.ToolbarBelowLayout
@@ -32,6 +32,6 @@ class MainActivity extends SingleViewDrawerActivity with ToolbarBelowLayout with
 
   override lazy val drawerWidth: Int = this.getResources.getDimensionPixelSize(R.dimen.drawer_width)
 
-  override def frontFragment: FragmentBuilder[_ <: Fragment] = f[UserDetailsFragment]
+  override def frontFragment: FragmentBuilder[_ <: Fragment] = f[PairsList]
 
 }
