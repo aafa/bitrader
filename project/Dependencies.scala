@@ -20,6 +20,7 @@ object Dependencies {
 
     libraryDependencies ++= Seq(
       "com.github.aafa" %% "macroid-design" % "0.1.2-SNAPSHOT",
+      "io.github.aafa" %% "scala-retrofit" % "0.1.0-SNAPSHOT",
 
       "com.joanzapata.iconify" % "android-iconify-fontawesome" % iconify,
       "com.joanzapata.iconify" % "android-iconify-material" % iconify

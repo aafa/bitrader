@@ -9,12 +9,16 @@ import android.support.v4.widget.{DrawerLayout, NestedScrollView}
 import android.support.v7.widget.{CardView, Toolbar}
 import android.view.Gravity
 import android.widget.LinearLayout
-import app.bitrader.TR
+import app.bitrader.{APIContext, TR}
 import app.bitrader.helpers.Id
+import app.bitrader.model.Ticker
 import com.joanzapata.iconify.widget.IconTextView
 import io.github.aafa.drawer.{BasicDrawerLayout, DrawerActivity, DrawerMenuItem}
 import macroid.FullDsl._
 import macroid._
+
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
 
 /**
   * Created by aafa
@@ -22,12 +26,14 @@ import macroid._
 
 class MainActivity extends DrawerActivity {
 
-  override lazy val layout = new MainActivityView(menuItems)
+  override lazy val layout = new MainActivityLayout(menuItems)
 
   override def onCreate(b: Bundle): Unit = {
     super.onCreate(b)
     setContentView(layout.ui.get)
-    layout.toolbarTitle("Bitrader")
+
+    Future{"125.756"} map (t => layout.toolbarTitle(t))
+//    APIContext.service(_.pubticker("btcusd")) map (t => layout.toolbarTitle(t.last_price.toString))
   }
 
   val menuItems: Seq[DrawerMenuItem] = Seq(
@@ -35,7 +41,9 @@ class MainActivity extends DrawerActivity {
   )
 }
 
-class MainActivityView(override val menuItems: Seq[DrawerMenuItem])(implicit cw: ContextWrapper, managerContext: FragmentManagerContext[Fragment, FragmentManager]) extends BasicDrawerLayout(menuItems) {
+class MainActivityLayout(override val menuItems: Seq[DrawerMenuItem])
+                        (implicit cw: ContextWrapper, managerContext: FragmentManagerContext[Fragment, FragmentManager])
+  extends BasicDrawerLayout(menuItems) {
 
   val longString: String = {
     def gen: Stream[String] = Stream.cons("I {fa-heart-o} to {fa-code} on {fa-android}", gen)
@@ -69,7 +77,7 @@ class MainActivityView(override val menuItems: Seq[DrawerMenuItem])(implicit cw:
             ) <~ vMatchWidth <~ cardTweak <~ id(Id.card)
           )
         ) <~ vMatchParent <~ nestedScroll(40.dp)
-      ) <~ vMatchParent <~ fitsAll
+      ) <~ vMatchParent
     )
   }
 
