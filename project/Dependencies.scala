@@ -19,7 +19,7 @@ object Dependencies {
     resolvers ++= resolverUrls,
 
     libraryDependencies ++= Seq(
-      "com.github.aafa" %% "macroid-design" % "0.1.1-SNAPSHOT",
+      "com.github.aafa" %% "macroid-design" % "0.1.2-SNAPSHOT",
 
       "com.joanzapata.iconify" % "android-iconify-fontawesome" % iconify,
       "com.joanzapata.iconify" % "android-iconify-material" % iconify
