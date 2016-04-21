@@ -22,7 +22,7 @@ import macroid._
 
 class MainActivity extends DrawerActivity {
 
-  override lazy val layout =  new MainActivityView(menuItems)
+  override lazy val layout = new MainActivityView(menuItems)
 
   override def onCreate(b: Bundle): Unit = {
     super.onCreate(b)
@@ -35,7 +35,7 @@ class MainActivity extends DrawerActivity {
   )
 }
 
-class MainActivityView(override val menuItems: Seq[DrawerMenuItem])(implicit cw: ContextWrapper, managerContext: FragmentManagerContext[Fragment, FragmentManager]) extends BasicDrawerLayout(menuItems){
+class MainActivityView(override val menuItems: Seq[DrawerMenuItem])(implicit cw: ContextWrapper, managerContext: FragmentManagerContext[Fragment, FragmentManager]) extends BasicDrawerLayout(menuItems) {
 
   val longString: String = {
     def gen: Stream[String] = Stream.cons("I {fa-heart-o} to {fa-code} on {fa-android}", gen)
@@ -52,7 +52,7 @@ class MainActivityView(override val menuItems: Seq[DrawerMenuItem])(implicit cw:
   def img: Drawable = TR.drawable.material_flat.get
 
   def ui: Ui[DrawerLayout] = {
-    l[DrawerLayout](
+    drawer(
       l[CoordinatorLayout](
         l[AppBarLayout](
           l[CollapsingToolbarLayout](
@@ -70,8 +70,7 @@ class MainActivityView(override val menuItems: Seq[DrawerMenuItem])(implicit cw:
           )
         ) <~ vMatchParent <~ nestedScroll(40.dp)
       ) <~ vMatchParent <~ fitsAll
-
-    ) <~ wire(drawerLayout) <~ vMatchParent
+    )
   }
 
   def fitsAll: Transformer = {
