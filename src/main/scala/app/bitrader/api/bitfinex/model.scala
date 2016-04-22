@@ -1,4 +1,4 @@
-package app.bitrader.model
+package app.bitrader.api.bitfinex
 
 import com.fasterxml.jackson.annotation.{JsonCreator, JsonProperty}
 

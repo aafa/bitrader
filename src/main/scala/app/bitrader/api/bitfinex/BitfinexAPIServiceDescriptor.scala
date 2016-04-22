@@ -1,12 +1,12 @@
-package app.bitrader.api
+package app.bitrader.api.bitfinex
 
-import app.bitrader.model.Ticker
+import app.bitrader.api.APIDescriptor
 import retrofit.http.{GET, Path}
 
 /**
   * Created by Alexey Afanasev on 21.04.16.
   */
-trait APIServiceDescriptor {
+trait BitfinexAPIServiceDescriptor {
   @GET("/pubticker/{symbol}") def pubticker(@Path("symbol") symbol: String): Ticker
 
 }

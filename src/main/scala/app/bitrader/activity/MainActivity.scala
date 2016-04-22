@@ -4,20 +4,19 @@ import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.support.design.widget._
-import android.support.v4.app.{Fragment, FragmentActivity, FragmentManager}
+import android.support.v4.app.{Fragment, FragmentManager}
 import android.support.v4.widget.{DrawerLayout, NestedScrollView}
 import android.support.v7.widget.{CardView, Toolbar}
 import android.view.Gravity
 import android.widget.LinearLayout
-import app.bitrader.{APIContext, TR}
 import app.bitrader.helpers.Id
-import app.bitrader.model.Ticker
+import app.bitrader.{APIContext, TR}
 import com.joanzapata.iconify.widget.IconTextView
 import io.github.aafa.drawer.{BasicDrawerLayout, DrawerActivity, DrawerMenuItem}
+import io.github.aafa.helpers.UiThreading
 import macroid.FullDsl._
 import macroid._
 
-import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
 /**
@@ -32,8 +31,15 @@ class MainActivity extends DrawerActivity {
     super.onCreate(b)
     setContentView(layout.ui.get)
 
-    Future{"125.756"} map (t => layout.toolbarTitle(t))
-//    APIContext.service(_.pubticker("btcusd")) map (t => layout.toolbarTitle(t.last_price.toString))
+    APIContext.poloniexService(_.returnTicker()) mapUi update
+  }
+
+  def update(t : Map[_,_]): Ui[Unit] = {
+    Ui.run(
+      layout.textSlot <~ text(t.toString()),
+      layout.toolBar <~ Tweak[Toolbar](_.setTitle("got it!"))
+    )
+    Ui.nop
   }
 
   val menuItems: Seq[DrawerMenuItem] = Seq(
@@ -44,6 +50,8 @@ class MainActivity extends DrawerActivity {
 class MainActivityLayout(override val menuItems: Seq[DrawerMenuItem])
                         (implicit cw: ContextWrapper, managerContext: FragmentManagerContext[Fragment, FragmentManager])
   extends BasicDrawerLayout(menuItems) {
+
+  var textSlot = slot[IconTextView]
 
   val longString: String = {
     def gen: Stream[String] = Stream.cons("I {fa-heart-o} to {fa-code} on {fa-android}", gen)
@@ -72,7 +80,7 @@ class MainActivityLayout(override val menuItems: Seq[DrawerMenuItem])
           l[LinearLayout](
             l[CardView](
               l[LinearLayout](
-                w[IconTextView] <~ text(longString)
+                w[IconTextView] <~ wire(textSlot) <~ text(longString)
               )
             ) <~ vMatchWidth <~ cardTweak <~ id(Id.card)
           )
