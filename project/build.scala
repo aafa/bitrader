@@ -1,9 +1,9 @@
 import android.Keys._
 import android.protify.Keys._
+import com.github.aafa.RealmPlugin
+import com.github.aafa.RealmPlugin._
 import sbt.Keys._
 import sbt._
-
-import scala.io.Source
 
 object Build extends android.AutoBuild {
 
@@ -21,6 +21,9 @@ object Build extends android.AutoBuild {
     platformTarget in Android := Versions.platformTarget,
     proguardConfig ~= {_ filterNot Seq("-dontobfuscate", "-dontoptimize", "-dontpreverify", "-verbose").contains},
 
+    // realm
+    ignoreClassProcessing := Seq("app.bitrader.package"),
+
     buildTypes in Android +=("debug", Seq(
       useProguardInDebug in Android := false,
       scalacOptions ++= Seq("-feature", "-deprecation"),
@@ -30,6 +33,7 @@ object Build extends android.AutoBuild {
     buildTypes in Android +=("release", Seq(
       useProguardInDebug in Android := true,
       proguardOptions in Android ++= Settings.proguardRelease,
+//      proguardConfig ++= file("project/proguard.pro").  getLines().toSeq,
       scalacOptions ++= Seq("-feature", "-optimise"),
       minSdkVersion in Android := "14"
     )),
