@@ -32,6 +32,9 @@ class MainActivity extends DrawerActivity {
     setContentView(layout.ui.get)
 
     APIContext.poloniexService(_.returnTicker()) mapUi update
+
+    APIContext.poloniexService(_.chartData("BTC_ETH", 1405699200, 1909699200, 14400)) map (c => println(c))
+
   }
 
   def update(t : Map[_,_]): Ui[Unit] = {

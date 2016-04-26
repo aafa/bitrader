@@ -1,7 +1,7 @@
 package app.bitrader.api.poloniex
 
 import app.bitrader.api.APIDescriptor
-import retrofit.http.GET
+import retrofit.http.{GET, Path, Query}
 
 /**
   * Created by Alexey Afanasev on 21.04.16.
@@ -9,4 +9,6 @@ import retrofit.http.GET
 trait PoloniexAPIServiceDescriptor {
   @GET("/public?command=returnTicker") def returnTicker(): Map[String, Ticker]
 
+  @GET("/public?command=returnChartData")
+  def chartData(@Query("currencyPair") pair: String, @Query("start") start: Long, @Query("end") end: Long, @Query("period") period: Int): Seq[Chart]
 }
