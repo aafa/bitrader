@@ -18,13 +18,13 @@ case class Ticker(
 @JsonCreator
 case class Chart(
                    @JsonProperty("date") var date: Long,
-                   @JsonProperty("high") var high: String,
-                   @JsonProperty("low") var low: String,
-                   @JsonProperty("open") var open: String,
-                   @JsonProperty("close") var close: String,
-                   @JsonProperty("volume") var volume: String,
-                   @JsonProperty("quoteVolume") var quoteVolume: String,
-                   @JsonProperty("weightedAverage") var weightedAverage: String
+                   @JsonProperty("high") var high: BigDecimal,
+                   @JsonProperty("low") var low: BigDecimal,
+                   @JsonProperty("open") var open: BigDecimal,
+                   @JsonProperty("close") var close: BigDecimal,
+                   @JsonProperty("volume") var volume: BigDecimal,
+                   @JsonProperty("quoteVolume") var quoteVolume: BigDecimal,
+                   @JsonProperty("weightedAverage") var weightedAverage: BigDecimal
                  )
 
 @JsonCreator

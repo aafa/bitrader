@@ -37,7 +37,7 @@ class MainActivity extends DrawerActivity {
 
   }
 
-  def update(t : Map[_,_]): Ui[Unit] = {
+  def update(t: Map[_, _]): Ui[Unit] = {
     Ui.run(
       layout.textSlot <~ text(t.toString()),
       layout.toolBar <~ Tweak[Toolbar](_.setTitle("got it!"))
@@ -85,8 +85,14 @@ class MainActivityLayout(override val menuItems: Seq[DrawerMenuItem])
               l[LinearLayout](
                 w[IconTextView] <~ wire(textSlot) <~ text(longString)
               )
-            ) <~ vMatchWidth <~ cardTweak <~ id(Id.card)
-          )
+            ) <~ vMatchWidth <~ cardTweak <~ id(Id.card),
+
+            l[CardView](
+              l[LinearLayout](
+                w[IconTextView] <~ text("test")
+              )
+            ) <~ vMatchWidth <~ cardTweak
+          ) <~ vertical
         ) <~ vMatchParent <~ nestedScroll(40.dp)
       ) <~ vMatchParent
     )

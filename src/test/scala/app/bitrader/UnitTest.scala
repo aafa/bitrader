@@ -9,7 +9,7 @@ import org.scalatest.{FlatSpec, Matchers, RobolectricSuite}
 @Config(sdk = Array(LOLLIPOP))
 class UnitTest extends FlatSpec with Matchers with RobolectricSuite {
   "Resources" should "be accessible via R" in {
-    RuntimeEnvironment.application.getString(R.string.app_name) shouldBe "material"
+    RuntimeEnvironment.application.getString(R.string.app_name) shouldBe "bitrader"
   }
 
 }
