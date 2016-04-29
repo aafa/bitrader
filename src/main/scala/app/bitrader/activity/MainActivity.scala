@@ -40,17 +40,16 @@ class MainActivity extends DrawerActivity {
     super.onCreate(b)
     setContentView(layout.ui.get)
 
-    APIContext.poloniexService(_.returnTicker()) mapUi update
+    APIContext.poloniexService(_.returnTicker()) map update
     APIContext.poloniexService(_.chartData("BTC_ETH", 5.hours.ago().unixtime, DateTime.now.unixtime, 300)) map layout.updateChartData
   }
 
 
-  def update(t: Map[_, _]): Ui[Unit] = {
+  def update(t: Map[_, _]): Unit = {
     Ui.run(
       layout.textSlot <~ text(t.toString()),
       layout.toolBar <~ Tweak[Toolbar](_.setTitle("got it!"))
     )
-    Ui.nop
   }
 
   val menuItems: Seq[DrawerMenuItem] = Seq(
@@ -144,17 +143,21 @@ trait ChartLayout {
   var candleStick = slot[CandleStickChart]
 
   def updateChartData(chartData: Seq[Chart]): Unit = {
+    val data: CandleData = prepareChartData(chartData)
+    Ui.run(updateChartUi(data))
+  }
+
+  def prepareChartData(chartData: Seq[Chart]): CandleData = {
     val xs: Seq[String] = chartData map (_.unixtime.utimeFormatted)
     val ys: Seq[CandleEntry] = chartData map (chart => new CandleEntry(chartData.indexOf(chart), chart.high.floatValue(), chart.low.floatValue(), chart.open.floatValue(), chart.close.floatValue()))
     val set = new CandleDataSet(ys.asJava, "Data")
 
     val data: CandleData = new CandleData(xs.asJava, set)
     data.setDrawValues(false)
-    Ui.run(updateChart(data))
+    data
   }
 
-
-  def updateChart(data: CandleData): Ui[_] = {
+  def updateChartUi(data: CandleData): Ui[_] = {
     candleStick <~ Tweak[CandleStickChart](cs => {
       cs.setData(data)
       cs.invalidate()
@@ -165,4 +168,8 @@ trait ChartLayout {
     _.setDescription("Bitrader data")
 
   )
+}
+
+trait OrdersBook{
+
 }

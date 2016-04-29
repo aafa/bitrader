@@ -1,13 +1,12 @@
 package app.bitrader.api
 
 import android.os.Build.VERSION_CODES._
-import app.bitrader.activity.MainActivity
+import app.bitrader.activity.{ChartLayout, MainActivity}
 import app.bitrader.api.poloniex.Chart
 import com.github.mikephil.charting.data.CandleData
-import org.robolectric.Robolectric
+import com.github.nscala_time.time.Imports._
 import org.robolectric.annotation.Config
-import org.robolectric.res.FsFile
-import org.robolectric.res.FsFile.Filter
+import app.bitrader._
 
 /**
   * Created by Alex Afanasev
@@ -15,33 +14,21 @@ import org.robolectric.res.FsFile.Filter
 @Config(sdk = Array(LOLLIPOP))
 class ChartSpec extends ApiSpec {
 
-  it should "have aars in place" in {
-    val support: String = "com.android.support-appcompat-v7-23.2.1"
-
-    assert(aarsDir.isDirectory)
-    assert(aarsDir.listFiles().nonEmpty)
-    assert(aarsDir.listFileNames().contains(support))
-    assert(aarsDir.listFiles(new Filter {
-      override def accept(fsFile: FsFile): Boolean = fsFile.getName.contains(support)
-    }).head.getBytes.nonEmpty)
-  }
-
-  it should "work with activities" in {
-    val activity: MainActivity = Robolectric.buildActivity(classOf[MainActivity]).create().get()
-    assert(activity != null)
-  }
+  class TestChartLayout extends ChartLayout
 
   it should "receive chart data" in {
-    val charts: Seq[Chart] = poloniexApi.chartData("BTC_ETH", 1405699200, 1909699200, 14400)
+    val charts: Seq[Chart] = poloniexApi.chartData("BTC_ETH", 5.hours.ago().unixtime, DateTime.now.unixtime, 300)
     assert(charts.nonEmpty)
     assert(charts.last.high > 0)
     println(s"charts.last.high ${charts.last.high}")
 
 
-//    val activity: MainActivity = Robolectric.buildActivity(classOf[MainActivity]).create().get()
-//    val candleData: CandleData = activity.updateChart(charts)
-//
-//    assert(candleData != null)
-//    println(candleData)
+    val tcl = new TestChartLayout
+    val candleData: CandleData = tcl.prepareChartData(charts)
+
+    assert(candleData != null)
+    assert(candleData.getDataSetCount > 0)
+    assert(candleData.getDataSetByIndex(0).getEntryCount > 0)
+    assert(candleData.getDataSetByIndex(0).getEntryForIndex(0).getOpen > 0)
   }
 }
