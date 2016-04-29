@@ -23,8 +23,10 @@ import io.github.aafa.macroid.AdditionalTweaks
 import io.github.aafa.toolbar.ToolbarAboveLayout
 import macroid.FullDsl._
 import macroid._
+
 import collection.JavaConverters._
 import com.github.nscala_time.time.Imports._
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import app.bitrader._
 
@@ -41,18 +43,16 @@ class MainActivity extends DrawerActivity {
     setContentView(layout.ui.get)
 
     APIContext.poloniexService(_.returnTicker()) mapUi update
-    APIContext.poloniexService(_.chartData("BTC_ETH", 2.days.ago().unixtime, DateTime.now.unixtime, 300)) map updateChart
+    APIContext.poloniexService(_.chartData("BTC_ETH", 5.hours.ago().unixtime, DateTime.now.unixtime, 300)) map updateChart
   }
 
   def updateChart(chartData: Seq[Chart]): Unit = {
-    val xs: Seq[String] = chartData map (chart => new Date(chart.date).formatted("YYYY.mm.DD"))
+    val xs: Seq[String] = chartData map (_.unixtime.utimeFormatted)
     val ys: Seq[CandleEntry] = chartData map (chart => new CandleEntry(chartData.indexOf(chart), chart.high.floatValue(), chart.low.floatValue(), chart.open.floatValue(), chart.close.floatValue()))
     val set = new CandleDataSet(ys.asJava, "Data")
 
-    println("xs" + xs)
-    println("ys" + ys)
-
     val data: CandleData = new CandleData(xs.asJava, set)
+    data.setDrawValues(false)
     Ui.run(layout.updateChart(data))
   }
 
