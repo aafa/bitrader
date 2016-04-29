@@ -1,5 +1,7 @@
 package app.bitrader.activity
 
+import java.util.Date
+
 import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.os.Bundle
@@ -9,15 +11,22 @@ import android.support.v4.widget.{DrawerLayout, NestedScrollView}
 import android.support.v7.widget.{CardView, Toolbar}
 import android.view.Gravity
 import android.widget.LinearLayout
+import app.bitrader.api.poloniex.Chart
 import app.bitrader.helpers.Id
 import app.bitrader.{APIContext, TR}
+import com.github.mikephil.charting.charts.CandleStickChart
+import com.github.mikephil.charting.data.{CandleData, CandleDataSet, CandleEntry}
 import com.joanzapata.iconify.widget.IconTextView
 import io.github.aafa.drawer.{BasicDrawerLayout, DrawerActivity, DrawerMenuItem}
-import io.github.aafa.helpers.UiThreading
+import io.github.aafa.helpers.{Styles, UiOperations, UiThreading}
+import io.github.aafa.macroid.AdditionalTweaks
+import io.github.aafa.toolbar.ToolbarAboveLayout
 import macroid.FullDsl._
 import macroid._
-
+import collection.JavaConverters._
+import com.github.nscala_time.time.Imports._
 import scala.concurrent.ExecutionContext.Implicits.global
+import app.bitrader._
 
 /**
   * Created by aafa
@@ -32,9 +41,19 @@ class MainActivity extends DrawerActivity {
     setContentView(layout.ui.get)
 
     APIContext.poloniexService(_.returnTicker()) mapUi update
+    APIContext.poloniexService(_.chartData("BTC_ETH", 2.days.ago().unixtime, DateTime.now.unixtime, 300)) map updateChart
+  }
 
-    APIContext.poloniexService(_.chartData("BTC_ETH", 1405699200, 1909699200, 14400)) map (c => println(c))
+  def updateChart(chartData: Seq[Chart]): Unit = {
+    val xs: Seq[String] = chartData map (chart => new Date(chart.date).formatted("YYYY.mm.DD"))
+    val ys: Seq[CandleEntry] = chartData map (chart => new CandleEntry(chartData.indexOf(chart), chart.high.floatValue(), chart.low.floatValue(), chart.open.floatValue(), chart.close.floatValue()))
+    val set = new CandleDataSet(ys.asJava, "Data")
 
+    println("xs" + xs)
+    println("ys" + ys)
+
+    val data: CandleData = new CandleData(xs.asJava, set)
+    Ui.run(layout.updateChart(data))
   }
 
   def update(t: Map[_, _]): Ui[Unit] = {
@@ -52,7 +71,8 @@ class MainActivity extends DrawerActivity {
 
 class MainActivityLayout(override val menuItems: Seq[DrawerMenuItem])
                         (implicit cw: ContextWrapper, managerContext: FragmentManagerContext[Fragment, FragmentManager])
-  extends BasicDrawerLayout(menuItems) {
+  extends BasicDrawerLayout(menuItems) with MainStyles with ChartStyles{
+
 
   var textSlot = slot[IconTextView]
 
@@ -60,13 +80,6 @@ class MainActivityLayout(override val menuItems: Seq[DrawerMenuItem])
     def gen: Stream[String] = Stream.cons("I {fa-heart-o} to {fa-code} on {fa-android}", gen)
     gen.take(300) mkString " "
   }
-
-  def cardTweak: Tweak[CardView] = Tweak[CardView](c => {
-    val p = 10.dp
-    c.setRadius(5.dp)
-    c.setCardElevation(4.dp)
-    c.setContentPadding(p, p, p, p)
-  }) + margin(all = 10.dp)
 
   def img: Drawable = TR.drawable.material_flat.get
 
@@ -82,10 +95,8 @@ class MainActivityLayout(override val menuItems: Seq[DrawerMenuItem])
         l[NestedScrollView](
           l[LinearLayout](
             l[CardView](
-              l[LinearLayout](
-                w[IconTextView] <~ wire(textSlot) <~ text(longString)
-              )
-            ) <~ vMatchWidth <~ cardTweak <~ id(Id.card),
+              w[CandleStickChart] <~ wire(candleStick) <~ candleStickSettings
+            ) <~ vContentSizeMatchWidth(200.dp) <~ cardTweak <~ id(Id.card),
 
             l[CardView](
               l[LinearLayout](
@@ -97,6 +108,8 @@ class MainActivityLayout(override val menuItems: Seq[DrawerMenuItem])
       ) <~ vMatchParent
     )
   }
+
+  // style
 
   def fitsAll: Transformer = {
     Transformer {
@@ -124,4 +137,32 @@ class MainActivityLayout(override val menuItems: Seq[DrawerMenuItem])
     params.setMarginEnd(20.dp)
   })
 
+
+  def cardTweak: Tweak[CardView] = Tweak[CardView](c => {
+    val p = 10.dp
+    c.setRadius(5.dp)
+    c.setCardElevation(4.dp)
+    c.setContentPadding(p, p, p, p)
+  }) + margin(all = 10.dp)
+
+}
+
+trait MainStyles extends ToolbarAboveLayout with UiOperations with Styles with AdditionalTweaks{
+
+}
+
+trait ChartStyles {
+  var candleStick = slot[CandleStickChart]
+
+  def updateChart(data: CandleData): Ui[_] = {
+    candleStick <~ Tweak[CandleStickChart](cs => {
+      cs.setData(data)
+      cs.invalidate()
+    })
+  }
+
+  val candleStickSettings = Tweak[CandleStickChart](
+    _.setDescription("Bitrader data")
+
+  )
 }
