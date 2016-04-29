@@ -1,7 +1,5 @@
 package app.bitrader.activity
 
-import java.util.Date
-
 import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.os.Bundle
@@ -43,18 +41,9 @@ class MainActivity extends DrawerActivity {
     setContentView(layout.ui.get)
 
     APIContext.poloniexService(_.returnTicker()) mapUi update
-    APIContext.poloniexService(_.chartData("BTC_ETH", 5.hours.ago().unixtime, DateTime.now.unixtime, 300)) map updateChart
+    APIContext.poloniexService(_.chartData("BTC_ETH", 5.hours.ago().unixtime, DateTime.now.unixtime, 300)) map layout.updateChartData
   }
 
-  def updateChart(chartData: Seq[Chart]): Unit = {
-    val xs: Seq[String] = chartData map (_.unixtime.utimeFormatted)
-    val ys: Seq[CandleEntry] = chartData map (chart => new CandleEntry(chartData.indexOf(chart), chart.high.floatValue(), chart.low.floatValue(), chart.open.floatValue(), chart.close.floatValue()))
-    val set = new CandleDataSet(ys.asJava, "Data")
-
-    val data: CandleData = new CandleData(xs.asJava, set)
-    data.setDrawValues(false)
-    Ui.run(layout.updateChart(data))
-  }
 
   def update(t: Map[_, _]): Ui[Unit] = {
     Ui.run(
@@ -71,7 +60,7 @@ class MainActivity extends DrawerActivity {
 
 class MainActivityLayout(override val menuItems: Seq[DrawerMenuItem])
                         (implicit cw: ContextWrapper, managerContext: FragmentManagerContext[Fragment, FragmentManager])
-  extends BasicDrawerLayout(menuItems) with MainStyles with ChartStyles{
+  extends BasicDrawerLayout(menuItems) with MainStyles with ChartLayout{
 
 
   var textSlot = slot[IconTextView]
@@ -141,7 +130,7 @@ class MainActivityLayout(override val menuItems: Seq[DrawerMenuItem])
   def cardTweak: Tweak[CardView] = Tweak[CardView](c => {
     val p = 10.dp
     c.setRadius(5.dp)
-    c.setCardElevation(4.dp)
+    c.setCardElevation(2.dp)
     c.setContentPadding(p, p, p, p)
   }) + margin(all = 10.dp)
 
@@ -151,8 +140,19 @@ trait MainStyles extends ToolbarAboveLayout with UiOperations with Styles with A
 
 }
 
-trait ChartStyles {
+trait ChartLayout {
   var candleStick = slot[CandleStickChart]
+
+  def updateChartData(chartData: Seq[Chart]): Unit = {
+    val xs: Seq[String] = chartData map (_.unixtime.utimeFormatted)
+    val ys: Seq[CandleEntry] = chartData map (chart => new CandleEntry(chartData.indexOf(chart), chart.high.floatValue(), chart.low.floatValue(), chart.open.floatValue(), chart.close.floatValue()))
+    val set = new CandleDataSet(ys.asJava, "Data")
+
+    val data: CandleData = new CandleData(xs.asJava, set)
+    data.setDrawValues(false)
+    Ui.run(updateChart(data))
+  }
+
 
   def updateChart(data: CandleData): Ui[_] = {
     candleStick <~ Tweak[CandleStickChart](cs => {
