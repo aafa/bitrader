@@ -34,7 +34,7 @@ case class Chart(
 case class OrdersBook(
                    @JsonProperty("asks") var asks: Seq[OrderPair],
                    @JsonProperty("bids") var bids: Seq[OrderPair],
-                   @JsonProperty("isFrozen") var isFrozen: Int,
+                   @JsonProperty("isFrozen") var isFrozen: Byte,
                    @JsonProperty("seq") var seq: Long
                  )
 
@@ -44,9 +44,9 @@ case class Currency(
                    @JsonProperty("txFee") var txFee: BigDecimal,
                    @JsonProperty("minConf") var minConf: Int,
                    @JsonProperty("depositAddress") var depositAddress: Option[String],
-                   @JsonProperty("disabled") var disabled: Int,
-                   @JsonProperty("delisted") var delisted: Int,
-                   @JsonProperty("frozen") var frozen: Int
+                   @JsonProperty("disabled") var disabled: Byte,
+                   @JsonProperty("delisted") var delisted: Byte,
+                   @JsonProperty("frozen") var frozen: Byte
                  )
 
 @JsonCreator

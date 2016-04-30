@@ -1,10 +1,8 @@
 package app.bitrader.api
 
 import android.os.Build.VERSION_CODES._
-import app.bitrader.api.poloniex.{Currency, CurrencyPair, OrdersBook}
-import org.joda.time.DateTime
+import app.bitrader.api.poloniex.Currency
 import org.robolectric.annotation.Config
-import app.bitrader._
 
 /**
   * Created by Alex Afanasev
@@ -22,6 +20,7 @@ class DirectoriesSpec extends ApiSpec {
       case (coin, details) =>
         assert(coin.nonEmpty)
         assert(details.name.nonEmpty)
+        assert(details.minConf > 0)
     }
   }
 
