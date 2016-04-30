@@ -7,7 +7,8 @@ import retrofit.http.{GET, Path, Query}
   * Created by Alexey Afanasev on 21.04.16.
   */
 trait PoloniexAPIServiceDescriptor {
-  @GET("/public?command=returnTicker") def returnTicker(): Map[String, Ticker]
+  @GET("/public?command=returnTicker")
+  def returnTicker(): Map[String, Ticker]
 
   @GET("/public?command=returnChartData")
   def chartData(@Query("currencyPair") pair: CurrencyPair, @Query("start") start: Long, @Query("end") end: Long, @Query("period") period: Int): Seq[Chart]
@@ -16,6 +17,9 @@ trait PoloniexAPIServiceDescriptor {
   def tradeHistory
 
   @GET("/public?command=returnOrderBook")
-  def orderBook
+  def ordersBook(@Query("currencyPair") pair: CurrencyPair, @Query("depth") depth : Int) : OrdersBook
+
+  @GET("/public?command=returnOrderBook&currencyPair=all")
+  def ordersBook(@Query("depth") depth : Int) : Map[String, OrdersBook]
 }
 

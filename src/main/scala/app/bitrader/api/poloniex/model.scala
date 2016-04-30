@@ -2,7 +2,9 @@ package app.bitrader.api.poloniex
 
 import java.util.Date
 
+import app.bitrader.OrderPair
 import com.fasterxml.jackson.annotation.{JsonCreator, JsonProperty}
+
 
 /**
   * Created by Alexey Afanasev on 22.04.16.
@@ -26,6 +28,19 @@ case class Chart(
                   @JsonProperty("quoteVolume") var quoteVolume: BigDecimal,
                   @JsonProperty("weightedAverage") var weightedAverage: BigDecimal
                  )
+
+@JsonCreator
+case class OrdersBook(
+                   @JsonProperty("asks") var asks: Seq[OrderPair],
+                   @JsonProperty("bids") var bids: Seq[OrderPair],
+                   @JsonProperty("isFrozen") var isFrozen: Int,
+                   @JsonProperty("seq") var seq: Long
+                 )
+
+
+//class OrderPair extends Seq[BigDecimal]{
+//
+//}
 
 @JsonCreator
 case class TickerCollection(
