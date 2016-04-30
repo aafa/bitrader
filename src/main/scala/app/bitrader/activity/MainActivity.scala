@@ -9,7 +9,7 @@ import android.support.v4.widget.{DrawerLayout, NestedScrollView}
 import android.support.v7.widget.{CardView, Toolbar}
 import android.view.Gravity
 import android.widget.LinearLayout
-import app.bitrader.api.poloniex.Chart
+import app.bitrader.api.poloniex.{Chart, CurrencyPair}
 import app.bitrader.helpers.Id
 import app.bitrader.{APIContext, TR}
 import com.github.mikephil.charting.charts.CandleStickChart
@@ -41,7 +41,7 @@ class MainActivity extends DrawerActivity {
     setContentView(layout.ui.get)
 
     APIContext.poloniexService(_.returnTicker()) map update
-    APIContext.poloniexService(_.chartData("BTC_ETH", 5.hours.ago().unixtime, DateTime.now.unixtime, 300)) map layout.updateChartData
+    APIContext.poloniexService(_.chartData(CurrencyPair.BTC_ETH, 5.hours.ago().unixtime, DateTime.now.unixtime, 300)) map layout.updateChartData
   }
 
 
@@ -59,7 +59,7 @@ class MainActivity extends DrawerActivity {
 
 class MainActivityLayout(override val menuItems: Seq[DrawerMenuItem])
                         (implicit cw: ContextWrapper, managerContext: FragmentManagerContext[Fragment, FragmentManager])
-  extends BasicDrawerLayout(menuItems) with MainStyles with ChartLayout{
+  extends BasicDrawerLayout(menuItems) with MainStyles with ChartLayout with OrdersBook {
 
 
   var textSlot = slot[IconTextView]

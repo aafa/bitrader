@@ -34,3 +34,18 @@ case class TickerCollection(
                    @JsonProperty("high") var high: Option[Float],
                    @JsonProperty("mid") var mid: Float
                  )
+
+trait Enum[A] {
+  trait Value { self: A =>
+    _values :+= this
+  }
+  private var _values: List[A] = List.empty[A]
+  def values = _values
+}
+
+sealed trait CurrencyPair extends CurrencyPair.Value
+object CurrencyPair extends Enum[CurrencyPair] {
+  case object BTC_ETH extends CurrencyPair
+  case object BTC_NXT extends CurrencyPair
+  case object BTC_XMR extends CurrencyPair
+}

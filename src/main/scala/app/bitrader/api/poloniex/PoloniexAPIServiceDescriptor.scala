@@ -10,5 +10,12 @@ trait PoloniexAPIServiceDescriptor {
   @GET("/public?command=returnTicker") def returnTicker(): Map[String, Ticker]
 
   @GET("/public?command=returnChartData")
-  def chartData(@Query("currencyPair") pair: String, @Query("start") start: Long, @Query("end") end: Long, @Query("period") period: Int): Seq[Chart]
+  def chartData(@Query("currencyPair") pair: CurrencyPair, @Query("start") start: Long, @Query("end") end: Long, @Query("period") period: Int): Seq[Chart]
+
+  @GET("/public?command=returnTradeHistory")
+  def tradeHistory
+
+  @GET("/public?command=returnOrderBook")
+  def orderBook
 }
+
