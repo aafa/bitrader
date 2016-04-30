@@ -1,13 +1,10 @@
 package app.bitrader.api
 
-import android.content.Context
+import app.bitrader.ClientApplication
 import app.bitrader.api.poloniex.PoloniexAPIServiceDescriptor
-import app.bitrader.{APIContext, TR}
-import com.github.aafa.DefaultRetrofitBuilder
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.res.{Fs, FsFile}
 import org.scalatest.{FlatSpec, Matchers, RobolectricSuite}
-import retrofit.RestAdapter
 
 /**
   * Created by Alex Afanasev
@@ -16,12 +13,8 @@ abstract class ApiSpec extends FlatSpec with Matchers with RobolectricSuite{
 
   override val aarsDir: FsFile = Fs.currentDirectory().join("target/android/intermediates/aars")
 
-  implicit val c: Context = RuntimeEnvironment.application
-  lazy val poloniexApi: PoloniexAPIServiceDescriptor = new DefaultRetrofitBuilder()
-    .setEndpoint(TR.string.poloniex_url.value)
-    .setLogLevel(RestAdapter.LogLevel.FULL)
-    .build()
-    .create(classOf[PoloniexAPIServiceDescriptor])
+  class TestApplication extends ClientApplication
+  lazy val poloniexApi: PoloniexAPIServiceDescriptor = new TestApplication().buildApi(RuntimeEnvironment.application)
 
   lazy val poloniexService: UiService[PoloniexAPIServiceDescriptor] = new UiService(poloniexApi)
 

@@ -4,6 +4,7 @@ import java.util.Date
 
 import app.bitrader.OrderPair
 import com.fasterxml.jackson.annotation.{JsonCreator, JsonProperty}
+import org.joda.time.DateTime
 
 
 /**
@@ -37,10 +38,16 @@ case class OrdersBook(
                    @JsonProperty("seq") var seq: Long
                  )
 
-
-//class OrderPair extends Seq[BigDecimal]{
-//
-//}
+@JsonCreator
+case class TradeHistory(
+                         @JsonProperty("globalTradeID") var globalTradeID: Long,
+                         @JsonProperty("tradeID") var tradeID: Long,
+                         @JsonProperty("date") var date: Date,
+                         @JsonProperty("type") var tpe: String,
+                         @JsonProperty("rate") var rate: BigDecimal,
+                         @JsonProperty("amount") var amount: BigDecimal,
+                         @JsonProperty("total") var total: BigDecimal
+                 )
 
 @JsonCreator
 case class TickerCollection(
