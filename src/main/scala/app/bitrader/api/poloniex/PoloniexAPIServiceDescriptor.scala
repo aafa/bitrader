@@ -31,5 +31,9 @@ trait PoloniexAPIServiceDescriptor {
 
   @GET("/public?command=returnOrderBook&currencyPair=all")
   def ordersBook(@Query("depth") depth : Int) : Map[String, OrdersBook]
+
+  @GET("/public?command=returnCurrencies")
+  @Header("Cache-Control: max-stale=3600")
+  def currencies() : Map[String, Currency]
 }
 

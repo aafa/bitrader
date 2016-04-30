@@ -88,7 +88,7 @@ class MainActivityLayout(override val menuItems: Seq[DrawerMenuItem])
 
             l[CardView](
               l[LinearLayout](
-                w[IconTextView] <~ text("test")
+                w[IconTextView] <~ wire(textSlot)
               )
             ) <~ vMatchWidth <~ cardTweak
           ) <~ vertical

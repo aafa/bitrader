@@ -39,6 +39,17 @@ case class OrdersBook(
                  )
 
 @JsonCreator
+case class Currency(
+                   @JsonProperty("name") var name: String,
+                   @JsonProperty("txFee") var txFee: BigDecimal,
+                   @JsonProperty("minConf") var minConf: Int,
+                   @JsonProperty("depositAddress") var depositAddress: Option[String],
+                   @JsonProperty("disabled") var disabled: Int,
+                   @JsonProperty("delisted") var delisted: Int,
+                   @JsonProperty("frozen") var frozen: Int
+                 )
+
+@JsonCreator
 case class TradeHistory(
                          @JsonProperty("globalTradeID") var globalTradeID: Long,
                          @JsonProperty("tradeID") var tradeID: Long,
