@@ -21,7 +21,7 @@ object Dependencies {
 
     libraryDependencies ++= Seq(
       aar("com.github.aafa" %% "macroid-design" % "0.1.2-SNAPSHOT"),
-      "io.github.aafa" %% "scala-retrofit" % "0.1.0-SNAPSHOT",
+      "io.github.aafa" %% "scala-retrofit" % "0.1.1-SNAPSHOT",
 
       "com.github.nscala-time" %% "nscala-time" % "2.12.0",
       "com.github.PhilJay" % "MPAndroidChart" % "v2.2.4",

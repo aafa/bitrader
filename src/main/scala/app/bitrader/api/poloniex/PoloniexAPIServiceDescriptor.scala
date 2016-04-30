@@ -1,16 +1,18 @@
 package app.bitrader.api.poloniex
 
 import app.bitrader.api.APIDescriptor
-import retrofit.http.{GET, Path, Query}
+import retrofit.http.{GET, Header, Path, Query}
 
 /**
   * Created by Alexey Afanasev on 21.04.16.
   */
+@Header("Cache-Control: max-stale=3600")
 trait PoloniexAPIServiceDescriptor {
   @GET("/public?command=returnTicker")
   def returnTicker(): Map[String, Ticker]
 
   @GET("/public?command=returnChartData")
+  @Header("Cache-Control: max-stale=3600")
   def chartData(@Query("currencyPair") pair: CurrencyPair,
                 @Query("start") start: Long, @Query("end") end: Long, @Query("period") period: Int): Seq[Chart]
 
