@@ -49,13 +49,6 @@ case class TradeHistory(
                          @JsonProperty("total") var total: BigDecimal
                  )
 
-@JsonCreator
-case class TickerCollection(
-                   @JsonProperty("last_price") var last_price: Option[java.lang.Float],
-                   @JsonProperty("low") var low: Option[String],
-                   @JsonProperty("high") var high: Option[Float],
-                   @JsonProperty("mid") var mid: Float
-                 )
 
 trait Enum[A] {
   trait Value { self: A =>

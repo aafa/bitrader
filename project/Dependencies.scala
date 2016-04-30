@@ -30,6 +30,7 @@ object Dependencies {
     ),
 
     fork in Test := true,
+//    testForkedParallel := true, // todo figure out why its getting slow
     libraryDependencies ++= Seq(
       "com.geteit" %% "robotest" % "0.12" % Test,
       "org.scalatest" %% "scalatest" % "2.2.5" % Test

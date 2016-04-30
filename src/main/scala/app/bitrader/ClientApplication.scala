@@ -11,6 +11,9 @@ import com.joanzapata.iconify.Iconify
 import com.joanzapata.iconify.fonts.{FontAwesomeModule, MaterialModule}
 import retrofit.RestAdapter
 
+import scala.reflect.ClassTag
+import scala.reflect._
+
 /**
   * Created by Alexey Afanasev on 07.04.16.
   */
@@ -20,15 +23,16 @@ class ClientApplication extends Application {
     super.onCreate()
     Iconify.`with`(new FontAwesomeModule).`with`(new MaterialModule)
 
-    APIContext.poloniexApi = buildApi(getApplicationContext)
+    APIContext.poloniexApi = buildApi[PoloniexAPIServiceDescriptor](getApplicationContext)
   }
 
-  def buildApi(implicit c: Context): PoloniexAPIServiceDescriptor = {
+  def buildApi[API : ClassTag](ctx: Context): API = {
+    implicit val c = ctx
     new ScalaRetrofitBuilder(_.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")))
-      .setEndpoint(TR.string.poloniex_url.value)
+      .setEndpoint(TR.string.poloniex_url.value) // todo API Type to URL mapping
       .setLogLevel(RestAdapter.LogLevel.FULL)
       .build()
-      .create(classOf[PoloniexAPIServiceDescriptor])
+      .create(classTag[API].runtimeClass).asInstanceOf[API]
   }
 }
 

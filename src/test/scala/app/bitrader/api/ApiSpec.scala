@@ -14,7 +14,7 @@ abstract class ApiSpec extends FlatSpec with Matchers with RobolectricSuite{
   override val aarsDir: FsFile = Fs.currentDirectory().join("target/android/intermediates/aars")
 
   class TestApplication extends ClientApplication
-  lazy val poloniexApi: PoloniexAPIServiceDescriptor = new TestApplication().buildApi(RuntimeEnvironment.application)
+  lazy val poloniexApi: PoloniexAPIServiceDescriptor = new TestApplication().buildApi[PoloniexAPIServiceDescriptor](RuntimeEnvironment.application)
 
   lazy val poloniexService: UiService[PoloniexAPIServiceDescriptor] = new UiService(poloniexApi)
 
