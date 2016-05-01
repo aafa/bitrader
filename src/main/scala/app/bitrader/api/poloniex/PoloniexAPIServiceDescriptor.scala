@@ -6,7 +6,6 @@ import retrofit.http.{GET, Header, Path, Query}
 /**
   * Created by Alexey Afanasev on 21.04.16.
   */
-@Header("Cache-Control: max-stale=3600")
 trait PoloniexAPIServiceDescriptor {
   @GET("/public?command=returnTicker")
   def returnTicker(): Map[String, Ticker]

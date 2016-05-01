@@ -41,7 +41,8 @@ class MainActivity extends DrawerActivity {
     setContentView(layout.ui.get)
 
     APIContext.poloniexService(_.returnTicker()) map update
-    APIContext.poloniexService(_.chartData(CurrencyPair.BTC_ETH, 5.hours.ago().unixtime, DateTime.now.unixtime, 300)) map layout.updateChartData
+    APIContext.poloniexService(_.chartData(CurrencyPair.BTC_ETH,
+      5.hours.ago().unixtime, DateTime.now.unixtime, 300)) map layout.updateChartData
   }
 
 
