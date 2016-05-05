@@ -1,7 +1,8 @@
 package app
 
 import app.bitrader.api.UiService
-import app.bitrader.helpers.{ActivityOperations, TweaksAndGoodies}
+import app.bitrader.helpers.TweaksAndGoodies
+import app.bitrader.helpers.activity.ActivityOperations
 import macroid.ContextWrapper
 import com.github.nscala_time.time.Imports._
 

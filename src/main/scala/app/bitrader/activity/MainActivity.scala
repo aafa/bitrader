@@ -2,7 +2,7 @@ package app.bitrader.activity
 
 import android.graphics.Color
 import android.graphics.drawable.Drawable
-import android.os.Bundle
+import android.os.{Bundle, Parcel}
 import android.support.design.widget._
 import android.support.v4.app.{Fragment, FragmentManager}
 import android.support.v4.widget.{DrawerLayout, NestedScrollView}
@@ -56,6 +56,8 @@ class MainActivity extends DrawerActivity {
   val menuItems: Seq[DrawerMenuItem] = Seq(
     DrawerMenuItem("Account")
   )
+
+
 }
 
 class MainActivityLayout(override val menuItems: Seq[DrawerMenuItem])
@@ -85,7 +87,7 @@ class MainActivityLayout(override val menuItems: Seq[DrawerMenuItem])
           l[LinearLayout](
             l[CardView](
               w[CandleStickChart] <~ wire(candleStick) <~ candleStickSettings
-            ) <~ vContentSizeMatchWidth(200.dp) <~ cardTweak <~ id(Id.card),
+            ) <~ vContentSizeMatchWidth(200.dp) <~ cardTweak <~ id(Id.card) ,
 
             l[CardView](
               l[LinearLayout](

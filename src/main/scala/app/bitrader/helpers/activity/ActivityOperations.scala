@@ -1,4 +1,4 @@
-package app.bitrader.helpers
+package app.bitrader.helpers.activity
 
 import android.app.Activity
 import android.content.Intent

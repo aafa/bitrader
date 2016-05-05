@@ -5,7 +5,7 @@ import android.os.Bundle
 import android.support.v4.app.Fragment
 import app.bitrader.R
 import app.bitrader.activity.menu.PairsList
-import app.bitrader.helpers.ActivityOperations
+import app.bitrader.helpers.activity.ActivityOperations
 import io.github.aafa.drawer.{DrawerMenuItem, SingleViewDrawerActivity}
 import io.github.aafa.toolbar.ToolbarBelowLayout
 import macroid.FullDsl._
