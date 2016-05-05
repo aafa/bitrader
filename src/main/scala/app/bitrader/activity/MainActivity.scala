@@ -7,7 +7,7 @@ import android.support.design.widget._
 import android.support.v4.app.{Fragment, FragmentManager}
 import android.support.v4.widget.{DrawerLayout, NestedScrollView}
 import android.support.v7.widget.{CardView, Toolbar}
-import android.view.Gravity
+import android.view.{Gravity, View}
 import android.widget.LinearLayout
 import app.bitrader.api.poloniex.{Chart, CurrencyPair}
 import app.bitrader.helpers.Id
@@ -74,7 +74,13 @@ class MainActivityLayout(override val menuItems: Seq[DrawerMenuItem])
 
   def img: Drawable = TR.drawable.material_flat.get
 
-  def ui: Ui[DrawerLayout] = {
+  def ui: Ui[View] = if (portrait)
+    verticalLayout
+  else
+    w[CandleStickChart] <~ wire(candleStick) <~ candleStickSettings <~ vMatchParent
+
+
+  lazy val verticalLayout: Ui[DrawerLayout] = {
     drawer(
       l[CoordinatorLayout](
         l[AppBarLayout](
@@ -87,7 +93,7 @@ class MainActivityLayout(override val menuItems: Seq[DrawerMenuItem])
           l[LinearLayout](
             l[CardView](
               w[CandleStickChart] <~ wire(candleStick) <~ candleStickSettings
-            ) <~ vContentSizeMatchWidth(200.dp) <~ cardTweak <~ id(Id.card) ,
+            ) <~ vContentSizeMatchWidth(200.dp) <~ cardTweak <~ id(Id.card),
 
             l[CardView](
               l[LinearLayout](
@@ -138,7 +144,7 @@ class MainActivityLayout(override val menuItems: Seq[DrawerMenuItem])
 
 }
 
-trait MainStyles extends ToolbarAboveLayout with UiOperations with Styles with AdditionalTweaks{
+trait MainStyles extends ToolbarAboveLayout with UiOperations with Styles with AdditionalTweaks {
 
 }
 
@@ -173,6 +179,6 @@ trait ChartLayout {
   )
 }
 
-trait OrdersBook{
+trait OrdersBook {
 
 }
