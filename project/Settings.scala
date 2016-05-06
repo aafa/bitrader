@@ -1,6 +1,8 @@
 object Settings {
 
   lazy val apkExcludeStrings: Seq[String] = Seq(
+    "META-INF/INDEX.LIST",
+    "META-INF/io.netty.versions.properties",
     "META-INF/services/com.fasterxml.jackson.databind.Module",
     "META-INF/LICENSE.txt",
     "META-INF/LICENSE",

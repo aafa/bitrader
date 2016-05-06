@@ -27,12 +27,13 @@ import com.github.nscala_time.time.Imports._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import app.bitrader._
+import app.bitrader.helpers.activity.ActivityOperations
 
 /**
   * Created by aafa
   */
 
-class MainActivity extends DrawerActivity {
+class MainActivity extends DrawerActivity with ActivityOperations{
 
   override lazy val layout = new MainActivityLayout(menuItems)
 
@@ -40,20 +41,16 @@ class MainActivity extends DrawerActivity {
     super.onCreate(b)
     setContentView(layout.ui.get)
 
-    APIContext.poloniexService(_.returnTicker()) map update
+    APIContext.poloniexService(_.currencies()) map layout.updateData
     APIContext.poloniexService(_.chartData(CurrencyPair.BTC_ETH,
       5.hours.ago().unixtime, DateTime.now.unixtime, 300)) map layout.updateChartData
   }
 
 
-  def update(t: Map[_, _]): Unit = {
-    Ui.run(
-      layout.textSlot <~ text(t.toString()),
-      layout.toolBar <~ Tweak[Toolbar](_.setTitle("got it!"))
-    )
-  }
-
-  val menuItems: Seq[DrawerMenuItem] = Seq(
+  lazy val menuItems: Seq[DrawerMenuItem] = Seq(
+    DrawerMenuItem("Wamp", action = () => {
+      startActivity[WampActivity]
+    }),
     DrawerMenuItem("Account")
   )
 
@@ -103,6 +100,13 @@ class MainActivityLayout(override val menuItems: Seq[DrawerMenuItem])
           ) <~ vertical
         ) <~ vMatchParent <~ nestedScroll(40.dp)
       ) <~ vMatchParent
+    )
+  }
+
+  def updateData(t: Map[_, _]): Unit = {
+    Ui.run(
+      textSlot <~ text(t.toString()),
+      toolBar <~ Tweak[Toolbar](_.setTitle("got it!"))
     )
   }
 
@@ -158,7 +162,8 @@ trait ChartLayout {
 
   def prepareChartData(chartData: Seq[Chart]): CandleData = {
     val xs: Seq[String] = chartData map (_.unixtime.utimeFormatted)
-    val ys: Seq[CandleEntry] = chartData map (chart => new CandleEntry(chartData.indexOf(chart), chart.high.floatValue(), chart.low.floatValue(), chart.open.floatValue(), chart.close.floatValue()))
+    val ys: Seq[CandleEntry] = chartData map (chart => new CandleEntry(chartData.indexOf(chart),
+      chart.high.floatValue(), chart.low.floatValue(), chart.open.floatValue(), chart.close.floatValue()))
     val set = new CandleDataSet(ys.asJava, "Data")
 
     val data: CandleData = new CandleData(xs.asJava, set)
