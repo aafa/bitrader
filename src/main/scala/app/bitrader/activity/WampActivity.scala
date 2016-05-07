@@ -4,10 +4,13 @@ import java.util.concurrent.TimeUnit
 
 import android.app.Activity
 import android.os.Bundle
-import rx.{Observer, Subscriber}
+import diode.data.{Fetch, PotStream, StreamValue}
+import rx.{Observer, Subscriber, Subscription}
 import ws.wamp.jawampa.WampClient.{ConnectedState, State}
 import ws.wamp.jawampa.{PubSubData, WampClient, WampClientBuilder}
 import ws.wamp.jawampa.transport.netty.NettyWampClientConnectorProvider
+
+import scala.util.Random
 
 /**
   * Created by Alex Afanasev
@@ -43,6 +46,14 @@ trait JawampaWampTrait {
   }
 
   def connect() = {
+    onConnected(() =>{
+        wampSubscription("BTC_ETH")
+      }
+    )
+    wamp.open()
+  }
+
+  private def onConnected(subs: () => Unit): Subscription = {
     wamp.statusChanged().subscribe(new Observer[State] {
       override def onCompleted(): Unit = {
         println("statusChanged onCompleted")
@@ -53,24 +64,26 @@ trait JawampaWampTrait {
       override def onNext(t: State): Unit = t match {
         case c: ConnectedState =>
           println(s"next status $t")
-          wampSubscription("ticker")
-          wampSubscription("BTC_ETH")
+          subs()
         case _ => println(s"next status $t")
       }
     })
-
-    wamp.open()
   }
 
-  def wampSubscription(topic: String): Unit = {
+  private def wampSubscription(topic: String): PotStream[Long, String] = {
+    val stream = PotStream[Long, String](new NoopFetch)
     wamp.makeSubscription(topic).subscribe(
       new Observer[PubSubData] {
-        override def onCompleted(): Unit = println("$topic sub onCompleted")
+        override def onCompleted(): Unit = println(s"$topic sub onCompleted")
 
         override def onError(e: Throwable): Unit = println(s"$topic sub onError $e")
 
-        override def onNext(t: PubSubData): Unit = println(s"$topic sub data ${t.arguments()}")
+        override def onNext(t: PubSubData): Unit = {
+          println(s"$topic sub data ${t.arguments()}")
+          stream.append(Random.nextLong(), t.arguments().toString)
+        }
       })
+    stream
   }
 
   def buildWamp(): WampClient = {
@@ -82,4 +95,11 @@ trait JawampaWampTrait {
       .withReconnectInterval(5, TimeUnit.SECONDS)
       .build()
   }
+
+}
+
+class NoopFetch extends Fetch[Long] {
+  override def fetch(key: Long): Unit = {}
+
+  override def fetch(keys: Traversable[Long]): Unit = {}
 }

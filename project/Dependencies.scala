@@ -24,10 +24,11 @@ object Dependencies {
       "io.github.aafa" %% "scala-retrofit" % "0.1.1-SNAPSHOT",
 
       "ws.wamp.jawampa" % "jawampa-netty" % "0.4.1"	,
-      "me.chrons" %% "diode" % "0.5.0",
+      "me.chrons" %% "diode" % "0.5.1",
       "me.chrons" %% "boopickle" % "1.1.3",
       "com.github.nscala-time" %% "nscala-time" % "2.12.0",
       "com.github.PhilJay" % "MPAndroidChart" % "v2.2.4",
+
       "com.joanzapata.iconify" % "android-iconify-fontawesome" % iconify,
       "com.joanzapata.iconify" % "android-iconify-material" % iconify
     ),
