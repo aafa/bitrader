@@ -11,8 +11,9 @@ object AppCircuit extends Circuit[RootModel] {
 
   val messagesHandler = new ActionHandler(zoomRW(_.messages)((m, v) => m.copy(messages = v))) {
     override def handle = {
-//      case SubscribeToChannel(t) => effectOnly()
-      case AddMessage(a) => updated(value :+ a)
+      case AddMessage(a) =>
+        println(s"AddMessage $a")
+        updated(value :+ a)
     }
   }
 

@@ -4,7 +4,10 @@ import java.util.concurrent.TimeUnit
 
 import android.app.Activity
 import android.os.Bundle
+import app.bitrader.{AddMessage, AppCircuit, Message}
+import diode.{Dispatcher, Effect}
 import diode.data.{Fetch, PotStream, StreamValue}
+import macroid.{ContextWrapper, Contexts}
 import rx.{Observer, Subscriber, Subscription}
 import ws.wamp.jawampa.WampClient.{ConnectedState, State}
 import ws.wamp.jawampa.{PubSubData, WampClient, WampClientBuilder}
@@ -15,21 +18,24 @@ import scala.util.Random
 /**
   * Created by Alex Afanasev
   */
-class WampActivity extends Activity with JawampaWampTrait {
+class WampActivity extends Activity with Contexts[Activity] {
+
+  lazy val javampa = new JawampaClient(AppCircuit)
 
   override def onCreate(savedInstanceState: Bundle): Unit = {
     super.onCreate(savedInstanceState)
-    connect()
+    javampa.connect()
   }
 
   override def onPause(): Unit = {
     super.onPause()
-    closeConnection()
+    javampa.closeConnection()
   }
+
 }
 
 
-trait JawampaWampTrait {
+class JawampaClient(dispatcher: Dispatcher)(implicit ctx: ContextWrapper) {
 
   val wsuri = "wss://api.poloniex.com"
 
@@ -79,8 +85,7 @@ trait JawampaWampTrait {
         override def onError(e: Throwable): Unit = println(s"$topic sub onError $e")
 
         override def onNext(t: PubSubData): Unit = {
-          println(s"$topic sub data ${t.arguments()}")
-          stream.append(Random.nextLong(), t.arguments().toString)
+          dispatcher(AddMessage(Message(t.arguments().toString)))
         }
       })
     stream
