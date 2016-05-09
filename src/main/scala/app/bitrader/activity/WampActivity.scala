@@ -4,14 +4,20 @@ import java.util.concurrent.TimeUnit
 
 import android.app.Activity
 import android.os.Bundle
+import android.support.v7.widget.RecyclerView
+import android.view.View
+import android.widget.{LinearLayout, TextView}
 import app.bitrader.{AddMessage, AppCircuit, Message}
 import diode.{Dispatcher, Effect}
 import diode.data.{Fetch, PotStream, StreamValue}
-import macroid.{ContextWrapper, Contexts}
+import macroid.{ContextWrapper, Contexts, Ui}
 import rx.{Observer, Subscriber, Subscription}
 import ws.wamp.jawampa.WampClient.{ConnectedState, State}
 import ws.wamp.jawampa.{PubSubData, WampClient, WampClientBuilder}
 import ws.wamp.jawampa.transport.netty.NettyWampClientConnectorProvider
+import macroid.FullDsl._
+import macroid._
+import io.github.aafa.helpers.Styles
 
 import scala.util.Random
 
@@ -20,20 +26,35 @@ import scala.util.Random
   */
 class WampActivity extends Activity with Contexts[Activity] {
 
+  lazy val view = new WampView
   lazy val javampa = new JawampaClient(AppCircuit)
+  lazy val subscription = AppCircuit.subscribe(AppCircuit.zoom(_.messages))(m => view.update(m.value.reverse.mkString))
 
   override def onCreate(savedInstanceState: Bundle): Unit = {
     super.onCreate(savedInstanceState)
     javampa.connect()
+    subscription
+    setContentView(view.ui)
   }
 
   override def onPause(): Unit = {
     super.onPause()
     javampa.closeConnection()
+    subscription.apply()
   }
-
 }
 
+class WampView(implicit c: ContextWrapper) extends Styles {
+  var testText = slot[TextView]
+
+  val ui: View = {
+    w[TextView] <~ wire(testText) <~ vMatchParent
+  }.get
+
+  def update(s: String) = Ui.run(testText <~ text(s))
+
+  def appendText(s: String) = Ui.run(testText <~ text((testText ~> getText) + s))
+}
 
 class JawampaClient(dispatcher: Dispatcher)(implicit ctx: ContextWrapper) {
 
@@ -52,9 +73,9 @@ class JawampaClient(dispatcher: Dispatcher)(implicit ctx: ContextWrapper) {
   }
 
   def connect() = {
-    onConnected(() =>{
-        wampSubscription("BTC_ETH")
-      }
+    onConnected(() => {
+      wampSubscription("BTC_ETH")
+    }
     )
     wamp.open()
   }
