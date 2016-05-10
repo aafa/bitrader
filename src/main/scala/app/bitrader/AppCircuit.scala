@@ -22,7 +22,7 @@ object AppCircuit extends Circuit[RootModel] {
 
 case class RootModel(messages: Vector[Message])
 
-case class Message(t: String)
+case class Message(title: String)
 
 
 // actions

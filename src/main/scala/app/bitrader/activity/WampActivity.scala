@@ -4,10 +4,12 @@ import java.util.concurrent.TimeUnit
 
 import android.app.Activity
 import android.os.Bundle
-import android.support.v7.widget.RecyclerView
-import android.view.View
+import android.support.v7.widget.{LinearLayoutManager, RecyclerView}
+import android.support.v7.widget.RecyclerView.Adapter
+import android.view.{View, ViewGroup}
 import android.widget.{LinearLayout, TextView}
 import app.bitrader.{AddMessage, AppCircuit, Message}
+import com.fortysevendeg.macroid.extras.RecyclerViewTweaks
 import diode.{Dispatcher, Effect}
 import diode.data.{Fetch, PotStream, StreamValue}
 import macroid.{ContextWrapper, Contexts, Ui}
@@ -26,15 +28,16 @@ import scala.util.Random
   */
 class WampActivity extends Activity with Contexts[Activity] {
 
-  lazy val view = new WampView
+  private val appCircuit: AppCircuit.type = AppCircuit
+  lazy val view = new WampView(appCircuit)
   lazy val javampa = new JawampaClient(AppCircuit)
-  lazy val subscription = AppCircuit.subscribe(AppCircuit.zoom(_.messages))(m => view.update(m.value.reverse.mkString))
+  lazy val subscription = AppCircuit.subscribe(AppCircuit.zoom(_.messages))(m => view.update(m.value))
 
   override def onCreate(savedInstanceState: Bundle): Unit = {
     super.onCreate(savedInstanceState)
+    setContentView(view.ui)
     javampa.connect()
     subscription
-    setContentView(view.ui)
   }
 
   override def onPause(): Unit = {
@@ -44,16 +47,69 @@ class WampActivity extends Activity with Contexts[Activity] {
   }
 }
 
-class WampView(implicit c: ContextWrapper) extends Styles {
+class WampView(dispatcher: Dispatcher)(implicit c: ContextWrapper) extends Styles {
   var testText = slot[TextView]
+  var listSlot = slot[RecyclerView]
+
+  lazy val messagesAdapter: MessagesAdapter = new MessagesAdapter(dispatcher)
 
   val ui: View = {
-    w[TextView] <~ wire(testText) <~ vMatchParent
+    w[RecyclerView] <~ wire(listSlot) <~
+      RecyclerViewTweaks.rvFixedSize <~
+      RecyclerViewTweaks.rvLayoutManager(new LinearLayoutManager(c.bestAvailable)) <~
+      RecyclerViewTweaks.rvAdapter(messagesAdapter) <~
+      vMatchParent
   }.get
 
-  def update(s: String) = Ui.run(testText <~ text(s))
+  def update(s: Vector[Message]) = Ui.run(
+    Ui(messagesAdapter.updateMessages(s))
+  )
 
-  def appendText(s: String) = Ui.run(testText <~ text((testText ~> getText) + s))
+}
+
+
+class MessagesAdapter(dispatcher: Dispatcher)
+                     (implicit context: ContextWrapper)
+  extends RecyclerView.Adapter[ViewHolder] {
+
+  var messages = Vector.empty[Message]
+
+  def updateMessages(m: Vector[Message]) = {
+    messages = m
+    this.notifyDataSetChanged()
+  }
+
+  override def getItemCount: Int = messages.length
+
+  override def onBindViewHolder(vh: ViewHolder, i: Int): Unit = {
+    val m = messages(i)
+    Ui.run(
+      vh.title <~ text(m.title)
+    )
+  }
+
+  override def onCreateViewHolder(viewGroup: ViewGroup, i: Int): ViewHolder = {
+    ViewHolder(new WampItemAdapter())
+  }
+}
+
+class WampItemAdapter(implicit context: ContextWrapper) {
+  var title = slot[TextView]
+
+  private val content: TextView = {
+    w[TextView] <~ wire(title)
+  }.get
+
+  def layout = content
+}
+
+case class ViewHolder(adapter: WampItemAdapter)(implicit context: ContextWrapper)
+  extends RecyclerView.ViewHolder(adapter.layout) {
+
+  val content = adapter.layout
+
+  val title = adapter.title
+
 }
 
 class JawampaClient(dispatcher: Dispatcher)(implicit ctx: ContextWrapper) {
