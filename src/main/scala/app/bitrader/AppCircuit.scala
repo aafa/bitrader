@@ -1,32 +1,59 @@
 package app.bitrader
 
+import app.bitrader.api.poloniex.{CurrencyPair, OrdersBook}
 import diode.ActionResult.ModelUpdate
-import diode.{ActionHandler, Circuit}
+import diode.{ActionHandler, Circuit, Effect, EffectSingle}
+
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
 
 /**
   * Created by Alex Afanasev
   */
 object AppCircuit extends Circuit[RootModel] {
-  def initialModel = RootModel(Vector.empty[Message])
+  def initialModel = RootModel(
+    orderBook = OrderBookContainer(
+      orders = OrdersBook(Seq.empty, Seq.empty, 0, 0),
+      changes = Seq.empty)
+  )
 
-  val messagesHandler = new ActionHandler(zoomRW(_.messages)((m, v) => m.copy(messages = v))) {
+  val orderBookUpdatesHandler = new ActionHandler(zoomRW(_.orderBook.changes)((m, v) =>
+    m.copy(orderBook = m.orderBook.copy(changes = v)))) {
     override def handle = {
-      case AddMessage(a) =>
-        println(s"AddMessage $a")
-        updated(value :+ a)
+      // todo handle subscription case here
+
+      case AddWampMessages(ms: Seq[OrderWampMsg]) =>
+        println(s"AddMessages OrderWampMsg $ms")
+        updated(value ++ ms)
     }
   }
 
-  override val actionHandler = combineHandlers(messagesHandler)
+  val orderBookList = new ActionHandler(zoomRW(_.orderBook.orders)((m, v) =>
+    m.copy(orderBook = m.orderBook.copy(orders = v)))) {
+    override def handle = {
+      case UpdateOrderBook(cp) =>
+        val service: Future[OrdersBook] = APIContext.poloniexService(_.ordersBook(cp, 20))
+        effectOnly(Effect(service.map(ReceiveOrderBook)))
+      case ReceiveOrderBook(ob: OrdersBook) => updated(ob)
+    }
+  }
+
+  override val actionHandler = combineHandlers(orderBookUpdatesHandler, orderBookList)
 }
 
-case class RootModel(messages: Vector[Message])
-
-case class Message(title: String)
+case class RootModel(orderBook: OrderBookContainer)
 
 
 // actions
 
-case class AddMessage(m: Message)
+case class UpdateOrderBook(cp: CurrencyPair)
+
+case class ReceiveOrderBook(ob: OrdersBook)
+
+case class AddWampMessage[T <: WampMsg](m: T)
+
+case class AddWampMessages[T <: WampMsg](ms: Seq[T])
+
 case class SubscribeToChannel(t: String)
+
 case class UnsubscribeFromChannel(t: String)

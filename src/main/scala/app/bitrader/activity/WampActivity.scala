@@ -5,45 +5,47 @@ import java.util.concurrent.TimeUnit
 import android.app.Activity
 import android.os.Bundle
 import android.support.v7.widget.{LinearLayoutManager, RecyclerView}
-import android.support.v7.widget.RecyclerView.Adapter
 import android.view.{View, ViewGroup}
-import android.widget.{LinearLayout, TextView}
-import app.bitrader.{AddMessage, AppCircuit, Message}
+import android.widget.TextView
+import app.bitrader.api.poloniex.{CurrencyPair, OrdersBook}
+import app.bitrader.{APIContext, AddWampMessages, AppCircuit, OrderWampMsg, UpdateOrderBook, WampMsg}
 import com.fortysevendeg.macroid.extras.RecyclerViewTweaks
-import diode.{Dispatcher, Effect}
-import diode.data.{Fetch, PotStream, StreamValue}
-import macroid.{ContextWrapper, Contexts, Ui}
-import rx.{Observer, Subscriber, Subscription}
-import ws.wamp.jawampa.WampClient.{ConnectedState, State}
-import ws.wamp.jawampa.{PubSubData, WampClient, WampClientBuilder}
-import ws.wamp.jawampa.transport.netty.NettyWampClientConnectorProvider
-import macroid.FullDsl._
-import macroid._
+import diode.Dispatcher
+import diode.data.{Fetch, PotStream}
 import io.github.aafa.helpers.Styles
-
-import scala.util.Random
+import macroid.FullDsl._
+import macroid.{ContextWrapper, Contexts, Ui, _}
+import rx.{Observer, Subscription}
+import ws.wamp.jawampa.WampClient.{ConnectedState, State}
+import ws.wamp.jawampa.transport.netty.NettyWampClientConnectorProvider
+import ws.wamp.jawampa.{PubSubData, WampClient, WampClientBuilder}
 
 /**
   * Created by Alex Afanasev
   */
 class WampActivity extends Activity with Contexts[Activity] {
 
-  private val appCircuit: AppCircuit.type = AppCircuit
+  private val appCircuit = AppCircuit
   lazy val view = new WampView(appCircuit)
   lazy val javampa = new JawampaClient(AppCircuit)
-  lazy val subscription = AppCircuit.subscribe(AppCircuit.zoom(_.messages))(m => view.update(m.value))
+  lazy val modifyOrders = AppCircuit.subscribe(AppCircuit.zoom(_.orderBook.changes))(m => view.modifyOrders(m.value))
+  lazy val ordersList = AppCircuit.subscribe(AppCircuit.zoom(_.orderBook.orders))(m => view.updateOrdersList(m.value))
 
   override def onCreate(savedInstanceState: Bundle): Unit = {
     super.onCreate(savedInstanceState)
     setContentView(view.ui)
+    appCircuit(UpdateOrderBook(CurrencyPair.BTC_ETH))
+
     javampa.connect()
-    subscription
+    modifyOrders
+    ordersList
   }
 
   override def onPause(): Unit = {
     super.onPause()
     javampa.closeConnection()
-    subscription.apply()
+    modifyOrders.apply()
+    ordersList.apply()
   }
 }
 
@@ -61,7 +63,12 @@ class WampView(dispatcher: Dispatcher)(implicit c: ContextWrapper) extends Style
       vMatchParent
   }.get
 
-  def update(s: Vector[Message]) = Ui.run(
+  def modifyOrders(s: Seq[OrderWampMsg]) = Ui.run(
+//    Ui(messagesAdapter.updateMessages(s))
+    Ui.nop
+  )
+
+  def updateOrdersList(s: OrdersBook) = Ui.run(
     Ui(messagesAdapter.updateMessages(s))
   )
 
@@ -72,19 +79,19 @@ class MessagesAdapter(dispatcher: Dispatcher)
                      (implicit context: ContextWrapper)
   extends RecyclerView.Adapter[ViewHolder] {
 
-  var messages = Vector.empty[Message]
+  var asks = Seq.empty[(BigDecimal, BigDecimal)]
 
-  def updateMessages(m: Vector[Message]) = {
-    messages = m
+  def updateMessages(m: OrdersBook) = {
+    asks = m.asks
     this.notifyDataSetChanged()
   }
 
-  override def getItemCount: Int = messages.length
+  override def getItemCount: Int = asks.length
 
   override def onBindViewHolder(vh: ViewHolder, i: Int): Unit = {
-    val m = messages(i)
+    val m = asks(i)
     Ui.run(
-      vh.title <~ text(m.title)
+      vh.title <~ text(m.toString)
     )
   }
 
@@ -130,7 +137,7 @@ class JawampaClient(dispatcher: Dispatcher)(implicit ctx: ContextWrapper) {
 
   def connect() = {
     onConnected(() => {
-      wampSubscription("BTC_ETH")
+      wampSubscription[OrderWampMsg](CurrencyPair.BTC_ETH.toString)
     }
     )
     wamp.open()
@@ -153,7 +160,7 @@ class JawampaClient(dispatcher: Dispatcher)(implicit ctx: ContextWrapper) {
     })
   }
 
-  private def wampSubscription(topic: String): PotStream[Long, String] = {
+  private def wampSubscription[WM <: WampMsg : Manifest](topic: String): PotStream[Long, String] = {
     val stream = PotStream[Long, String](new NoopFetch)
     wamp.makeSubscription(topic).subscribe(
       new Observer[PubSubData] {
@@ -162,7 +169,8 @@ class JawampaClient(dispatcher: Dispatcher)(implicit ctx: ContextWrapper) {
         override def onError(e: Throwable): Unit = println(s"$topic sub onError $e")
 
         override def onNext(t: PubSubData): Unit = {
-          dispatcher(AddMessage(Message(t.arguments().toString)))
+          val value: Seq[WM] = APIContext.jacksonMapper.readValue[Seq[WM]](t.arguments().toString)
+          dispatcher(AddWampMessages[WM](value))
         }
       })
     stream

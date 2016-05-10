@@ -7,7 +7,9 @@ import android.app.Application
 import android.content.Context
 import app.bitrader.api.UiService
 import app.bitrader.api.poloniex.PoloniexAPIServiceDescriptor
-import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper}
+import com.fasterxml.jackson.module.scala.DefaultScalaModule
+import com.fasterxml.jackson.module.scala.experimental.ScalaObjectMapper
 import com.github.aafa.ScalaRetrofitBuilder
 import com.joanzapata.iconify.Iconify
 import com.joanzapata.iconify.fonts.{FontAwesomeModule, MaterialModule}
@@ -40,6 +42,13 @@ class ClientApplication extends Application {
 
 // todo factory
 object APIContext {
+  lazy val jacksonMapper = {
+    val jm = new ObjectMapper() with ScalaObjectMapper
+    jm.registerModule(DefaultScalaModule)
+    jm.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+    jm
+  }
+
   var poloniexApi: PoloniexAPIServiceDescriptor = _
   def poloniexService: UiService[PoloniexAPIServiceDescriptor] = new UiService(poloniexApi)
 }

@@ -59,7 +59,7 @@ class MainActivity extends DrawerActivity with ActivityOperations{
 
 class MainActivityLayout(override val menuItems: Seq[DrawerMenuItem])
                         (implicit cw: ContextWrapper, managerContext: FragmentManagerContext[Fragment, FragmentManager])
-  extends BasicDrawerLayout(menuItems) with MainStyles with ChartLayout with OrdersBook {
+  extends BasicDrawerLayout(menuItems) with MainStyles with ChartLayout  {
 
 
   var textSlot = slot[IconTextView]
@@ -182,8 +182,4 @@ trait ChartLayout {
     _.setDescription("Bitrader data")
 
   )
-}
-
-trait OrdersBook {
-
 }
