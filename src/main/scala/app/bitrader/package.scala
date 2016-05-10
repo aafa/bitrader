@@ -5,6 +5,7 @@ import app.bitrader.helpers.TweaksAndGoodies
 import app.bitrader.helpers.activity.ActivityOperations
 import macroid.ContextWrapper
 import com.github.nscala_time.time.Imports._
+import io.github.aafa.helpers.UiThreading
 
 /**
   * Created by Alexey Afanasev on 17.04.16.

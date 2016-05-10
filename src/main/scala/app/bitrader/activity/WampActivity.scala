@@ -6,13 +6,13 @@ import android.app.Activity
 import android.os.Bundle
 import android.support.v7.widget.{LinearLayoutManager, RecyclerView}
 import android.view.{View, ViewGroup}
-import android.widget.TextView
+import android.widget.{LinearLayout, TextView}
+import app.bitrader._
 import app.bitrader.api.poloniex.{CurrencyPair, OrdersBook}
-import app.bitrader.{APIContext, AddWampMessages, AppCircuit, OrderWampMsg, UpdateOrderBook, WampMsg}
 import com.fortysevendeg.macroid.extras.RecyclerViewTweaks
 import diode.Dispatcher
 import diode.data.{Fetch, PotStream}
-import io.github.aafa.helpers.Styles
+import io.github.aafa.helpers.{Styles, UiThreading}
 import macroid.FullDsl._
 import macroid.{ContextWrapper, Contexts, Ui, _}
 import rx.{Observer, Subscription}
@@ -43,6 +43,7 @@ class WampActivity extends Activity with Contexts[Activity] {
 
   override def onPause(): Unit = {
     super.onPause()
+
     javampa.closeConnection()
     modifyOrders.apply()
     ordersList.apply()
@@ -50,48 +51,94 @@ class WampActivity extends Activity with Contexts[Activity] {
 }
 
 class WampView(dispatcher: Dispatcher)(implicit c: ContextWrapper) extends Styles {
-  var testText = slot[TextView]
-  var listSlot = slot[RecyclerView]
 
-  lazy val messagesAdapter: MessagesAdapter = new MessagesAdapter(dispatcher)
+  import RecyclerViewTweaks._
+
+  var modifyStream = Seq.empty[OrderWampMsg]
+  lazy val asksAdapter: MessagesAdapter = new MessagesAdapter(dispatcher)
+  lazy val bidsAdapter: MessagesAdapter = new MessagesAdapter(dispatcher)
+
+  def rv: Ui[RecyclerView] = w[RecyclerView] <~
+    rvFixedSize <~
+    rvLayoutManager(new LinearLayoutManager(c.bestAvailable))
+
 
   val ui: View = {
-    w[RecyclerView] <~ wire(listSlot) <~
-      RecyclerViewTweaks.rvFixedSize <~
-      RecyclerViewTweaks.rvLayoutManager(new LinearLayoutManager(c.bestAvailable)) <~
-      RecyclerViewTweaks.rvAdapter(messagesAdapter) <~
-      vMatchParent
+    l[LinearLayout](
+      rv <~ rvAdapter(asksAdapter) <~ vWrap,
+      rv <~ rvAdapter(bidsAdapter) <~ vWrap
+    ) <~ vMatchParent
   }.get
 
-  def modifyOrders(s: Seq[OrderWampMsg]) = Ui.run(
-//    Ui(messagesAdapter.updateMessages(s))
-    Ui.nop
-  )
+  def processModifications(s: Seq[OrderWampMsg]) = s map { owm => {
+    owm.process(new owm.OrderProcessing {
+      def bidModify(o: OrderPair) = bidsAdapter.updateOrder(o)
 
-  def updateOrdersList(s: OrdersBook) = Ui.run(
-    Ui(messagesAdapter.updateMessages(s))
-  )
+      def askModify(o: OrderPair) = asksAdapter.updateOrder(o)
+
+      def askRemove(o: BigDecimal) = asksAdapter.removeOrder(o)
+
+      def bidRemove(o: BigDecimal) = bidsAdapter.removeOrder(o)
+
+      override def bidNew(o: (BigDecimal, BigDecimal)): Unit = {}
+
+      override def askNew(o: (BigDecimal, BigDecimal)): Unit = {}
+    })
+  }
+  }
+
+
+  def modifyOrders(s: Seq[OrderWampMsg]) = {
+    processModifications(s.filterNot(modifyStream.contains))
+    modifyStream = s
+  }
+
+  def updateOrdersList(ob: OrdersBook) = {
+    asksAdapter.updateOrderList(ob.asks)
+    bidsAdapter.updateOrderList(ob.bids)
+  }
+
 
 }
 
 
 class MessagesAdapter(dispatcher: Dispatcher)
                      (implicit context: ContextWrapper)
-  extends RecyclerView.Adapter[ViewHolder] {
+  extends RecyclerView.Adapter[ViewHolder] with UiThreading {
 
-  var asks = Seq.empty[(BigDecimal, BigDecimal)]
+  var orders = Map.empty[BigDecimal, BigDecimal]
 
-  def updateMessages(m: OrdersBook) = {
-    asks = m.asks
+  def updateOrderList(os: Seq[(BigDecimal, BigDecimal)]) = runOnUiThread {
+    orders = os.toMap
     this.notifyDataSetChanged()
   }
 
-  override def getItemCount: Int = asks.length
+  def updateOrder(o: (BigDecimal, BigDecimal)) = runOnUiThread {
+    val (updateKey, updateValue) = o
+    if (orders.keySet.contains(updateKey)) {
+      val indexOf: Int = orders.keys.toIndexedSeq.indexOf(updateKey)
+
+      orders = orders.collect {
+        case (k, v) if k == updateKey =>
+          (updateKey, updateValue)
+      }
+
+      this.notifyItemChanged(indexOf)
+    }
+  }
+
+  def removeOrder(o: BigDecimal) = runOnUiThread {
+    val indexOf: Int = orders.keys.toIndexedSeq.indexOf(o)
+    orders = orders.filterNot { case (k, v) => k == o }
+    this.notifyItemRemoved(indexOf)
+  }
+
+  override def getItemCount: Int = orders.size
 
   override def onBindViewHolder(vh: ViewHolder, i: Int): Unit = {
-    val m = asks(i)
+    val (k, v) = orders.to[Seq].apply(i)
     Ui.run(
-      vh.title <~ text(m.toString)
+      vh.title <~ text("%s   %.2f".format(k, v))
     )
   }
 
@@ -104,7 +151,7 @@ class WampItemAdapter(implicit context: ContextWrapper) {
   var title = slot[TextView]
 
   private val content: TextView = {
-    w[TextView] <~ wire(title)
+    w[TextView] <~ wire(title) <~ padding(all = 2.dp)
   }.get
 
   def layout = content
@@ -160,7 +207,7 @@ class JawampaClient(dispatcher: Dispatcher)(implicit ctx: ContextWrapper) {
     })
   }
 
-  private def wampSubscription[WM <: WampMsg : Manifest](topic: String): PotStream[Long, String] = {
+  private def wampSubscription[WM <: WampMsg : scala.reflect.Manifest](topic: String): PotStream[Long, String] = {
     val stream = PotStream[Long, String](new NoopFetch)
     wamp.makeSubscription(topic).subscribe(
       new Observer[PubSubData] {
