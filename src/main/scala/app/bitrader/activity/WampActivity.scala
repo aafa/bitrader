@@ -52,7 +52,7 @@ class WampActivity extends Activity with Contexts[Activity] {
   }
 }
 
-class WampView(dispatcher: Dispatcher)(implicit c: ContextWrapper) extends Styles with UiThreading{
+class WampView(dispatcher: Dispatcher)(implicit c: ContextWrapper) extends Styles with UiThreading {
 
   import RecyclerViewTweaks._
 
@@ -78,13 +78,13 @@ class WampView(dispatcher: Dispatcher)(implicit c: ContextWrapper) extends Style
 
       def askModify(o: OrderPair) = asksAdapter.updateOrder(o)
 
-      def askRemove(o: OrderKey) = asksAdapter.removeOrder(o)
+      def askRemove(o: OrderPair) = asksAdapter.removeOrder(o)
 
-      def bidRemove(o: OrderKey) = bidsAdapter.removeOrder(o)
+      def bidRemove(o: OrderPair) = bidsAdapter.removeOrder(o)
 
-      def bidNew(o: OrderPair): Unit = {}
+      def bidNew(o: OrderPair): Unit = bidsAdapter.addOrder(o)
 
-      def askNew(o: OrderPair): Unit = {}
+      def askNew(o: OrderPair): Unit = asksAdapter.addOrder(o)
     })
   }
   }
@@ -114,43 +114,52 @@ class MessagesAdapter(implicit context: ContextWrapper)
     this.notifyDataSetChanged()
   }
 
-  def updateOrder(o: OrderPair) = runOnUiThread {
+  def updateOrder(o: OrderPair) = o.change{ p =>
     val (updateKey, updateValue) = o
-    val indexOf: Int = orders.keys.toIndexedSeq.indexOf(updateKey)
-    if (indexOf > -1) {
-      orders = orders.collect{
-        case (k, v) if k == updateKey =>
-          (updateKey, updateValue)
-      }
-
-//      this.notifyItemChanged(indexOf)
-      this.notifyDataSetChanged()
+    orders = orders.map {
+      case (k, v) if k == updateKey =>
+        (updateKey, updateValue)
+      case any => any
     }
+
+    this.notifyItemChanged(p)
   }
 
-  def addOrder(o: OrderPair) = runOnUiThread{
+
+  def addOrder(o: OrderPair) = runOnUiThread {
     orders += o
-    notifyDataSetChanged()
+    notifyItemInserted(o.pos)
   }
 
-  def removeOrder(o: OrderKey) = runOnUiThread {
-    val indexOf: Int = orders.keys.toIndexedSeq.indexOf(o)
-    orders = orders.filterNot { case (k, v) => k == o }
-    this.notifyItemRemoved(indexOf)
+  def removeOrder(o: OrderPair) = o.change{ p =>
+    orders = orders.filterNot { case (k, v) => k == o._1 }
+    this.notifyItemRemoved(p)
   }
+
 
   override def getItemCount: Int = orders.size
 
   override def onBindViewHolder(vh: ViewHolder, i: Int): Unit = {
     val (k, v) = orders.to[Seq].apply(i)
     Ui.run(
-      vh.title <~ text("%s   %f".format(k, v))
+      vh.title <~ text("%s   %.3f".format(k, v))
     )
   }
 
   override def onCreateViewHolder(viewGroup: ViewGroup, i: Int): ViewHolder = {
     ViewHolder(new WampItemAdapter())
   }
+
+
+  implicit class Position(o: OrderPair) {
+    def change(found: Int => Unit): Unit = runOnUiThread {
+      val indexOf: Int = o.pos
+      if (indexOf > -1) found(indexOf)
+    }
+
+    def pos = orders.keys.toIndexedSeq.indexOf(o._1)
+  }
+
 }
 
 class WampItemAdapter(implicit context: ContextWrapper) {

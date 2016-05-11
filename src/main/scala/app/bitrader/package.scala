@@ -25,6 +25,14 @@ trait CommonTypes{
   type OrderValue = BigDecimal
   type OrderPair = (OrderKey, OrderValue)
   type OrdersMap = SortedMap[OrderKey, OrderValue]
+
+  implicit class EmptyOrderInt(k: Int){
+    def emptyPair : OrderPair = (k, 0)
+  }
+
+  implicit class EmptyOrder(k: BigDecimal){
+    def emptyPair : OrderPair = (k, 0)
+  }
 }
 
 trait JodaTimeHelpers{
