@@ -16,7 +16,7 @@ class WampSpec extends AbstractSpec{
   it should "work with wamp" in {
     val messages = new TestMessages
 
-    val orders = messages.orders
+    def orders = messages.orders
 
     def get(key: Int): (Any, Any) = {
       orders.find { case (k, v) => k == key }.get

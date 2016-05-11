@@ -58,7 +58,7 @@ class WampView(dispatcher: Dispatcher)(implicit c: ContextWrapper) extends Style
 
   var modifyStream = Seq.empty[OrderWampMsg]
   val asksAdapter = new MessagesAdapter
-  val bidsAdapter = new MessagesAdapter
+  val bidsAdapter = new MessagesAdapter(true)
 
   def rv: Ui[RecyclerView] = w[RecyclerView] <~
     rvFixedSize <~
@@ -104,7 +104,7 @@ class WampView(dispatcher: Dispatcher)(implicit c: ContextWrapper) extends Style
 }
 
 
-class MessagesAdapter(implicit context: ContextWrapper)
+class MessagesAdapter(val reverse: Boolean = false)(implicit context: ContextWrapper)
   extends RecyclerView.Adapter[ViewHolder] with UiThreading {
 
   var orders: OrdersMap = SortedMap.empty
@@ -137,10 +137,18 @@ class MessagesAdapter(implicit context: ContextWrapper)
   }
 
 
-  override def getItemCount: Int = orders.size
+  override def getItemCount: Int = list.size
+
+  def list: Seq[OrderPair] = {
+    var seq = orders.to[Seq]
+    if (reverse) {
+      seq = seq.reverse
+    }
+    seq
+  }
 
   override def onBindViewHolder(vh: ViewHolder, i: Int): Unit = {
-    val (k, v) = orders.to[Seq].apply(i)
+    val (k, v) = list(i)
     Ui.run(
       vh.title <~ text("%s   %.3f".format(k, v))
     )
