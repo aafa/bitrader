@@ -52,17 +52,29 @@ class WampActivity extends Activity with Contexts[Activity] {
   }
 }
 
+class CustomLinearLayoutManager(implicit cw: ContextWrapper) extends LinearLayoutManager(cw.bestAvailable){
+
+  override def onLayoutChildren(recycler: RecyclerView#Recycler, state: RecyclerView.State): Unit = {
+    try {
+      super.onLayoutChildren(recycler, state)
+    } catch {
+      case e: IndexOutOfBoundsException => println(s"got ioobe $e")
+    }
+  }
+
+}
+
 class WampView(dispatcher: Dispatcher)(implicit c: ContextWrapper) extends Styles with UiThreading {
 
   import RecyclerViewTweaks._
 
   var modifyStream = Seq.empty[OrderWampMsg]
-  val asksAdapter = new MessagesAdapter
+  val asksAdapter = new MessagesAdapter()
   val bidsAdapter = new MessagesAdapter(true)
 
   def rv: Ui[RecyclerView] = w[RecyclerView] <~
     rvFixedSize <~
-    rvLayoutManager(new LinearLayoutManager(c.bestAvailable))
+    rvLayoutManager(new CustomLinearLayoutManager)
 
 
   val ui: View = {
@@ -73,7 +85,7 @@ class WampView(dispatcher: Dispatcher)(implicit c: ContextWrapper) extends Style
   }.get
 
   def processModifications(s: Seq[OrderWampMsg]) = s map { owm => {
-    owm.process(new owm.OrderProcessing {
+    owm.process(new OrderProcessing {
       def bidModify(o: OrderPair) = bidsAdapter.updateOrder(o)
 
       def askModify(o: OrderPair) = asksAdapter.updateOrder(o)
@@ -104,7 +116,7 @@ class WampView(dispatcher: Dispatcher)(implicit c: ContextWrapper) extends Style
 }
 
 
-class MessagesAdapter(val reverse: Boolean = false)(implicit context: ContextWrapper)
+class MessagesAdapter(val reverse: Boolean = false, size: Int = 20)(implicit context: ContextWrapper)
   extends RecyclerView.Adapter[ViewHolder] with UiThreading {
 
   var orders: OrdersMap = SortedMap.empty

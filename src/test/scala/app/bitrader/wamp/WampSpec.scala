@@ -9,7 +9,7 @@ import scala.collection.SortedMap
   * Created by Alex Afanasev
   */
 class WampSpec extends AbstractSpec{
-  class TestMessages extends MessagesAdapter
+  class TestMessages extends MessagesAdapter()()
 
   def bd(k: Int, v: Int): (OrderKey, OrderValue) = (BigDecimal(k), BigDecimal(v))
 
