@@ -21,6 +21,7 @@ object AppCircuit extends Circuit[RootModel] {
     m.copy(orderBook = m.orderBook.copy(changes = v)))) {
     override def handle = {
       // todo handle subscription case here
+//      case ResetWampMessages[OrderWampMsg] =>
 
       case AddWampMessages(ms: Seq[OrderWampMsg]) =>
         println(s"AddMessages OrderWampMsg $ms")
@@ -53,6 +54,8 @@ case class ReceiveOrderBook(ob: OrdersBook)
 case class AddWampMessage[T <: WampMsg](m: T)
 
 case class AddWampMessages[T <: WampMsg](ms: Seq[T])
+
+case class ResetWampMessages[T <: WampMsg]()
 
 case class SubscribeToChannel(t: String)
 

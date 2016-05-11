@@ -50,13 +50,13 @@ class WampActivity extends Activity with Contexts[Activity] {
   }
 }
 
-class WampView(dispatcher: Dispatcher)(implicit c: ContextWrapper) extends Styles {
+class WampView(dispatcher: Dispatcher)(implicit c: ContextWrapper) extends Styles with UiThreading{
 
   import RecyclerViewTweaks._
 
   var modifyStream = Seq.empty[OrderWampMsg]
-  lazy val asksAdapter: MessagesAdapter = new MessagesAdapter(dispatcher)
-  lazy val bidsAdapter: MessagesAdapter = new MessagesAdapter(dispatcher)
+  val asksAdapter = new MessagesAdapter
+  val bidsAdapter = new MessagesAdapter
 
   def rv: Ui[RecyclerView] = w[RecyclerView] <~
     rvFixedSize <~
@@ -80,15 +80,15 @@ class WampView(dispatcher: Dispatcher)(implicit c: ContextWrapper) extends Style
 
       def bidRemove(o: BigDecimal) = bidsAdapter.removeOrder(o)
 
-      override def bidNew(o: (BigDecimal, BigDecimal)): Unit = {}
+      def bidNew(o: (BigDecimal, BigDecimal)): Unit = {}
 
-      override def askNew(o: (BigDecimal, BigDecimal)): Unit = {}
+      def askNew(o: (BigDecimal, BigDecimal)): Unit = {}
     })
   }
   }
 
 
-  def modifyOrders(s: Seq[OrderWampMsg]) = {
+  def modifyOrders(s: Seq[OrderWampMsg]) = runOnUiThread {
     processModifications(s.filterNot(modifyStream.contains))
     modifyStream = s
   }
@@ -102,8 +102,7 @@ class WampView(dispatcher: Dispatcher)(implicit c: ContextWrapper) extends Style
 }
 
 
-class MessagesAdapter(dispatcher: Dispatcher)
-                     (implicit context: ContextWrapper)
+class MessagesAdapter(implicit context: ContextWrapper)
   extends RecyclerView.Adapter[ViewHolder] with UiThreading {
 
   var orders = Map.empty[BigDecimal, BigDecimal]
