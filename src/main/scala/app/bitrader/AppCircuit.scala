@@ -4,6 +4,7 @@ import app.bitrader.api.poloniex.{CurrencyPair, OrdersBook}
 import diode.ActionResult.ModelUpdate
 import diode.{ActionHandler, Circuit, Effect, EffectSingle}
 
+import scala.collection.SortedMap
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 

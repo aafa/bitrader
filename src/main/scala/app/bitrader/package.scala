@@ -7,6 +7,8 @@ import macroid.ContextWrapper
 import com.github.nscala_time.time.Imports._
 import io.github.aafa.helpers.UiThreading
 
+import scala.collection.SortedMap
+
 /**
   * Created by Alexey Afanasev on 17.04.16.
   */
@@ -19,7 +21,10 @@ package object bitrader extends ActivityOperations with TweaksAndGoodies with Jo
 }
 
 trait CommonTypes{
-  type OrderPair = (BigDecimal, BigDecimal)
+  type OrderKey = BigDecimal
+  type OrderValue = BigDecimal
+  type OrderPair = (OrderKey, OrderValue)
+  type OrdersMap = SortedMap[OrderKey, OrderValue]
 }
 
 trait JodaTimeHelpers{

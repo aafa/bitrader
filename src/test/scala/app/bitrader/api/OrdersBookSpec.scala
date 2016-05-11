@@ -3,6 +3,7 @@ package app.bitrader.api
 import android.os.Build.VERSION_CODES._
 import app.bitrader.api.poloniex.{CurrencyPair, OrdersBook}
 import org.robolectric.annotation.Config
+import app.bitrader._
 
 /**
   * Created by Alex Afanasev
@@ -29,7 +30,7 @@ class OrdersBookSpec extends ApiSpec {
     assert(order.asks.nonEmpty)
 
     order.asks map {
-      case (price: BigDecimal, volume: BigDecimal) => assert(price > 0 && volume > 0)
+      case (price: OrderKey, volume: BigDecimal) => assert(price > 0 && volume > 0)
       case _ => assert(false, "should't be here")
     }
   }

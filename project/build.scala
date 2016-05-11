@@ -12,6 +12,7 @@ object Build extends android.AutoBuild {
 
   lazy val app = {
     Project(id = "app", base = file(".")).settings(appsSettings ++ Dependencies.libs: _*)
+      .disablePlugins(RealmPlugin)
   }
 
   lazy val appsSettings = Seq(

@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.{JsonCreator, JsonProperty}
   * Created by Alex Afanasev
   */
 @JsonCreator
-case class Order(@JsonProperty("type") tpe: String, @JsonProperty("rate") rate: BigDecimal, @JsonProperty("amount") amount: Option[BigDecimal])
+case class Order(@JsonProperty("type") tpe: String, @JsonProperty("rate") rate: OrderKey, @JsonProperty("amount") amount: Option[OrderValue])
 
 case class OrderBookContainer(orders: OrdersBook, changes: Seq[OrderWampMsg])
 
@@ -27,8 +27,8 @@ case class OrderWampMsg(
     def askNew(o: OrderPair)
     def bidModify(o: OrderPair)
     def askModify(o: OrderPair)
-    def askRemove(o: BigDecimal)
-    def bidRemove(o: BigDecimal)
+    def askRemove(o: OrderKey)
+    def bidRemove(o: OrderKey)
   }
 
   def process(f: OrderProcessing) = {

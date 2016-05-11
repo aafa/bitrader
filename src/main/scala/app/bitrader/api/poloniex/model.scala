@@ -2,9 +2,11 @@ package app.bitrader.api.poloniex
 
 import java.util.Date
 
-import app.bitrader.OrderPair
+import app.bitrader._
 import com.fasterxml.jackson.annotation.{JsonCreator, JsonProperty}
 import org.joda.time.DateTime
+
+import scala.collection.SortedMap
 
 
 /**
@@ -36,7 +38,11 @@ case class OrdersBook(
                    @JsonProperty("bids") var bids: Seq[OrderPair],
                    @JsonProperty("isFrozen") var isFrozen: Byte,
                    @JsonProperty("seq") var seq: Long
-                 )
+                 ){
+
+  def asksMap: OrdersMap = SortedMap(asks:_*)
+  def bidsMap: OrdersMap = SortedMap(bids:_*)
+}
 
 @JsonCreator
 case class Currency(

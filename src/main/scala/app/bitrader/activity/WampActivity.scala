@@ -20,6 +20,8 @@ import ws.wamp.jawampa.WampClient.{ConnectedState, State}
 import ws.wamp.jawampa.transport.netty.NettyWampClientConnectorProvider
 import ws.wamp.jawampa.{PubSubData, WampClient, WampClientBuilder}
 
+import scala.collection.SortedMap
+
 /**
   * Created by Alex Afanasev
   */
@@ -76,13 +78,13 @@ class WampView(dispatcher: Dispatcher)(implicit c: ContextWrapper) extends Style
 
       def askModify(o: OrderPair) = asksAdapter.updateOrder(o)
 
-      def askRemove(o: BigDecimal) = asksAdapter.removeOrder(o)
+      def askRemove(o: OrderKey) = asksAdapter.removeOrder(o)
 
-      def bidRemove(o: BigDecimal) = bidsAdapter.removeOrder(o)
+      def bidRemove(o: OrderKey) = bidsAdapter.removeOrder(o)
 
-      def bidNew(o: (BigDecimal, BigDecimal)): Unit = {}
+      def bidNew(o: OrderPair): Unit = {}
 
-      def askNew(o: (BigDecimal, BigDecimal)): Unit = {}
+      def askNew(o: OrderPair): Unit = {}
     })
   }
   }
@@ -94,8 +96,8 @@ class WampView(dispatcher: Dispatcher)(implicit c: ContextWrapper) extends Style
   }
 
   def updateOrdersList(ob: OrdersBook) = {
-    asksAdapter.updateOrderList(ob.asks)
-    bidsAdapter.updateOrderList(ob.bids)
+    asksAdapter.updateOrderList(ob.asksMap)
+    bidsAdapter.updateOrderList(ob.bidsMap)
   }
 
 
@@ -105,28 +107,33 @@ class WampView(dispatcher: Dispatcher)(implicit c: ContextWrapper) extends Style
 class MessagesAdapter(implicit context: ContextWrapper)
   extends RecyclerView.Adapter[ViewHolder] with UiThreading {
 
-  var orders = Map.empty[BigDecimal, BigDecimal]
+  var orders: OrdersMap = SortedMap.empty
 
-  def updateOrderList(os: Seq[(BigDecimal, BigDecimal)]) = runOnUiThread {
-    orders = os.toMap
+  def updateOrderList(os: OrdersMap) = runOnUiThread {
+    orders = os
     this.notifyDataSetChanged()
   }
 
-  def updateOrder(o: (BigDecimal, BigDecimal)) = runOnUiThread {
+  def updateOrder(o: OrderPair) = runOnUiThread {
     val (updateKey, updateValue) = o
-    if (orders.keySet.contains(updateKey)) {
-      val indexOf: Int = orders.keys.toIndexedSeq.indexOf(updateKey)
-
-      orders = orders.collect {
+    val indexOf: Int = orders.keys.toIndexedSeq.indexOf(updateKey)
+    if (indexOf > -1) {
+      orders = orders.collect{
         case (k, v) if k == updateKey =>
           (updateKey, updateValue)
       }
 
-      this.notifyItemChanged(indexOf)
+//      this.notifyItemChanged(indexOf)
+      this.notifyDataSetChanged()
     }
   }
 
-  def removeOrder(o: BigDecimal) = runOnUiThread {
+  def addOrder(o: OrderPair) = runOnUiThread{
+    orders += o
+    notifyDataSetChanged()
+  }
+
+  def removeOrder(o: OrderKey) = runOnUiThread {
     val indexOf: Int = orders.keys.toIndexedSeq.indexOf(o)
     orders = orders.filterNot { case (k, v) => k == o }
     this.notifyItemRemoved(indexOf)
@@ -137,7 +144,7 @@ class MessagesAdapter(implicit context: ContextWrapper)
   override def onBindViewHolder(vh: ViewHolder, i: Int): Unit = {
     val (k, v) = orders.to[Seq].apply(i)
     Ui.run(
-      vh.title <~ text("%s   %.2f".format(k, v))
+      vh.title <~ text("%s   %f".format(k, v))
     )
   }
 
