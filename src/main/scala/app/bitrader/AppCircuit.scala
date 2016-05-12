@@ -25,7 +25,7 @@ object AppCircuit extends Circuit[RootModel] {
 //      case ResetWampMessages[OrderWampMsg] =>
 
       case AddWampMessages(ms: Seq[OrderWampMsg]) =>
-        println(s"AddMessages OrderWampMsg $ms")
+//        println(s"AddMessages OrderWampMsg $ms")
         updated(value ++ ms)
     }
   }

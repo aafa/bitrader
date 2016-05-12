@@ -1,7 +1,7 @@
 package app.bitrader.wamp
 
 import app.bitrader._
-import app.bitrader.activity.{JawampaClient, MessagesAdapter}
+import app.bitrader.activity.MessagesAdapter
 
 import scala.collection.SortedMap
 

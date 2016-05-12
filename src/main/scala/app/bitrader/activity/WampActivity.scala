@@ -1,7 +1,5 @@
 package app.bitrader.activity
 
-import java.util.concurrent.TimeUnit
-
 import android.app.Activity
 import android.os.Bundle
 import android.support.v7.widget.{LinearLayoutManager, RecyclerView}
@@ -9,16 +7,12 @@ import android.view.{View, ViewGroup}
 import android.widget.{LinearLayout, TextView}
 import app.bitrader._
 import app.bitrader.api.poloniex.{CurrencyPair, OrdersBook}
+import app.bitrader.wamp.{JawampaClient, WampSub}
 import com.fortysevendeg.macroid.extras.RecyclerViewTweaks
 import diode.Dispatcher
-import diode.data.{Fetch, PotStream}
 import io.github.aafa.helpers.{Styles, UiThreading}
 import macroid.FullDsl._
 import macroid.{ContextWrapper, Contexts, Ui, _}
-import rx.{Observer, Subscription}
-import ws.wamp.jawampa.WampClient.{ConnectedState, State}
-import ws.wamp.jawampa.transport.netty.NettyWampClientConnectorProvider
-import ws.wamp.jawampa.{PubSubData, WampClient, WampClientBuilder}
 
 import scala.collection.SortedMap
 
@@ -32,13 +26,13 @@ class WampActivity extends Activity with Contexts[Activity] {
   lazy val javampa = new JawampaClient(AppCircuit)
   lazy val modifyOrders = AppCircuit.subscribe(AppCircuit.zoom(_.orderBook.changes))(m => view.modifyOrders(m.value))
   lazy val ordersList = AppCircuit.subscribe(AppCircuit.zoom(_.orderBook.orders))(m => view.updateOrdersList(m.value))
+  val currencyToTrack = CurrencyPair.BTC_ETH
 
   override def onCreate(savedInstanceState: Bundle): Unit = {
     super.onCreate(savedInstanceState)
     setContentView(view.ui)
-    appCircuit(UpdateOrderBook(CurrencyPair.BTC_ETH))
-
-    javampa.connect()
+    appCircuit(UpdateOrderBook(currencyToTrack))
+    javampa.openSubscription(WampSub[OrderWampMsg](currencyToTrack.toString))
     modifyOrders
     ordersList
   }
@@ -52,17 +46,6 @@ class WampActivity extends Activity with Contexts[Activity] {
   }
 }
 
-class CustomLinearLayoutManager(implicit cw: ContextWrapper) extends LinearLayoutManager(cw.bestAvailable){
-
-  override def onLayoutChildren(recycler: RecyclerView#Recycler, state: RecyclerView.State): Unit = {
-    try {
-      super.onLayoutChildren(recycler, state)
-    } catch {
-      case e: IndexOutOfBoundsException => println(s"got ioobe $e")
-    }
-  }
-
-}
 
 class WampView(dispatcher: Dispatcher)(implicit c: ContextWrapper) extends Styles with UiThreading {
 
@@ -74,7 +57,7 @@ class WampView(dispatcher: Dispatcher)(implicit c: ContextWrapper) extends Style
 
   def rv: Ui[RecyclerView] = w[RecyclerView] <~
     rvFixedSize <~
-    rvLayoutManager(new CustomLinearLayoutManager)
+    rvLayoutManager(new LinearLayoutManager(c.bestAvailable))
 
 
   val ui: View = {
@@ -101,13 +84,16 @@ class WampView(dispatcher: Dispatcher)(implicit c: ContextWrapper) extends Style
   }
   }
 
+  private object Locker
 
-  def modifyOrders(s: Seq[OrderWampMsg]) = runOnUiThread {
-    processModifications(s.filterNot(modifyStream.contains))
-    modifyStream = s
+  def modifyOrders(s: Seq[OrderWampMsg]) = {
+    Locker.synchronized {
+      processModifications(s.filterNot(modifyStream.contains))
+      modifyStream = s
+    }
   }
 
-  def updateOrdersList(ob: OrdersBook) = {
+  def updateOrdersList(ob: OrdersBook) =  {
     asksAdapter.updateOrderList(ob.asksMap)
     bidsAdapter.updateOrderList(ob.bidsMap)
   }
@@ -126,7 +112,7 @@ class MessagesAdapter(val reverse: Boolean = false, size: Int = 20)(implicit con
     this.notifyDataSetChanged()
   }
 
-  def updateOrder(o: OrderPair) = o.change{ p =>
+  def updateOrder(o: OrderPair) = o.change { p =>
     val (updateKey, updateValue) = o
     orders = orders.map {
       case (k, v) if k == updateKey =>
@@ -143,7 +129,7 @@ class MessagesAdapter(val reverse: Boolean = false, size: Int = 20)(implicit con
     notifyItemInserted(o.pos)
   }
 
-  def removeOrder(o: OrderPair) = o.change{ p =>
+  def removeOrder(o: OrderPair) = o.change { p =>
     orders = orders.filterNot { case (k, v) => k == o._1 }
     this.notifyItemRemoved(p)
   }
@@ -201,77 +187,3 @@ case class ViewHolder(adapter: WampItemAdapter)(implicit context: ContextWrapper
 
 }
 
-class JawampaClient(dispatcher: Dispatcher)(implicit ctx: ContextWrapper) {
-
-  val wsuri = "wss://api.poloniex.com"
-
-  class TickerData(currencyPair: String, last: BigDecimal, lowestAsk: BigDecimal, highestBid: BigDecimal,
-                   percentChange: BigDecimal, baseVolume: BigDecimal, quoteVolume: BigDecimal, isFrozen: Byte,
-                   dayHigh: BigDecimal, dayLow: BigDecimal) {
-    override def toString: String = s"Got $currencyPair for $last"
-  }
-
-  val wamp: WampClient = buildWamp()
-
-  def closeConnection() = {
-    wamp.close()
-  }
-
-  def connect() = {
-    onConnected(() => {
-      wampSubscription[OrderWampMsg](CurrencyPair.BTC_ETH.toString)
-    }
-    )
-    wamp.open()
-  }
-
-  private def onConnected(subs: () => Unit): Subscription = {
-    wamp.statusChanged().subscribe(new Observer[State] {
-      override def onCompleted(): Unit = {
-        println("statusChanged onCompleted")
-      }
-
-      override def onError(e: Throwable): Unit = println(s"statusChanged onError $e")
-
-      override def onNext(t: State): Unit = t match {
-        case c: ConnectedState =>
-          println(s"next status $t")
-          subs()
-        case _ => println(s"next status $t")
-      }
-    })
-  }
-
-  private def wampSubscription[WM <: WampMsg : scala.reflect.Manifest](topic: String): PotStream[Long, String] = {
-    val stream = PotStream[Long, String](new NoopFetch)
-    wamp.makeSubscription(topic).subscribe(
-      new Observer[PubSubData] {
-        override def onCompleted(): Unit = println(s"$topic sub onCompleted")
-
-        override def onError(e: Throwable): Unit = println(s"$topic sub onError $e")
-
-        override def onNext(t: PubSubData): Unit = {
-          val value: Seq[WM] = APIContext.jacksonMapper.readValue[Seq[WM]](t.arguments().toString)
-          dispatcher(AddWampMessages[WM](value))
-        }
-      })
-    stream
-  }
-
-  def buildWamp(): WampClient = {
-    new WampClientBuilder()
-      .withConnectorProvider(new NettyWampClientConnectorProvider)
-      .withUri(wsuri)
-      .withRealm("realm1")
-      .withInfiniteReconnects()
-      .withReconnectInterval(5, TimeUnit.SECONDS)
-      .build()
-  }
-
-}
-
-class NoopFetch extends Fetch[Long] {
-  override def fetch(key: Long): Unit = {}
-
-  override def fetch(keys: Traversable[Long]): Unit = {}
-}
