@@ -14,6 +14,7 @@ import org.scalatest.{FlatSpec, Matchers, RobolectricSuite}
 abstract class AbstractSpec extends FlatSpec with Matchers with RobolectricSuite {
 
   implicit val cw = ContextWrapper(RuntimeEnvironment.application)
+  implicit val c = RuntimeEnvironment.application
 
   implicit class TimePrint[T](f: => T) {
     def printTime: T = {

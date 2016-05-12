@@ -27,13 +27,13 @@ class ClientApplication extends Application {
     super.onCreate()
     Iconify.`with`(new FontAwesomeModule).`with`(new MaterialModule)
 
-    APIContext.poloniexApi = buildApi[PoloniexAPIServiceDescriptor](getApplicationContext)
+    implicit val c = getApplicationContext
+    APIContext.poloniexApi = buildApi[PoloniexAPIServiceDescriptor](TR.string.poloniex_url.value)
   }
 
-  def buildApi[API : ClassTag](ctx: Context): API = {
-    implicit val c = ctx
+  def buildApi[API : ClassTag](url: String)(implicit ctx: Context): API = {
     new CachedRetrofitBuilder(ctx.getApplicationContext.getCacheDir)
-      .setEndpoint(TR.string.poloniex_url.value) // todo API Type to URL mapping
+      .setEndpoint(url)
       .setLogLevel(RestAdapter.LogLevel.FULL)
       .build()
       .create(classTag[API].runtimeClass).asInstanceOf[API]

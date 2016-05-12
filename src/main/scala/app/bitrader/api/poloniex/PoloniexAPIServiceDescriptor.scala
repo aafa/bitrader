@@ -37,3 +37,4 @@ trait PoloniexAPIServiceDescriptor {
   def currencies() : Map[String, Currency]
 }
 
+
