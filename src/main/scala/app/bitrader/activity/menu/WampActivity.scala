@@ -1,4 +1,4 @@
-package app.bitrader.activity
+package app.bitrader.activity.menu
 
 import android.app.Activity
 import android.os.Bundle

@@ -1,5 +1,8 @@
 <resources>
     <string name="app_name">bitrader</string>
     <string name="bitfinex_url">https://api.bitfinex.com/v1</string>
+
     <string name="poloniex_url">https://poloniex.com</string>
+    <string name="poloniex_trading_url">https://poloniex.com/tradingApi</string>
+
 </resources>

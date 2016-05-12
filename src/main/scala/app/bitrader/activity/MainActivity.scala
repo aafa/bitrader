@@ -27,6 +27,7 @@ import com.github.nscala_time.time.Imports._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import app.bitrader._
+import app.bitrader.activity.menu.{ProfileActivity, WampActivity}
 import app.bitrader.helpers.activity.ActivityOperations
 
 /**
@@ -50,6 +51,9 @@ class MainActivity extends DrawerActivity with ActivityOperations{
   lazy val menuItems: Seq[DrawerMenuItem] = Seq(
     DrawerMenuItem("Wamp", action = () => {
       startActivity[WampActivity]
+    }),
+    DrawerMenuItem("ProfileActivity", action = () => {
+      startActivity[ProfileActivity]
     }),
     DrawerMenuItem("Account")
   )

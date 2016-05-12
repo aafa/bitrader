@@ -16,12 +16,17 @@ case class OrderBookContainer(orders: OrdersBook, changes: Seq[OrderWampMsg])
 
 sealed trait WampMsg
 
-trait OrderProcessing{
+trait OrderProcessing {
   def bidNew(o: OrderPair)
+
   def askNew(o: OrderPair)
+
   def bidModify(o: OrderPair)
+
   def askModify(o: OrderPair)
+
   def askRemove(o: OrderPair)
+
   def bidRemove(o: OrderPair)
 }
 
@@ -30,7 +35,7 @@ trait OrderProcessing{
 case class OrderWampMsg(
                          @JsonProperty("type") var tpe: String,
                          @JsonProperty("data") var data: Order
-                       ) extends WampMsg{
+                       ) extends WampMsg {
   def process(f: OrderProcessing) = {
     tpe match {
       case "newTrade" =>
@@ -58,3 +63,8 @@ case class ChatWampMsg(@JsonProperty("type") tpe: String,
                        @JsonProperty("message") message: String,
                        @JsonProperty("reputation") reputation: Int
                       ) extends WampMsg
+
+
+case class UserProfile(name: Option[String], authData: Option[AuthData])
+
+case class AuthData(apiKey: String, apiSecret: String)

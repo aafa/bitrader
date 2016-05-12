@@ -24,7 +24,8 @@
         </activity>
 
         <activity android:name="app.bitrader.activity.TabActivity"/>
-        <activity android:name="app.bitrader.activity.WampActivity"/>
+        <activity android:name=".activity.menu.WampActivity"/>
+        <activity android:name=".activity.menu.ProfileActivity"/>
 
     </application>
 

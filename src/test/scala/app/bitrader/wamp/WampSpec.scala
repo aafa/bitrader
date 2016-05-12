@@ -1,7 +1,7 @@
 package app.bitrader.wamp
 
 import app.bitrader._
-import app.bitrader.activity.MessagesAdapter
+import app.bitrader.activity.menu.MessagesAdapter
 
 import scala.collection.SortedMap
 
@@ -9,7 +9,7 @@ import scala.collection.SortedMap
   * Created by Alex Afanasev
   */
 class WampSpec extends AbstractSpec{
-  class TestMessages extends MessagesAdapter()()
+  class TestMessages extends MessagesAdapter()
 
   def bd(k: Int, v: Int): (OrderKey, OrderValue) = (BigDecimal(k), BigDecimal(v))
 

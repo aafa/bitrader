@@ -1,31 +1,26 @@
 package app.bitrader
 
 import app.bitrader.api.poloniex.{CurrencyPair, OrdersBook}
-import diode.ActionResult.ModelUpdate
-import diode.{ActionHandler, Circuit, Effect, EffectSingle}
+import diode.{ActionHandler, Circuit, Effect}
 
-import scala.collection.SortedMap
-import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 /**
   * Created by Alex Afanasev
   */
-object AppCircuit extends Circuit[RootModel] {
-  def initialModel = RootModel(
-    orderBook = OrderBookContainer(
-      orders = OrdersBook(Seq.empty, Seq.empty, 0, 0),
-      changes = Seq.empty)
-  )
+object AppCircuit extends Circuit[RootModel]  {
+
+  def initialModel = RootModel()
 
   val orderBookUpdatesHandler = new ActionHandler(zoomRW(_.orderBook.changes)((m, v) =>
     m.copy(orderBook = m.orderBook.copy(changes = v)))) {
     override def handle = {
       // todo handle subscription case here
-//      case ResetWampMessages[OrderWampMsg] =>
+      //      case ResetWampMessages[OrderWampMsg] =>
 
       case AddWampMessages(ms: Seq[OrderWampMsg]) =>
-//        println(s"AddMessages OrderWampMsg $ms")
+        //        println(s"AddMessages OrderWampMsg $ms")
         updated(value ++ ms)
     }
   }
@@ -43,8 +38,14 @@ object AppCircuit extends Circuit[RootModel] {
   override val actionHandler = combineHandlers(orderBookUpdatesHandler, orderBookList)
 }
 
-case class RootModel(orderBook: OrderBookContainer)
-
+case class RootModel(orderBook: OrderBookContainer =
+                     OrderBookContainer(
+                       orders = OrdersBook(Seq.empty, Seq.empty, 0, 0),
+                       changes = Seq.empty),
+                     user: UserProfile = UserProfile(
+                       None,
+                       Some(AuthData(LocalProperties.apiKey, LocalProperties.apiSecret))
+                     ))
 
 // actions
 
