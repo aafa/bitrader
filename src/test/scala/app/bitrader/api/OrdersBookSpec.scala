@@ -8,7 +8,6 @@ import app.bitrader._
 /**
   * Created by Alex Afanasev
   */
-@Config(sdk = Array(LOLLIPOP))
 class OrdersBookSpec extends ApiSpec {
 
   it should "work with orders book" in {

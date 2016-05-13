@@ -11,7 +11,6 @@ import app.bitrader._
 /**
   * Created by Alex Afanasev
   */
-@Config(sdk = Array(LOLLIPOP))
 class ChartSpec extends ApiSpec {
 
   class TestChartLayout extends ChartLayout

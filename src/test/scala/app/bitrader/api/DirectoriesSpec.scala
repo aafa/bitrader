@@ -7,7 +7,6 @@ import org.robolectric.annotation.Config
 /**
   * Created by Alex Afanasev
   */
-@Config(sdk = Array(LOLLIPOP))
 class DirectoriesSpec extends ApiSpec {
 
 

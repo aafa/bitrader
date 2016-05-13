@@ -1,6 +1,6 @@
 package app.bitrader.api.poloniex
 
-import retrofit.http.GET
+import retrofit.http._
 
 /**
   * Created by Alex Afanasev
@@ -8,7 +8,8 @@ import retrofit.http.GET
 
 trait PoloniexTradingAPIServiceDescriptor {
 
-  @GET("/tradingApi?command=returnBalances")
-  def balances() : Map[String, String]
+  @POST("/tradingApi")
+  @FormUrlEncoded
+  def balances(@Field("nonce") nonce: String, @Field("command") command: String): Map[String, String]
 
 }

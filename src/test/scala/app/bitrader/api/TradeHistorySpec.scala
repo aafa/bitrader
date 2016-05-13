@@ -9,7 +9,6 @@ import org.robolectric.annotation.Config
 /**
   * Created by Alex Afanasev
   */
-@Config(sdk = Array(LOLLIPOP))
 class TradeHistorySpec extends ApiSpec {
 
   def assertHistory(history: Seq[TradeHistory]): Unit = {

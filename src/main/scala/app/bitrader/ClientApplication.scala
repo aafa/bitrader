@@ -6,6 +6,7 @@ import java.text.SimpleDateFormat
 import android.app.Application
 import android.content.Context
 import app.bitrader.api.UiService
+import app.bitrader.api.network.AuthInterceptor
 import app.bitrader.api.poloniex.PoloniexAPIServiceDescriptor
 import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper}
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
@@ -53,12 +54,13 @@ object APIContext {
   def poloniexService: UiService[PoloniexAPIServiceDescriptor] = new UiService(poloniexApi)
 }
 
-class CachedRetrofitBuilder(cacheDir: File) extends ScalaRetrofitBuilder(
+class CachedRetrofitBuilder(cacheDir: File)(implicit ctx: Context) extends ScalaRetrofitBuilder(
   scalaMapperSettings = { om =>
     om.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
     om.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"))
   },
   okClientSettings = { ok =>
+    ok.interceptors().add(new AuthInterceptor(ctx))
     ok.setCache(new Cache(cacheDir, 10*1024*1024))
   }
 )
