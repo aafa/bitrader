@@ -8,8 +8,8 @@ import android.content.Context
 import app.bitrader.LocalProperties
 import com.google.common.io.BaseEncoding
 import com.squareup.okhttp.Interceptor.Chain
-import com.squareup.okhttp.{Interceptor, Request, Response}
-import okio.Buffer
+import com.squareup.okhttp._
+import okio.{Buffer, BufferedSink}
 
 /**
   * Created by Alex Afanasev
@@ -28,6 +28,11 @@ class AuthInterceptor(ctx: Context) extends Interceptor {
     }
 
     println(s"post query $query")
+
+    // todo put nonce here
+//    val formEncodingBuilder: FormEncodingBuilder = new FormEncodingBuilder
+//    formEncodingBuilder.add()
+//    newRequest.post(formEncodingBuilder)
 
     newRequest.addHeader("Key", LocalProperties.apiKey)
     newRequest.addHeader("Sign", hmacSHA512(query))
