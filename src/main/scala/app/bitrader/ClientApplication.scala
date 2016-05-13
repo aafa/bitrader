@@ -5,9 +5,9 @@ import java.text.SimpleDateFormat
 
 import android.app.Application
 import android.content.Context
-import app.bitrader.api.UiService
+import app.bitrader.api.{ApiServices, NetworkFacadeFactory, UiService}
 import app.bitrader.api.network.AuthInterceptor
-import app.bitrader.api.poloniex.PoloniexAPIServiceDescriptor
+import app.bitrader.api.poloniex.{PoloniexFacade, PoloniexPublicAPI}
 import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper}
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.fasterxml.jackson.module.scala.experimental.ScalaObjectMapper
@@ -29,16 +29,9 @@ class ClientApplication extends Application {
     Iconify.`with`(new FontAwesomeModule).`with`(new MaterialModule)
 
     implicit val c = getApplicationContext
-    APIContext.poloniexApi = buildApi[PoloniexAPIServiceDescriptor](TR.string.poloniex_url.value)
+    APIContext.poloniexApi = NetworkFacadeFactory.factory(ApiServices.Poloniex)
   }
 
-  def buildApi[API : ClassTag](url: String)(implicit ctx: Context): API = {
-    new CachedRetrofitBuilder(ctx.getApplicationContext.getCacheDir)
-      .setEndpoint(url)
-      .setLogLevel(RestAdapter.LogLevel.FULL)
-      .build()
-      .create(classTag[API].runtimeClass).asInstanceOf[API]
-  }
 }
 
 // todo factory
@@ -50,17 +43,7 @@ object APIContext {
     jm
   }
 
-  var poloniexApi: PoloniexAPIServiceDescriptor = _
-  def poloniexService: UiService[PoloniexAPIServiceDescriptor] = new UiService(poloniexApi)
+  var poloniexApi: PoloniexFacade = _
+  def poloniexService: UiService[PoloniexFacade] = new UiService(poloniexApi)
 }
 
-class CachedRetrofitBuilder(cacheDir: File)(implicit ctx: Context) extends ScalaRetrofitBuilder(
-  scalaMapperSettings = { om =>
-    om.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-    om.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"))
-  },
-  okClientSettings = { ok =>
-    ok.interceptors().add(new AuthInterceptor(ctx))
-    ok.setCache(new Cache(cacheDir, 10*1024*1024))
-  }
-)

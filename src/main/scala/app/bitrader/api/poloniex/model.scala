@@ -2,6 +2,7 @@ package app.bitrader.api.poloniex
 
 import java.util.Date
 
+import app.ObjectEnum
 import app.bitrader._
 import com.fasterxml.jackson.annotation.{JsonCreator, JsonProperty}
 import org.joda.time.DateTime
@@ -67,16 +68,9 @@ case class TradeHistory(
                  )
 
 
-trait Enum[A] {
-  trait Value { self: A =>
-    _values :+= this
-  }
-  private var _values: List[A] = List.empty[A]
-  def values = _values
-}
 
 sealed trait CurrencyPair extends CurrencyPair.Value
-object CurrencyPair extends Enum[CurrencyPair] {
+object CurrencyPair extends ObjectEnum[CurrencyPair] {
   case object BTC_ETH extends CurrencyPair
   case object BTC_NXT extends CurrencyPair
   case object BTC_XMR extends CurrencyPair

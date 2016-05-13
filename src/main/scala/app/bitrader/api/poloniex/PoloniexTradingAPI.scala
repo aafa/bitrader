@@ -1,12 +1,13 @@
 package app.bitrader.api.poloniex
 
+import app.bitrader.api.APIDescriptor
 import retrofit.http._
 
 /**
   * Created by Alex Afanasev
   */
 
-trait PoloniexTradingAPIServiceDescriptor {
+trait PoloniexTradingAPI {
 
   @POST("/tradingApi")
   @FormUrlEncoded

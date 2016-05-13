@@ -6,7 +6,7 @@ import retrofit.http._
 /**
   * Created by Alexey Afanasev on 21.04.16.
   */
-trait PoloniexAPIServiceDescriptor {
+trait PoloniexPublicAPI {
 
   @Header("Cache-Control: public, max-age=640000, s-maxage=640000 , max-stale=2419200")
   @GET("/public?command=returnTicker")

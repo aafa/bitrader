@@ -1,4 +1,4 @@
-package app.bitrader.wamp
+package app.bitrader.api.network
 
 import java.util.concurrent.TimeUnit
 

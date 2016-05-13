@@ -35,7 +35,7 @@ object AppCircuit extends Circuit[RootModel]  {
     }
   }
 
-  override val actionHandler = combineHandlers(orderBookUpdatesHandler, orderBookList)
+  override val actionHandler = composeHandlers(orderBookUpdatesHandler, orderBookList)
 }
 
 case class RootModel(orderBook: OrderBookContainer =
