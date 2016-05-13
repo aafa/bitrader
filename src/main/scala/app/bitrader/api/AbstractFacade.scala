@@ -59,7 +59,7 @@ abstract class AbstractFacade(implicit ctx: Context) {
 }
 
 
-object NetworkFacadeFactory {
+object NetworkFacade {
   def factory(s: ApiServices)(implicit ctx: Context): s.ApiFacade = s.facade
 }
 

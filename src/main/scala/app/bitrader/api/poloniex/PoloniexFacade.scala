@@ -17,9 +17,7 @@ class PoloniexFacade(implicit ctx: Context) extends AbstractFacade with API {
 
   override val wampApi = null
   override val publicApi: PublicApi = buildApi(TR.string.poloniex_url.value)
-  override val privateApi = buildApi(TR.string.poloniex_trading_url.value, { ok =>
-    ok.interceptors().add(new AuthInterceptor(ctx))
-  })
+  override val privateApi = buildApi(TR.string.poloniex_trading_url.value, _.interceptors().add(new AuthInterceptor(ctx)))
 
   def ordersBook(pair: CurrencyPair, depth : Int) : OrdersBook = publicApi.ordersBook(pair, depth)
 

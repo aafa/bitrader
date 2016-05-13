@@ -5,7 +5,7 @@ import java.text.SimpleDateFormat
 
 import android.app.Application
 import android.content.Context
-import app.bitrader.api.{ApiServices, NetworkFacadeFactory, UiService}
+import app.bitrader.api.{ApiServices, NetworkFacade, UiService}
 import app.bitrader.api.network.AuthInterceptor
 import app.bitrader.api.poloniex.{PoloniexFacade, PoloniexPublicAPI}
 import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper}
@@ -29,7 +29,7 @@ class ClientApplication extends Application {
     Iconify.`with`(new FontAwesomeModule).`with`(new MaterialModule)
 
     implicit val c = getApplicationContext
-    APIContext.poloniexApi = NetworkFacadeFactory.factory(ApiServices.Poloniex)
+    APIContext.poloniexApi = NetworkFacade.factory(ApiServices.Poloniex)
   }
 
 }
