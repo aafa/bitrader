@@ -12,7 +12,7 @@ import macroid.FullDsl._
   * Created by Alex Afanasev
   */
 class ProfileActivity extends Activity with Contexts[Activity] {
-  private lazy val view: ProfileView = new ProfileView(AppCircuit.zoom(_.user))
+  private lazy val view: ProfileView = new ProfileView(AppCircuit.zoom(_.auth.head._2))
 
   override def onCreate(savedInstanceState: Bundle): Unit = {
     super.onCreate(savedInstanceState)

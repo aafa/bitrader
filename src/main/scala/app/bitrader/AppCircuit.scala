@@ -1,5 +1,6 @@
 package app.bitrader
 
+import app.bitrader.api.{ApiService, Poloniex}
 import app.bitrader.api.poloniex.{CurrencyPair, OrdersBook}
 import diode.{ActionHandler, Circuit, Effect}
 
@@ -9,7 +10,7 @@ import scala.concurrent.Future
 /**
   * Created by Alex Afanasev
   */
-object AppCircuit extends Circuit[RootModel]  {
+object AppCircuit extends Circuit[RootModel] {
 
   def initialModel = RootModel()
 
@@ -42,9 +43,11 @@ case class RootModel(orderBook: OrderBookContainer =
                      OrderBookContainer(
                        orders = OrdersBook(Seq.empty, Seq.empty, 0, 0),
                        changes = Seq.empty),
-                     user: UserProfile = UserProfile(
-                       None,
-                       Some(AuthData("",""))
+                     auth: Map[ApiService, UserProfile] = Map(
+                       Poloniex -> UserProfile(
+                         None,
+                         Some(AuthData("", "")
+                         ))
                      ))
 
 // actions

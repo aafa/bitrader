@@ -17,15 +17,15 @@ import scala.reflect._
   * Created by Alex Afanasev
   */
 
-sealed trait ApiServices extends ApiServices.Value {
+sealed trait ApiService extends ApiService.Value {
   type ApiFacade
 
   def facade(implicit ctx: Context): ApiFacade
 }
 
-object ApiServices extends ObjectEnum[ApiServices]
+object ApiService extends ObjectEnum[ApiService]
 
-case object Poloniex extends ApiServices {
+case object Poloniex extends ApiService {
   override type ApiFacade = PoloniexFacade
 
   override def facade(implicit ctx: Context) = new PoloniexFacade
@@ -56,7 +56,7 @@ abstract class AbstractFacade(implicit ctx: Context) {
 
 
 object NetworkFacade {
-  def factory(s: ApiServices)(implicit ctx: Context): s.ApiFacade = s.facade
+  def factory(s: ApiService)(implicit ctx: Context): s.ApiFacade = s.facade
 }
 
 
