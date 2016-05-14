@@ -48,7 +48,7 @@ class AuthInterceptor(ctx: Context) extends Interceptor {
     mac.init(secretKeySpec)
     val bytes: Array[Byte] = mac.doFinal(value.getBytes(encoding))
 
-    bytes.map(b => "%02x".format(b & 0xff)).mkString
+    bytes.map("%02x" format _).mkString
   }
 
 }
