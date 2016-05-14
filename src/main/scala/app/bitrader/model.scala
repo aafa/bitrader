@@ -65,6 +65,6 @@ case class ChatWampMsg(@JsonProperty("type") tpe: String,
                       ) extends WampMsg
 
 
-case class UserProfile(name: Option[String], authData: Option[AuthData])
+case class UserProfile(name: Option[String] = None, authData: Option[AuthData] = None)
 
 case class AuthData(apiKey: String, apiSecret: String)

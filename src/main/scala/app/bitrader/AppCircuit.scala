@@ -44,10 +44,7 @@ case class RootModel(orderBook: OrderBookContainer =
                        orders = OrdersBook(Seq.empty, Seq.empty, 0, 0),
                        changes = Seq.empty),
                      auth: Map[ApiService, UserProfile] = Map(
-                       Poloniex -> UserProfile(
-                         None,
-                         Some(AuthData("", "")
-                         ))
+                       Poloniex -> UserProfile()
                      ))
 
 // actions
