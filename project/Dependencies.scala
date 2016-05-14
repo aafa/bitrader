@@ -29,8 +29,6 @@ object Dependencies {
       "com.github.nscala-time" %% "nscala-time" % "2.12.0",
       "com.github.PhilJay" % "MPAndroidChart" % "v2.2.4",
 
-      "org.consensusresearch" %% "scrypto" % "1.1.0",
-
       "com.joanzapata.iconify" % "android-iconify-fontawesome" % iconify,
       "com.joanzapata.iconify" % "android-iconify-material" % iconify
     ),

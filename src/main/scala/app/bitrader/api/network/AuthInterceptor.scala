@@ -6,7 +6,6 @@ import javax.crypto.spec.SecretKeySpec
 
 import android.content.Context
 import app.bitrader.LocalProperties
-import com.google.common.io.BaseEncoding
 import com.squareup.okhttp.Interceptor.Chain
 import com.squareup.okhttp._
 import okio.{Buffer, BufferedSink}
@@ -49,7 +48,7 @@ class AuthInterceptor(ctx: Context) extends Interceptor {
     mac.init(secretKeySpec)
     val bytes: Array[Byte] = mac.doFinal(value.getBytes(encoding))
 
-    BaseEncoding.base16().lowerCase().encode(bytes)
+    bytes.map(b => "%02x".format(b & 0xff)).mkString
   }
 
 }
