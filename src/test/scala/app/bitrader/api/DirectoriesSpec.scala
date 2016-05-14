@@ -11,8 +11,8 @@ class DirectoriesSpec extends ApiSpec {
 
 
   it should "work with currencies" in {
-    val cc: Map[String, Currency] = poloniexApi.currencies().printTime
-    val cc2: Map[String, Currency] = poloniexApi.currencies().printTime
+    val cc: Map[String, Currency] = poloniex.currencies().printTime
+    val cc2: Map[String, Currency] = poloniex.currencies().printTime
     assert(cc.nonEmpty)
 
     cc map {

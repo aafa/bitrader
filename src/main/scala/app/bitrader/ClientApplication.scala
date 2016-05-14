@@ -24,7 +24,6 @@ class ClientApplication extends Application {
 
 }
 
-// todo factory
 object APIContext {
   lazy val jacksonMapper = {
     val jm = new ObjectMapper() with ScalaObjectMapper

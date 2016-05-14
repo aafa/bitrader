@@ -20,7 +20,7 @@ class TradeHistorySpec extends ApiSpec {
   }
 
   it should "work with orders book" in {
-    val history: Seq[TradeHistory] = poloniexApi.tradeHistory(CurrencyPair.BTC_ETH)
+    val history: Seq[TradeHistory] = poloniex.tradeHistory(CurrencyPair.BTC_ETH)
     assertHistory(history)
   }
 

@@ -11,6 +11,6 @@ trait PoloniexTradingAPI {
 
   @POST("/tradingApi")
   @FormUrlEncoded
-  def balances(@Field("nonce") nonce: String, @Field("command") command: String): Map[String, String]
+  def get(@Field("nonce") nonce: String, @Field("command") command: String): Map[String, String]
 
 }

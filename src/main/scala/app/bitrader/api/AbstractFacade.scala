@@ -2,6 +2,7 @@ package app.bitrader.api
 
 import java.io.File
 import java.text.SimpleDateFormat
+import java.util.Date
 
 import android.content.Context
 import app.ObjectEnum
@@ -42,7 +43,8 @@ trait API {
   val wampApi: WampApi
 }
 
-abstract class AbstractFacade(implicit ctx: Context) {
+abstract class AbstractFacade(implicit ctx: Context) extends API{
+  def nonce: String = new Date().getTime.toString
 
   def buildApi[API: ClassTag](url: String, settings: OkHttpClient => Unit = () => _): API = {
     new CachedRetrofitBuilder(ctx.getApplicationContext.getCacheDir, settings)
@@ -51,7 +53,6 @@ abstract class AbstractFacade(implicit ctx: Context) {
       .build()
       .create(classTag[API].runtimeClass).asInstanceOf[API]
   }
-
 }
 
 

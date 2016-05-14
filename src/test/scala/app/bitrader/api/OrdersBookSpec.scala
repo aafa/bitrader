@@ -11,12 +11,12 @@ import app.bitrader._
 class OrdersBookSpec extends ApiSpec {
 
   it should "work with orders book" in {
-    val ordersBook: OrdersBook = poloniexApi.ordersBook(CurrencyPair.BTC_ETH, 20)
+    val ordersBook: OrdersBook = poloniex.ordersBook(CurrencyPair.BTC_ETH, 20)
     assertOrder(ordersBook)
   }
 
   it should "work with BIG orders book" in {
-    val ordersBook: Map[String, OrdersBook] = poloniexApi.ordersBook(20)
+    val ordersBook: Map[String, OrdersBook] = poloniex.ordersBook(20)
 
     ordersBook map { case (name, order) =>
       assertOrder(order)
