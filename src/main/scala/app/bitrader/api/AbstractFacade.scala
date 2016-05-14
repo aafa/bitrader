@@ -24,7 +24,7 @@ private[bitrader] trait ApiService extends ApiService.Value {
   def facade(implicit ctx: Context): ApiFacade
 }
 
-object ApiService extends ObjectEnum[ApiService]
+private[bitrader] object ApiService extends ObjectEnum[ApiService]
 
 sealed trait API {
   type PublicApi
@@ -36,10 +36,10 @@ sealed trait API {
   val wampApi: WampApi
 }
 
-abstract class AbstractFacade(implicit ctx: Context) extends API{
+abstract class AbstractFacade(implicit ctx: Context) extends API {
   def nonce: String = new Date().getTime.toString
 
-  def buildApi[API: ClassTag](url: String, settings: OkHttpClient => Unit = () => _): API = {
+  protected def buildApi[API: ClassTag](url: String, settings: OkHttpClient => Unit = () => _): API = {
     new CachedRetrofitBuilder(ctx.getApplicationContext.getCacheDir, settings)
       .setEndpoint(url)
       .setLogLevel(RestAdapter.LogLevel.FULL)
@@ -47,7 +47,7 @@ abstract class AbstractFacade(implicit ctx: Context) extends API{
       .create(classTag[API].runtimeClass).asInstanceOf[API]
   }
 
-  class CachedRetrofitBuilder(cacheDir: File, settings: OkHttpClient => Unit = () => _) extends ScalaRetrofitBuilder(
+  private class CachedRetrofitBuilder(cacheDir: File, settings: OkHttpClient => Unit = () => _) extends ScalaRetrofitBuilder(
     scalaMapperSettings = { om =>
       om.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
       om.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"))
@@ -57,6 +57,7 @@ abstract class AbstractFacade(implicit ctx: Context) extends API{
       ok.setCache(new Cache(cacheDir, 10 * 1024 * 1024))
     }
   )
+
 }
 
 object NetworkFacade {

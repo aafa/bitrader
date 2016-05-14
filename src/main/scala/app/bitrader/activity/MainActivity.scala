@@ -9,7 +9,7 @@ import android.support.v4.widget.{DrawerLayout, NestedScrollView}
 import android.support.v7.widget.{CardView, Toolbar}
 import android.view.{Gravity, View}
 import android.widget.LinearLayout
-import app.bitrader.api.poloniex.{Chart, CurrencyPair}
+import app.bitrader.api.poloniex.{Chart, Currency, CurrencyPair, Poloniex}
 import app.bitrader.helpers.Id
 import app.bitrader.{APIContext, TR}
 import com.github.mikephil.charting.charts.CandleStickChart
@@ -29,23 +29,33 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import app.bitrader._
 import app.bitrader.activity.menu.{ProfileActivity, ReadQrActivity, WampActivity}
 import app.bitrader.helpers.activity.ActivityOperations
+import diode.ModelR
 
 /**
   * Created by aafa
   */
 
-class MainActivity extends DrawerActivity with ActivityOperations{
+class MainActivity extends DrawerActivity with ActivityOperations {
 
-  override lazy val layout = new MainActivityLayout(menuItems)
   private val appCircuit = AppCircuit
+  private val selectedApi = Poloniex
+  private val zoomCurrencies: ModelR[RootModel, Map[String, Currency]] = appCircuit.zoom(_.serviceData.currencies)
+  private val zoomCharts: ModelR[RootModel, Seq[Chart]] = appCircuit.zoom(_.serviceData.chartsData)
+
+  override lazy val layout = new MainActivityLayout(menuItems, zoomCurrencies, zoomCharts)
 
   override def onCreate(b: Bundle): Unit = {
     super.onCreate(b)
     setContentView(layout.ui.get)
 
-    APIContext.poloniexService(_.currencies()) map layout.updateData
-    APIContext.poloniexService(_.chartData(CurrencyPair.BTC_ETH,
-      5.hours.ago().unixtime, DateTime.now.unixtime, 300)) map layout.updateChartData
+    //todo setup charts wamp update
+
+
+//    APIContext.poloniexService(_.currencies()) map layout.updateData
+    appCircuit(UpdateCharts(selectedApi))
+
+//    APIContext.poloniexService(_.chartData(CurrencyPair.BTC_ETH,
+//      5.hours.ago().unixtime, DateTime.now.unixtime, 300)) map layout.updateChartData
   }
 
 
@@ -61,13 +71,14 @@ class MainActivity extends DrawerActivity with ActivityOperations{
     }),
     DrawerMenuItem("Account")
   )
-
-
 }
 
-class MainActivityLayout(override val menuItems: Seq[DrawerMenuItem])
+class MainActivityLayout(override val menuItems: Seq[DrawerMenuItem],
+                         zoomCurrencies: ModelR[RootModel, Map[String, Currency]],
+                         zoomCharts: ModelR[RootModel, Seq[Chart]]
+                        )
                         (implicit cw: ContextWrapper, managerContext: FragmentManagerContext[Fragment, FragmentManager])
-  extends BasicDrawerLayout(menuItems) with MainStyles with ChartLayout  {
+  extends BasicDrawerLayout(menuItems) with MainStyles with ChartLayout {
 
 
   var textSlot = slot[IconTextView]
@@ -82,7 +93,7 @@ class MainActivityLayout(override val menuItems: Seq[DrawerMenuItem])
   def ui: Ui[View] = if (portrait)
     verticalLayout
   else
-    w[CandleStickChart] <~ wire(candleStick) <~ candleStickSettings <~ vMatchParent
+    w[CandleStickChart] <~ wire(candleStick) <~ candleStickSettings <~ candlestickData(zoomCharts) <~ vMatchParent
 
 
   lazy val verticalLayout: Ui[DrawerLayout] = {
@@ -97,12 +108,12 @@ class MainActivityLayout(override val menuItems: Seq[DrawerMenuItem])
         l[NestedScrollView](
           l[LinearLayout](
             l[CardView](
-              w[CandleStickChart] <~ wire(candleStick) <~ candleStickSettings
+              w[CandleStickChart] <~ wire(candleStick) <~ candleStickSettings <~ candlestickData(zoomCharts)
             ) <~ vContentSizeMatchWidth(200.dp) <~ cardTweak <~ id(Id.card),
 
             l[CardView](
               l[LinearLayout](
-                w[IconTextView] <~ wire(textSlot)
+                w[IconTextView] <~ wire(textSlot) <~ text(zoomCurrencies.value.toString())
               )
             ) <~ vMatchWidth <~ cardTweak
           ) <~ vertical
@@ -111,12 +122,6 @@ class MainActivityLayout(override val menuItems: Seq[DrawerMenuItem])
     )
   }
 
-  def updateData(t: Map[_, _]): Unit = {
-    Ui.run(
-      textSlot <~ text(t.toString()),
-      toolBar <~ Tweak[Toolbar](_.setTitle("got it!"))
-    )
-  }
 
   // style
 
@@ -179,12 +184,18 @@ trait ChartLayout {
     data
   }
 
+  // for wamp updates
   def updateChartUi(data: CandleData): Ui[_] = {
     candleStick <~ Tweak[CandleStickChart](cs => {
       cs.setData(data)
       cs.invalidate()
     })
   }
+
+  def candlestickData(m: ModelR[RootModel, Seq[Chart]]) = Tweak[CandleStickChart](cs => if (m.value.nonEmpty) {
+    cs.setData(prepareChartData(m.value))
+    cs.invalidate()
+  })
 
   val candleStickSettings = Tweak[CandleStickChart](
     _.setDescription("Bitrader data")

@@ -1,7 +1,8 @@
 package app.bitrader
 
-import app.bitrader.api.{ApiService}
-import app.bitrader.api.poloniex.{CurrencyPair, OrdersBook, Poloniex}
+import app.bitrader.api.{AbstractFacade, ApiService}
+import app.bitrader.api.poloniex._
+import com.github.nscala_time.time.Imports._
 import diode.{ActionHandler, Circuit, Effect}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -36,7 +37,19 @@ object AppCircuit extends Circuit[RootModel] {
     }
   }
 
-  override val actionHandler = composeHandlers(orderBookUpdatesHandler, orderBookList)
+  // todo serviceApi router
+  val apiUpdates = new ActionHandler(zoomRW(_.serviceData.chartsData)((model: RootModel, data: Seq[Chart]) =>
+    model.copy(serviceData = model.serviceData.copy(chartsData = data))
+  )) {
+    override def handle = {
+      case UpdateCharts(api) =>
+        val request: Future[Seq[Chart]] = APIContext.poloniexService(_.chartData(CurrencyPair.BTC_ETH, 5.hours.ago().unixtime, DateTime.now.unixtime, 300))
+        effectOnly(Effect(request.map(r => ChartsUpdated(Poloniex, r))))
+      case ChartsUpdated(api, c) => updated(value ++ c)
+    }
+  }
+
+  override val actionHandler = composeHandlers(orderBookUpdatesHandler, orderBookList, apiUpdates)
 }
 
 // model
@@ -45,15 +58,26 @@ case class RootModel(orderBook: OrderBookContainer =
                      OrderBookContainer(
                        orders = OrdersBook(Seq.empty, Seq.empty, 0, 0),
                        changes = Seq.empty),
-                     serviceData: Map[ApiService, ServiceData] = Map(
-                       Poloniex -> ServiceData()
-                     ),
+                     serviceData: ServiceData = ServiceData(),
+
                      auth: Map[ApiService, UserProfile] = Map(
                        Poloniex -> UserProfile()
-                     ))
+                     )
+                    )
 
+// todo ApiService -> ServiceContext
+case class ServiceContext(
+                           apiContext: AbstractFacade,
+                           auth: Map[ApiService, UserProfile] = Map(
+                             Poloniex -> UserProfile()
+                           ),
+                           serviceData: ServiceData = ServiceData()
+                         )
 
-case class ServiceData()
+case class ServiceData(
+                        currencies: Map[String, Currency] = Map.empty,
+                        chartsData: Seq[Chart] = Seq.empty
+                      )
 
 // actions
 
@@ -71,3 +95,8 @@ case class SubscribeToChannel(t: String)
 
 case class UnsubscribeFromChannel(t: String)
 
+case class UpdateCurrencies(api: ApiService)
+
+case class UpdateCharts(api: ApiService)
+
+case class ChartsUpdated(api: ApiService, c: Seq[Chart])
