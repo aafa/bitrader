@@ -8,6 +8,7 @@
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.CAMERA"/>
 
     <uses-sdk android:minSdkVersion="14"/>
 
@@ -26,6 +27,7 @@
         <activity android:name="app.bitrader.activity.TabActivity"/>
         <activity android:name=".activity.menu.WampActivity"/>
         <activity android:name=".activity.menu.ProfileActivity"/>
+        <activity android:name=".activity.menu.ReadQrActivity"/>
 
     </application>
 

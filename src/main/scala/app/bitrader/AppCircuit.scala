@@ -44,7 +44,7 @@ case class RootModel(orderBook: OrderBookContainer =
                        changes = Seq.empty),
                      user: UserProfile = UserProfile(
                        None,
-                       Some(AuthData(LocalProperties.apiKey, LocalProperties.apiSecret))
+                       Some(AuthData("",""))
                      ))
 
 // actions

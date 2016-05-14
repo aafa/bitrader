@@ -29,6 +29,8 @@ object Dependencies {
       "com.github.nscala-time" %% "nscala-time" % "2.12.0",
       "com.github.PhilJay" % "MPAndroidChart" % "v2.2.4",
 
+      aar("me.dm7.barcodescanner" % "zxing" % "1.8.4"),
+
       "com.joanzapata.iconify" % "android-iconify-fontawesome" % iconify,
       "com.joanzapata.iconify" % "android-iconify-material" % iconify
     ),

@@ -27,7 +27,7 @@ import com.github.nscala_time.time.Imports._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import app.bitrader._
-import app.bitrader.activity.menu.{ProfileActivity, WampActivity}
+import app.bitrader.activity.menu.{ProfileActivity, ReadQrActivity, WampActivity}
 import app.bitrader.helpers.activity.ActivityOperations
 
 /**
@@ -54,6 +54,9 @@ class MainActivity extends DrawerActivity with ActivityOperations{
     }),
     DrawerMenuItem("ProfileActivity", action = () => {
       startActivity[ProfileActivity]
+    }),
+    DrawerMenuItem("ReadQrActivity", action = () => {
+      startActivity[ReadQrActivity]
     }),
     DrawerMenuItem("Account")
   )
