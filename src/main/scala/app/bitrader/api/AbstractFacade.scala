@@ -5,9 +5,6 @@ import java.text.SimpleDateFormat
 
 import android.content.Context
 import app.ObjectEnum
-import app.bitrader.TR
-import app.bitrader.api.ApiServices.Poloniex
-import app.bitrader.api.network.AuthInterceptor
 import app.bitrader.api.poloniex.PoloniexFacade
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.github.aafa.ScalaRetrofitBuilder
@@ -26,15 +23,14 @@ sealed trait ApiServices extends ApiServices.Value {
   def facade(implicit ctx: Context): ApiFacade
 }
 
-object ApiServices extends ObjectEnum[ApiServices] {
+object ApiServices extends ObjectEnum[ApiServices]
 
-  case object Poloniex extends ApiServices {
-    override type ApiFacade = PoloniexFacade
+case object Poloniex extends ApiServices {
+  override type ApiFacade = PoloniexFacade
 
-    override def facade(implicit ctx: Context) = new PoloniexFacade
-  }
-
+  override def facade(implicit ctx: Context) = new PoloniexFacade
 }
+
 
 trait API {
   type PublicApi

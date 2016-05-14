@@ -14,8 +14,8 @@ abstract class ApiSpec extends AbstractSpec {
   override val aarsDir: FsFile = Fs.currentDirectory().join("target/android/intermediates/aars")
 
   class TestApplication extends ClientApplication
-  lazy val poloniexApi: PoloniexPublicAPI = NetworkFacade.factory(ApiServices.Poloniex).publicApi
-  lazy val poloniexPrivateApi: PoloniexTradingAPI = NetworkFacade.factory(ApiServices.Poloniex).privateApi
+  lazy val poloniexApi: PoloniexPublicAPI = NetworkFacade.factory(Poloniex).publicApi
+  lazy val poloniexPrivateApi: PoloniexTradingAPI = NetworkFacade.factory(Poloniex).privateApi
   lazy val poloniexService: UiService[PoloniexPublicAPI] = new UiService(poloniexApi)
 
 }

@@ -1,23 +1,13 @@
 package app.bitrader
 
-import java.io.File
-import java.text.SimpleDateFormat
-
 import android.app.Application
-import android.content.Context
-import app.bitrader.api.{ApiServices, NetworkFacade, UiService}
-import app.bitrader.api.network.AuthInterceptor
-import app.bitrader.api.poloniex.{PoloniexFacade, PoloniexPublicAPI}
+import app.bitrader.api.poloniex.PoloniexFacade
+import app.bitrader.api.{NetworkFacade, Poloniex, UiService}
 import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper}
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.fasterxml.jackson.module.scala.experimental.ScalaObjectMapper
-import com.github.aafa.ScalaRetrofitBuilder
 import com.joanzapata.iconify.Iconify
 import com.joanzapata.iconify.fonts.{FontAwesomeModule, MaterialModule}
-import com.squareup.okhttp.Cache
-import retrofit.RestAdapter
-
-import scala.reflect.{ClassTag, _}
 
 /**
   * Created by Alexey Afanasev on 07.04.16.
@@ -29,7 +19,7 @@ class ClientApplication extends Application {
     Iconify.`with`(new FontAwesomeModule).`with`(new MaterialModule)
 
     implicit val c = getApplicationContext
-    APIContext.poloniexApi = NetworkFacade.factory(ApiServices.Poloniex)
+    APIContext.poloniexApi = NetworkFacade.factory(Poloniex)
   }
 
 }
