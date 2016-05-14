@@ -18,7 +18,7 @@ import scala.reflect._
   * Created by Alex Afanasev
   */
 
-sealed trait ApiService extends ApiService.Value {
+private[bitrader] trait ApiService extends ApiService.Value {
   type ApiFacade
 
   def facade(implicit ctx: Context): ApiFacade
@@ -26,14 +26,7 @@ sealed trait ApiService extends ApiService.Value {
 
 object ApiService extends ObjectEnum[ApiService]
 
-case object Poloniex extends ApiService {
-  override type ApiFacade = PoloniexFacade
-
-  override def facade(implicit ctx: Context) = new PoloniexFacade
-}
-
-
-trait API {
+sealed trait API {
   type PublicApi
   type PrivateApi
   type WampApi
@@ -53,21 +46,20 @@ abstract class AbstractFacade(implicit ctx: Context) extends API{
       .build()
       .create(classTag[API].runtimeClass).asInstanceOf[API]
   }
-}
 
+  class CachedRetrofitBuilder(cacheDir: File, settings: OkHttpClient => Unit = () => _) extends ScalaRetrofitBuilder(
+    scalaMapperSettings = { om =>
+      om.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+      om.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"))
+    },
+    okClientSettings = { ok =>
+      settings(ok)
+      ok.setCache(new Cache(cacheDir, 10 * 1024 * 1024))
+    }
+  )
+}
 
 object NetworkFacade {
   def factory(s: ApiService)(implicit ctx: Context): s.ApiFacade = s.facade
 }
 
-
-class CachedRetrofitBuilder(cacheDir: File, settings: OkHttpClient => Unit = () => _) extends ScalaRetrofitBuilder(
-  scalaMapperSettings = { om =>
-    om.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-    om.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"))
-  },
-  okClientSettings = { ok =>
-    settings(ok)
-    ok.setCache(new Cache(cacheDir, 10 * 1024 * 1024))
-  }
-)

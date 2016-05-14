@@ -1,7 +1,7 @@
 package app.bitrader
 
-import app.bitrader.api.{ApiService, Poloniex}
-import app.bitrader.api.poloniex.{CurrencyPair, OrdersBook}
+import app.bitrader.api.{ApiService}
+import app.bitrader.api.poloniex.{CurrencyPair, OrdersBook, Poloniex}
 import diode.{ActionHandler, Circuit, Effect}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -39,13 +39,21 @@ object AppCircuit extends Circuit[RootModel] {
   override val actionHandler = composeHandlers(orderBookUpdatesHandler, orderBookList)
 }
 
+// model
+
 case class RootModel(orderBook: OrderBookContainer =
                      OrderBookContainer(
                        orders = OrdersBook(Seq.empty, Seq.empty, 0, 0),
                        changes = Seq.empty),
+                     serviceData: Map[ApiService, ServiceData] = Map(
+                       Poloniex -> ServiceData()
+                     ),
                      auth: Map[ApiService, UserProfile] = Map(
                        Poloniex -> UserProfile()
                      ))
+
+
+case class ServiceData()
 
 // actions
 
@@ -62,3 +70,4 @@ case class ResetWampMessages[T <: WampMsg]()
 case class SubscribeToChannel(t: String)
 
 case class UnsubscribeFromChannel(t: String)
+

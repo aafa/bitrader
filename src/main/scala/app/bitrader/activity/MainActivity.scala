@@ -37,6 +37,7 @@ import app.bitrader.helpers.activity.ActivityOperations
 class MainActivity extends DrawerActivity with ActivityOperations{
 
   override lazy val layout = new MainActivityLayout(menuItems)
+  private val appCircuit = AppCircuit
 
   override def onCreate(b: Bundle): Unit = {
     super.onCreate(b)
