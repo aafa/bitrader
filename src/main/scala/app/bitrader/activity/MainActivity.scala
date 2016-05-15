@@ -1,5 +1,6 @@
 package app.bitrader.activity
 
+import android.content.res.Configuration
 import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.os.{Bundle, Parcel}
@@ -40,9 +41,10 @@ class MainActivity extends DrawerActivity with ActivityOperations {
   private val appCircuit = AppCircuit
   private val selectedApi = Poloniex
   private val zoomCurrencies: ModelR[RootModel, Map[String, Currency]] = appCircuit.zoom(_.serviceData.currencies)
-  private val zoomCharts: ModelR[RootModel, Seq[Chart]] = appCircuit.zoom(_.serviceData.chartsData)
+  private val chartSub: () => Unit = appCircuit.subscribe(appCircuit.zoom(_.serviceData.chartsData))(m =>
+    layout.updateChartData(m.value))
 
-  override lazy val layout = new MainActivityLayout(menuItems, zoomCurrencies, zoomCharts)
+  override lazy val layout = new MainActivityLayout(menuItems, zoomCurrencies)
 
   override def onCreate(b: Bundle): Unit = {
     super.onCreate(b)
@@ -50,14 +52,17 @@ class MainActivity extends DrawerActivity with ActivityOperations {
 
     //todo setup charts wamp update
 
-
 //    APIContext.poloniexService(_.currencies()) map layout.updateData
     appCircuit(UpdateCharts(selectedApi))
-
-//    APIContext.poloniexService(_.chartData(CurrencyPair.BTC_ETH,
-//      5.hours.ago().unixtime, DateTime.now.unixtime, 300)) map layout.updateChartData
+    layout.updateChartData(appCircuit.zoom(_.serviceData.chartsData).value)
   }
 
+
+
+  override def onPause(): Unit = {
+    super.onPause()
+    chartSub.apply()
+  }
 
   lazy val menuItems: Seq[DrawerMenuItem] = Seq(
     DrawerMenuItem("Wamp", action = () => {
@@ -74,8 +79,7 @@ class MainActivity extends DrawerActivity with ActivityOperations {
 }
 
 class MainActivityLayout(override val menuItems: Seq[DrawerMenuItem],
-                         zoomCurrencies: ModelR[RootModel, Map[String, Currency]],
-                         zoomCharts: ModelR[RootModel, Seq[Chart]]
+                         zoomCurrencies: ModelR[RootModel, Map[String, Currency]]
                         )
                         (implicit cw: ContextWrapper, managerContext: FragmentManagerContext[Fragment, FragmentManager])
   extends BasicDrawerLayout(menuItems) with MainStyles with ChartLayout {
@@ -93,7 +97,7 @@ class MainActivityLayout(override val menuItems: Seq[DrawerMenuItem],
   def ui: Ui[View] = if (portrait)
     verticalLayout
   else
-    w[CandleStickChart] <~ wire(candleStick) <~ candleStickSettings <~ candlestickData(zoomCharts) <~ vMatchParent
+    w[CandleStickChart] <~ wire(candleStick) <~ candleStickSettings <~ vMatchParent
 
 
   lazy val verticalLayout: Ui[DrawerLayout] = {
@@ -108,7 +112,7 @@ class MainActivityLayout(override val menuItems: Seq[DrawerMenuItem],
         l[NestedScrollView](
           l[LinearLayout](
             l[CardView](
-              w[CandleStickChart] <~ wire(candleStick) <~ candleStickSettings <~ candlestickData(zoomCharts)
+              w[CandleStickChart] <~ wire(candleStick) <~ candleStickSettings
             ) <~ vContentSizeMatchWidth(200.dp) <~ cardTweak <~ id(Id.card),
 
             l[CardView](
@@ -168,7 +172,7 @@ trait MainStyles extends ToolbarAboveLayout with UiOperations with Styles with A
 trait ChartLayout {
   var candleStick = slot[CandleStickChart]
 
-  def updateChartData(chartData: Seq[Chart]): Unit = {
+  def updateChartData(chartData: Seq[Chart]): Unit = if (chartData.nonEmpty){
     val data: CandleData = prepareChartData(chartData)
     Ui.run(updateChartUi(data))
   }
