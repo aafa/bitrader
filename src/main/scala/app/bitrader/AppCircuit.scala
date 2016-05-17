@@ -45,7 +45,9 @@ object AppCircuit extends Circuit[RootModel] {
       case UpdateCharts(api) =>
         val request: Future[Seq[Chart]] = APIContext.poloniexService(_.chartData(CurrencyPair.BTC_ETH, 5.hours.ago().unixtime, DateTime.now.unixtime, 300))
         effectOnly(Effect(request.map(r => ChartsUpdated(Poloniex, r))))
-      case ChartsUpdated(api, c) => updated(c)
+      case ChartsUpdated(api, c) => {
+        updated(c)
+      }
     }
   }
 
