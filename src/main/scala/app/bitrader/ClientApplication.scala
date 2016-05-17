@@ -1,6 +1,7 @@
 package app.bitrader
 
 import android.app.Application
+import android.content.Context
 import app.bitrader.api.poloniex.{Poloniex, PoloniexFacade}
 import app.bitrader.api.{NetworkFacade, UiService}
 import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper}
@@ -19,6 +20,7 @@ class ClientApplication extends Application {
     Iconify.`with`(new FontAwesomeModule).`with`(new MaterialModule)
 
     implicit val c = getApplicationContext
+    APIContext.appContext = c
     APIContext.poloniexApi = NetworkFacade.factory(Poloniex)
   }
 
@@ -32,6 +34,7 @@ object APIContext {
     jm
   }
 
+  var appContext: Context = _
   var poloniexApi: PoloniexFacade = _
   def poloniexService: UiService[PoloniexFacade] = new UiService(poloniexApi)
 }

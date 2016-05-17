@@ -1,7 +1,10 @@
 package app.bitrader
 
+import android.content.Context
+import android.content.SharedPreferences.Editor
 import app.bitrader.api.{AbstractFacade, ApiService}
 import app.bitrader.api.poloniex._
+import app.bitrader.storage.PreferenceStored
 import com.github.nscala_time.time.Imports._
 import diode.{ActionHandler, Circuit, Effect}
 
@@ -13,6 +16,7 @@ import scala.concurrent.Future
   */
 object AppCircuit extends Circuit[RootModel] {
 
+  lazy val appContext: Context = APIContext.appContext
   def initialModel = RootModel()
 
   val orderBookUpdatesHandler = new ActionHandler(zoomRW(_.orderBook.changes)((m, v) =>
@@ -66,6 +70,8 @@ case class RootModel(orderBook: OrderBookContainer =
                        Poloniex -> UserProfile()
                      )
                     )
+
+
 
 // todo ApiService -> ServiceContext
 case class ServiceContext(
