@@ -55,19 +55,20 @@ object AppCircuit extends Circuit[RootModel] {
     }
   }
 
-  val uiUpdates: HandlerFunction = (model, action) => action match {
-    case ChartsUpdated(api, c) =>
-      val chartsZoom: ModelRW[RootModel, Seq[Chart]] = serviceData.zoomRW(_.chartsData)((m, v) => m.copy(chartsData = v))
-      Some(ModelUpdate(chartsZoom.updated(c)))
-    case _ => None
+  val uiUpdates = new ActionHandler(
+    serviceData.zoomRW(_.chartsData)((m, v) => m.copy(chartsData = v))
+  ) {
+    override def handle = {
+      case ChartsUpdated(c) => updated(c)
+    }
   }
 
   val apiRequest: HandlerFunction = (model, action) => action match {
-    case UpdateCharts(api) =>
-      val request: Future[Seq[Chart]] = APIContext.poloniexService(
+    case UpdateCharts =>
+      val request: Future[Seq[Chart]] = APIContext.poloniexService( // todo with selected api
         _.chartData(CurrencyPair.BTC_ETH, 5.hours.ago().unixtime, DateTime.now.unixtime, 300)
       )
-      val effect: EffectSingle[ChartsUpdated] = Effect(request.map(r => ChartsUpdated(api, r)))
+      val effect: EffectSingle[ChartsUpdated] = Effect(request.map(r => ChartsUpdated(r)))
       Some(EffectOnly(effect))
     case _ => None
   }
@@ -75,12 +76,6 @@ object AppCircuit extends Circuit[RootModel] {
   override val actionHandler = composeHandlers(orderBookUpdatesHandler, orderBookList, uiUpdates, apiRequest)
 }
 
-class ApiData(m: ModelRW[RootModel, ServiceData]) extends ActionHandler(m)
-{
-  override protected def handle = {
-    case _ => noChange
-  }
-}
 
 // model
 
@@ -126,10 +121,8 @@ case class UpdateCurrencies(api: ApiService)
 
 case class CurrenciesUpdated(api: ApiService)
 
-sealed trait ApiAction
+case object UpdateCharts
 
-case class UpdateCharts(api: ApiService) extends ApiAction
-
-case class ChartsUpdated(api: ApiService, c: Seq[Chart]) extends ApiAction
+case class ChartsUpdated(c: Seq[Chart])
 
 

@@ -54,7 +54,7 @@ class MainActivity extends DrawerActivity with ActivityOperations {
     //todo setup charts wamp update
 
 //    APIContext.poloniexService(_.currencies()) map layout.updateData
-    appCircuit(UpdateCharts(selectedApi))
+    appCircuit(UpdateCharts)
     layout.updateChartData(appCircuit.zoom(_.serviceContext(selectedApi).serviceData.chartsData).value)
   }
 
