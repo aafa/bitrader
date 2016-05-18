@@ -3,6 +3,7 @@ package app.bitrader.activity.menu
 import android.app.Activity
 import android.os.Bundle
 import android.widget.TextView
+import app.bitrader.api.poloniex.Poloniex
 import app.bitrader.{AppCircuit, RootModel, UserProfile}
 import diode.ModelR
 import macroid.{ContextWrapper, Contexts}
@@ -12,7 +13,8 @@ import macroid.FullDsl._
   * Created by Alex Afanasev
   */
 class ProfileActivity extends Activity with Contexts[Activity] {
-  private lazy val view: ProfileView = new ProfileView(AppCircuit.zoom(_.auth.head._2))
+  private val selectedApi = Poloniex
+  private lazy val view: ProfileView = new ProfileView(AppCircuit.serviceContext.zoom(_.auth))
 
   override def onCreate(savedInstanceState: Bundle): Unit = {
     super.onCreate(savedInstanceState)

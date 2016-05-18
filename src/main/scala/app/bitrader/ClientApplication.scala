@@ -3,7 +3,7 @@ package app.bitrader
 import android.app.Application
 import android.content.Context
 import app.bitrader.api.poloniex.{Poloniex, PoloniexFacade}
-import app.bitrader.api.{NetworkFacade, UiService}
+import app.bitrader.api.{AbstractFacade, ApiService, NetworkFacade, UiService}
 import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper}
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.fasterxml.jackson.module.scala.experimental.ScalaObjectMapper
@@ -21,6 +21,11 @@ class ClientApplication extends Application {
 
     implicit val c = getApplicationContext
     APIContext.appContext = c
+    APIContext.apis = Map(
+        Poloniex -> NetworkFacade.factory(Poloniex)
+    )
+
+    // todo temp shortcut
     APIContext.poloniexApi = NetworkFacade.factory(Poloniex)
   }
 
@@ -34,6 +39,7 @@ object APIContext {
     jm
   }
 
+  var apis: Map[ApiService, AbstractFacade] = Map.empty
   var appContext: Context = _
   var poloniexApi: PoloniexFacade = _
   def poloniexService: UiService[PoloniexFacade] = new UiService(poloniexApi)

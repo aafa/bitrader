@@ -1,12 +1,11 @@
 package app.bitrader
 
 import android.content.Context
-import android.content.SharedPreferences.Editor
-import app.bitrader.api.{AbstractFacade, ApiService}
+import app.bitrader.api.ApiService
 import app.bitrader.api.poloniex._
-import app.bitrader.storage.PreferenceStored
 import com.github.nscala_time.time.Imports._
-import diode.{ActionHandler, Circuit, Effect}
+import diode.ActionResult.{EffectOnly, ModelUpdate}
+import diode._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -17,10 +16,23 @@ import scala.concurrent.Future
 object AppCircuit extends Circuit[RootModel] {
 
   lazy val appContext: Context = APIContext.appContext
+
   def initialModel = RootModel()
 
-  val orderBookUpdatesHandler = new ActionHandler(zoomRW(_.orderBook.changes)((m, v) =>
-    m.copy(orderBook = m.orderBook.copy(changes = v)))) {
+  private def apiService: ApiService = zoom(_.selectedApi).value
+
+  def serviceContext: ModelRW[RootModel, ServiceContext] = zoomRW(_.serviceContext(apiService))((m, newServiceContext) => m.copy(serviceContext =
+    m.serviceContext.map {
+      case (k, v) if k == apiService => (apiService, newServiceContext)
+      case a => a
+    }))
+
+  def serviceData: ModelRW[RootModel, ServiceData] = serviceContext.zoomRW(_.serviceData)((m, v) => m.copy(serviceData = v))
+
+  val orderBookUpdatesHandler = new ActionHandler(
+    zoomRW(_.orderBook)((m, v) => m.copy(orderBook = v))
+      .zoomRW(_.changes)((m, v) => m.copy(changes = v))
+  ) {
     override def handle = {
       // todo handle subscription case here
       //      case ResetWampMessages[OrderWampMsg] =>
@@ -31,8 +43,10 @@ object AppCircuit extends Circuit[RootModel] {
     }
   }
 
-  val orderBookList = new ActionHandler(zoomRW(_.orderBook.orders)((m, v) =>
-    m.copy(orderBook = m.orderBook.copy(orders = v)))) {
+  val orderBookList = new ActionHandler(
+    zoomRW(_.orderBook)((m, v) => m.copy(orderBook = v))
+      .zoomRW(_.orders)((m, v) => m.copy(orders = v))
+  ) {
     override def handle = {
       case UpdateOrderBook(cp) =>
         val service: Future[OrdersBook] = APIContext.poloniexService(_.ordersBook(cp, 20))
@@ -41,21 +55,31 @@ object AppCircuit extends Circuit[RootModel] {
     }
   }
 
-  // todo serviceApi router
-  val apiUpdates = new ActionHandler(zoomRW(_.serviceData.chartsData)((model: RootModel, data: Seq[Chart]) =>
-    model.copy(serviceData = model.serviceData.copy(chartsData = data))
-  )) {
-    override def handle = {
-      case UpdateCharts(api) =>
-        val request: Future[Seq[Chart]] = APIContext.poloniexService(_.chartData(CurrencyPair.BTC_ETH, 5.hours.ago().unixtime, DateTime.now.unixtime, 300))
-        effectOnly(Effect(request.map(r => ChartsUpdated(Poloniex, r))))
-      case ChartsUpdated(api, c) => {
-        updated(c)
-      }
-    }
+  val uiUpdates: HandlerFunction = (model, action) => action match {
+    case ChartsUpdated(api, c) =>
+      val chartsZoom: ModelRW[RootModel, Seq[Chart]] = serviceData.zoomRW(_.chartsData)((m, v) => m.copy(chartsData = v))
+      Some(ModelUpdate(chartsZoom.updated(c)))
+    case _ => None
   }
 
-  override val actionHandler = composeHandlers(orderBookUpdatesHandler, orderBookList, apiUpdates)
+  val apiRequest: HandlerFunction = (model, action) => action match {
+    case UpdateCharts(api) =>
+      val request: Future[Seq[Chart]] = APIContext.poloniexService(
+        _.chartData(CurrencyPair.BTC_ETH, 5.hours.ago().unixtime, DateTime.now.unixtime, 300)
+      )
+      val effect: EffectSingle[ChartsUpdated] = Effect(request.map(r => ChartsUpdated(api, r)))
+      Some(EffectOnly(effect))
+    case _ => None
+  }
+
+  override val actionHandler = composeHandlers(orderBookUpdatesHandler, orderBookList, uiUpdates, apiRequest)
+}
+
+class ApiData(m: ModelRW[RootModel, ServiceData]) extends ActionHandler(m)
+{
+  override protected def handle = {
+    case _ => noChange
+  }
 }
 
 // model
@@ -64,21 +88,16 @@ case class RootModel(orderBook: OrderBookContainer =
                      OrderBookContainer(
                        orders = OrdersBook(Seq.empty, Seq.empty, 0, 0),
                        changes = Seq.empty),
-                     serviceData: ServiceData = ServiceData(),
 
-                     auth: Map[ApiService, UserProfile] = Map(
-                       Poloniex -> UserProfile()
+                     selectedApi: ApiService = Poloniex,
+                     serviceContext: Map[ApiService, ServiceContext] = Map(
+                       Poloniex -> ServiceContext()
                      )
                     )
 
 
-
-// todo ApiService -> ServiceContext
 case class ServiceContext(
-                           apiContext: AbstractFacade,
-                           auth: Map[ApiService, UserProfile] = Map(
-                             Poloniex -> UserProfile()
-                           ),
+                           auth: UserProfile = UserProfile(),
                            serviceData: ServiceData = ServiceData()
                          )
 
@@ -107,6 +126,10 @@ case class UpdateCurrencies(api: ApiService)
 
 case class CurrenciesUpdated(api: ApiService)
 
-case class UpdateCharts(api: ApiService)
+sealed trait ApiAction
 
-case class ChartsUpdated(api: ApiService, c: Seq[Chart])
+case class UpdateCharts(api: ApiService) extends ApiAction
+
+case class ChartsUpdated(api: ApiService, c: Seq[Chart]) extends ApiAction
+
+
