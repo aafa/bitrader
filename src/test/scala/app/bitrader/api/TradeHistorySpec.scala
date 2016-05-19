@@ -2,9 +2,8 @@ package app.bitrader.api
 
 import java.util.Date
 
-import android.os.Build.VERSION_CODES._
-import app.bitrader.api.poloniex.{OrdersBook, TradeHistory}
-import org.robolectric.annotation.Config
+import app.bitrader.api.common.CurrencyPair
+import app.bitrader.api.poloniex.TradeHistory
 
 /**
   * Created by Alex Afanasev
