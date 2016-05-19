@@ -21,7 +21,8 @@ object AppCircuit extends Circuit[RootModel] {
 
   private def apiService: ApiService = zoom(_.selectedApi).value
 
-  def serviceContext: ModelRW[RootModel, ServiceContext] = zoomRW(_.serviceContext(apiService))((m, newServiceContext) => m.copy(serviceContext =
+  def serviceContext: ModelRW[RootModel, ServiceContext] = zoomRW(
+    _.serviceContext(apiService))((m, newServiceContext) => m.copy(serviceContext =
     m.serviceContext.map {
       case (k, v) if k == apiService => (apiService, newServiceContext)
       case a => a
@@ -30,7 +31,7 @@ object AppCircuit extends Circuit[RootModel] {
   def serviceData: ModelRW[RootModel, ServiceData] = serviceContext.zoomRW(_.serviceData)((m, v) => m.copy(serviceData = v))
 
   val orderBookUpdatesHandler = new ActionHandler(
-    zoomRW(_.orderBook)((m, v) => m.copy(orderBook = v))
+    serviceData.zoomRW(_.orderBook)((m, v) => m.copy(orderBook = v))
       .zoomRW(_.changes)((m, v) => m.copy(changes = v))
   ) {
     override def handle = {
@@ -44,7 +45,7 @@ object AppCircuit extends Circuit[RootModel] {
   }
 
   val orderBookList = new ActionHandler(
-    zoomRW(_.orderBook)((m, v) => m.copy(orderBook = v))
+    serviceData.zoomRW(_.orderBook)((m, v) => m.copy(orderBook = v))
       .zoomRW(_.orders)((m, v) => m.copy(orders = v))
   ) {
     override def handle = {
@@ -65,7 +66,7 @@ object AppCircuit extends Circuit[RootModel] {
 
   val apiRequest: HandlerFunction = (model, action) => action match {
     case UpdateCharts =>
-      val request: Future[Seq[Chart]] = APIContext.poloniexService( // todo with selected api
+      val request: Future[Seq[Chart]] = APIContext.poloniexService(// todo with selected api
         _.chartData(CurrencyPair.BTC_ETH, 5.hours.ago().unixtime, DateTime.now.unixtime, 300)
       )
       val effect: EffectSingle[ChartsUpdated] = Effect(request.map(r => ChartsUpdated(r)))
@@ -74,20 +75,19 @@ object AppCircuit extends Circuit[RootModel] {
   }
 
   override val actionHandler = composeHandlers(orderBookUpdatesHandler, orderBookList, uiUpdates, apiRequest)
+
+  def dataSubscribe[Data <: AnyRef](get: ServiceData => Data)(listen: Data => Unit) =
+    subscribe(serviceData.zoom(get))(m => listen(m.value))
 }
 
 
 // model
 
-case class RootModel(orderBook: OrderBookContainer =
-                     OrderBookContainer(
-                       orders = OrdersBook(Seq.empty, Seq.empty, 0, 0),
-                       changes = Seq.empty),
-
-                     selectedApi: ApiService = Poloniex,
-                     serviceContext: Map[ApiService, ServiceContext] = Map(
-                       Poloniex -> ServiceContext()
-                     )
+case class RootModel(
+                      selectedApi: ApiService = Poloniex,
+                      serviceContext: Map[ApiService, ServiceContext] = Map(
+                        Poloniex -> ServiceContext()
+                      )
                     )
 
 
@@ -97,6 +97,10 @@ case class ServiceContext(
                          )
 
 case class ServiceData(
+                        orderBook: OrderBookContainer =
+                        OrderBookContainer(
+                          orders = OrdersBook(Seq.empty, Seq.empty, 0, 0),
+                          changes = Seq.empty),
                         currencies: Map[String, Currency] = Map.empty,
                         chartsData: Seq[Chart] = Seq.empty
                       )

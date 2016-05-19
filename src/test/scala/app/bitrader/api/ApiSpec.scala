@@ -1,10 +1,8 @@
 package app.bitrader.api
 
-import app.bitrader.{AbstractSpec, ClientApplication, TR}
-import app.bitrader.api.poloniex.{PoloniexFacade, PoloniexPublicAPI, PoloniexTradingAPI}
-import org.robolectric.RuntimeEnvironment
+import app.bitrader.api.poloniex.{Poloniex, PoloniexFacade}
+import app.bitrader.{AbstractSpec, ClientApplication}
 import org.robolectric.res.{Fs, FsFile}
-import org.scalatest.{FlatSpec, Matchers, RobolectricSuite}
 
 /**
   * Created by Alex Afanasev

@@ -23,9 +23,9 @@ class WampActivity extends Activity with Contexts[Activity] {
 
   private val appCircuit = AppCircuit
   lazy val view = new WampView(appCircuit)
-  lazy val javampa = new JawampaClient(AppCircuit)
-  lazy val modifyOrders = AppCircuit.subscribe(AppCircuit.zoom(_.orderBook.changes))(m => view.modifyOrders(m.value))
-  lazy val ordersList = AppCircuit.subscribe(AppCircuit.zoom(_.orderBook.orders))(m => view.updateOrdersList(m.value))
+  lazy val javampa = new JawampaClient(appCircuit)
+  lazy val modifyOrders = appCircuit.dataSubscribe(_.orderBook.changes)(view.modifyOrders)
+  lazy val ordersList = appCircuit.dataSubscribe(_.orderBook.orders)(view.updateOrdersList)
   val currencyToTrack = CurrencyPair.BTC_ETH
 
   override def onCreate(savedInstanceState: Bundle): Unit = {
