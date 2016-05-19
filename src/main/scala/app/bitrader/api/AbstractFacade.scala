@@ -6,7 +6,9 @@ import java.util.Date
 
 import android.content.Context
 import app.ObjectEnum
-import app.bitrader.api.common.CurrencyPair
+import app.bitrader.AppCircuit
+import app.bitrader.api.common.{CurrencyPair, WampMsg}
+import app.bitrader.api.network.{JawampaClient, WampSub}
 import app.bitrader.api.poloniex.{Chart, OrdersBook, TradeHistory}
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.github.aafa.ScalaRetrofitBuilder
@@ -30,7 +32,7 @@ private[bitrader] object ApiService extends ObjectEnum[ApiService]
 sealed trait API {
   type PublicApi
   type PrivateApi
-  type WampApi
+  type WampApi = JawampaClient // todo custom trait
 
   val publicApi: PublicApi
   val privateApi: PrivateApi
@@ -40,6 +42,18 @@ sealed trait API {
 abstract class AbstractFacade(implicit ctx: Context) extends API {
   def nonce: String = new Date().getTime.toString
 
+  def chartData(pair: CurrencyPair, start: Long, end: Long, period: Int): Seq[Chart]
+
+  def ordersBook(pair: CurrencyPair, depth: Int): OrdersBook
+
+  def tradeHistory(pair: CurrencyPair): Seq[TradeHistory]
+
+  def wampSubscribe[WM <: WampMsg : scala.reflect.Manifest](subs: WampSub[WM]): Unit
+
+  def wampClose : Unit
+
+  // build stuff
+
   protected def buildApi[API: ClassTag](url: String, settings: OkHttpClient => Unit = () => _): API = {
     new CachedRetrofitBuilder(ctx.getApplicationContext.getCacheDir, settings)
       .setEndpoint(url)
@@ -47,6 +61,8 @@ abstract class AbstractFacade(implicit ctx: Context) extends API {
       .build()
       .create(classTag[API].runtimeClass).asInstanceOf[API]
   }
+
+  protected def buildWamp(url: String) = new JawampaClient(url, AppCircuit)
 
   private class CachedRetrofitBuilder(cacheDir: File, settings: OkHttpClient => Unit = () => _)
     extends ScalaRetrofitBuilder(
@@ -59,12 +75,6 @@ abstract class AbstractFacade(implicit ctx: Context) extends API {
         ok.setCache(new Cache(cacheDir, 10 * 1024 * 1024))
       }
     )
-
-  def chartData(pair: CurrencyPair, start: Long, end: Long, period: Int): Seq[Chart]
-
-  def ordersBook(pair: CurrencyPair, depth: Int): OrdersBook
-
-  def tradeHistory(pair: CurrencyPair): Seq[TradeHistory]
 }
 
 object NetworkFacade {

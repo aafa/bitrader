@@ -24,7 +24,6 @@ class WampActivity extends Activity with Contexts[Activity] {
 
   private val appCircuit = AppCircuit
   lazy val view = new WampView(appCircuit)
-  lazy val javampa = new JawampaClient(appCircuit)
   lazy val modifyOrders = appCircuit.dataSubscribe(_.orderBook.changes)(view.modifyOrders)
   lazy val ordersList = appCircuit.dataSubscribe(_.orderBook.orders)(view.updateOrdersList)
   val currencyToTrack = CurrencyPair.BTC_ETH
@@ -33,7 +32,10 @@ class WampActivity extends Activity with Contexts[Activity] {
     super.onCreate(savedInstanceState)
     setContentView(view.ui)
     appCircuit(UpdateOrderBook(currencyToTrack))
-    javampa.openSubscription(WampSub[OrderWampMsg](currencyToTrack.toString))
+
+    val sub: WampSub[OrderWampMsg] = WampSub[OrderWampMsg](currencyToTrack.toString)
+    appCircuit(SubscribeToOrders(sub))
+
     modifyOrders
     ordersList
   }
@@ -41,7 +43,7 @@ class WampActivity extends Activity with Contexts[Activity] {
   override def onPause(): Unit = {
     super.onPause()
 
-    javampa.closeConnection()
+    appCircuit(CloseWampChannel)
     modifyOrders.apply()
     ordersList.apply()
   }

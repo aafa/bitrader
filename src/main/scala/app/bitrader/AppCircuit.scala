@@ -1,11 +1,9 @@
 package app.bitrader
 
-import android.content.Context
 import app.bitrader.api.ApiService
 import app.bitrader.api.common._
 import app.bitrader.api.poloniex._
 import com.github.nscala_time.time.Imports._
-import diode.ActionResult.{EffectOnly, ModelUpdate}
 import diode._
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -18,12 +16,13 @@ object AppCircuit extends Circuit[RootModel] {
 
   def initialModel = RootModel()
 
-  private def apiService: ApiService = zoom(_.selectedApi).value
+  private def api: ApiService = zoom(_.selectedApi).value
+  private def apiFacade = APIContext.getService(api)
 
   def serviceContext: ModelRW[RootModel, ServiceContext] = zoomRW(
-    _.serviceContext(apiService))((m, newServiceContext) => m.copy(serviceContext =
+    _.serviceContext(api))((m, newServiceContext) => m.copy(serviceContext =
     m.serviceContext.map {
-      case (k, v) if k == apiService => (apiService, newServiceContext)
+      case (k, v) if k == api => (api, newServiceContext)
       case a => a
     }))
 
@@ -34,12 +33,21 @@ object AppCircuit extends Circuit[RootModel] {
       .zoomRW(_.changes)((m, v) => m.copy(changes = v))
   ) {
     override def handle = {
-      // todo handle subscription case here
-      //      case ResetWampMessages[OrderWampMsg] =>
-
       case AddWampMessages(ms: Seq[OrderWampMsg]) =>
         //        println(s"AddMessages OrderWampMsg $ms")
         updated(value ++ ms)
+    }
+  }
+
+  val wampSubscription = new ActionHandler(serviceData) {
+    override protected def handle = {
+      case SubscribeToOrders(sub) =>
+        apiFacade(_.wampSubscribe[sub.WampSubType](sub))
+        noChange
+
+      case CloseWampChannel =>
+        apiFacade(_.wampClose)
+        noChange
     }
   }
 
@@ -49,31 +57,32 @@ object AppCircuit extends Circuit[RootModel] {
   ) {
     override def handle = {
       case UpdateOrderBook(cp) =>
-        val service: Future[OrdersBook] = APIContext.getService(apiService)(_.ordersBook(cp, 20))
-        effectOnly(Effect(service.map(ReceiveOrderBook)))
+        effectOnly(Effect(apiFacade(_.ordersBook(cp, 20)).map(ReceiveOrderBook)))
       case ReceiveOrderBook(ob: OrdersBook) => updated(ob)
     }
   }
 
-  val uiUpdates = new ActionHandler(
-    serviceData.zoomRW(_.chartsData)((m, v) => m.copy(chartsData = v))
-  ) {
+  val uiUpdates = new ActionHandler(serviceData.zoomRW(_.chartsData)((m, v) => m.copy(chartsData = v))) {
     override def handle = {
       case ChartsUpdated(c) => updated(c)
     }
   }
 
-  val apiRequest: HandlerFunction = (model, action) => action match {
-    case UpdateCharts =>
-      val request: Future[Seq[Chart]] = APIContext.getService(apiService)(
-        _.chartData(CurrencyPair.BTC_ETH, 5.hours.ago().unixtime, DateTime.now.unixtime, 300)
-      )
-      val effect: EffectSingle[ChartsUpdated] = Effect(request.map(r => ChartsUpdated(r)))
-      Some(EffectOnly(effect))
-    case _ => None
+  val apiRequest = new ActionHandler(serviceData) {
+    override protected def handle = {
+      case UpdateCharts =>
+        val request: Future[Seq[Chart]] = apiFacade(
+          _.chartData(CurrencyPair.BTC_ETH, 5.hours.ago().unixtime, DateTime.now.unixtime, 300)
+        )
+        val effect: EffectSingle[ChartsUpdated] = Effect(request.map(r => ChartsUpdated(r)))
+        effectOnly(effect)
+    }
   }
 
-  override val actionHandler = composeHandlers(orderBookUpdatesHandler, orderBookList, uiUpdates, apiRequest)
+  override val actionHandler = composeHandlers(
+    orderBookUpdatesHandler, orderBookList,
+    uiUpdates, apiRequest, wampSubscription
+  )
 
   def dataSubscribe[Data <: AnyRef](get: ServiceData => Data)(listen: Data => Unit) =
     subscribe(serviceData.zoom(get))(m => listen(m.value))

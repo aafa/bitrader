@@ -1,7 +1,8 @@
 package app.bitrader
 
 import app.bitrader.api.ApiService
-import app.bitrader.api.common.{CurrencyPair, WampMsg}
+import app.bitrader.api.common.{CurrencyPair, OrderWampMsg, WampMsg}
+import app.bitrader.api.network.WampSub
 import app.bitrader.api.poloniex.{Chart, OrdersBook}
 
 /**
@@ -18,9 +19,9 @@ case class AddWampMessages[T <: WampMsg](ms: Seq[T])
 
 case class ResetWampMessages[T <: WampMsg]()
 
-case class SubscribeToChannel(t: String)
+case class SubscribeToOrders(t: WampSub[OrderWampMsg])
 
-case class UnsubscribeFromChannel(t: String)
+case object CloseWampChannel
 
 case class UpdateCurrencies(api: ApiService)
 

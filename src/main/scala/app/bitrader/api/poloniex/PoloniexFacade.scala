@@ -2,9 +2,9 @@ package app.bitrader.api.poloniex
 
 import android.content.Context
 import app.bitrader.TR
-import app.bitrader.api.common.CurrencyPair
+import app.bitrader.api.common.{CurrencyPair, WampMsg}
 import app.bitrader.api.{AbstractFacade, ApiService}
-import app.bitrader.api.network.AuthInterceptor
+import app.bitrader.api.network.{AuthInterceptor, JawampaClient, WampSub}
 import retrofit.http.Query
 
 /**
@@ -21,9 +21,8 @@ class PoloniexFacade(implicit ctx: Context) extends AbstractFacade  {
 
   override type PublicApi = PoloniexPublicAPI
   override type PrivateApi = PoloniexTradingAPI
-  override type WampApi = PoloniexWampApi
 
-  override val wampApi = null
+  override val wampApi: WampApi = buildWamp(TR.string.poloniex_wamp.value)
   override val publicApi: PublicApi = buildApi[PublicApi](TR.string.poloniex_url.value)
   override val privateApi: PrivateApi = buildApi[PrivateApi](TR.string.poloniex_trading_url.value,
     _.interceptors().add(new AuthInterceptor(ctx)))
@@ -40,4 +39,7 @@ class PoloniexFacade(implicit ctx: Context) extends AbstractFacade  {
 
   def balances: Map[String, String] = privateApi.get(nonce, "returnBalances")
 
+  override def wampSubscribe[WM <: WampMsg : scala.reflect.Manifest](sub: WampSub[WM]): Unit = wampApi.openSubscription[WM](sub)
+
+  override def wampClose: Unit = wampApi.closeConnection()
 }

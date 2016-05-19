@@ -19,17 +19,14 @@ class ClientApplication extends Application {
     super.onCreate()
     Iconify.`with`(new FontAwesomeModule).`with`(new MaterialModule)
 
-    implicit val c = getApplicationContext
-    APIContext.appContext = c
-    APIContext.apis = Map(
-        Poloniex -> NetworkFacade.factory(Poloniex)
-    )
-
+    APIContext.appContext = getApplicationContext
   }
 
 }
 
 object APIContext {
+  implicit var appContext: Context = _
+
   lazy val jacksonMapper = {
     val jm = new ObjectMapper() with ScalaObjectMapper
     jm.registerModule(DefaultScalaModule)
@@ -37,8 +34,9 @@ object APIContext {
     jm
   }
 
-  var apis: Map[ApiService, AbstractFacade] = Map.empty
-  var appContext: Context = _
+  lazy val apis: Map[ApiService, AbstractFacade] = Map(
+    Poloniex -> NetworkFacade.factory(Poloniex)
+  )
 
   def getService(apiService: ApiService): UiService[AbstractFacade] = new UiService(get(apiService))
   def get(apiService: ApiService): AbstractFacade = apis(apiService)

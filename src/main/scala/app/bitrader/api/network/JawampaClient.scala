@@ -15,8 +15,7 @@ import ws.wamp.jawampa.{PubSubData, WampClient, WampClientBuilder}
 /**
   * Created by Alex Afanasev
   */
-class JawampaClient(dispatcher: Dispatcher)(implicit ctx: ContextWrapper) {
-  private val wsuri = "wss://api.poloniex.com" // todo from TR
+class JawampaClient(wsuri: String, dispatcher: Dispatcher) {
 
   class TickerData(currencyPair: String, last: BigDecimal, lowestAsk: BigDecimal, highestBid: BigDecimal,
                    percentChange: BigDecimal, baseVolume: BigDecimal, quoteVolume: BigDecimal, isFrozen: Byte,
@@ -26,11 +25,11 @@ class JawampaClient(dispatcher: Dispatcher)(implicit ctx: ContextWrapper) {
 
   private val wamp: WampClient = buildWamp()
 
-  def closeConnection() = {
+  def closeConnection(): Unit = {
     wamp.close()
   }
 
-  def openSubscription[WM <: WampMsg : scala.reflect.Manifest](subs: WampSub[WM]*) = {
+  def openSubscription[WM <: WampMsg : scala.reflect.Manifest](subs: WampSub[WM]*): Unit = {
     onConnected(subs.seq.foreach { s =>
       wampSubscription[s.WampSubType](s.topic)
     })
@@ -87,7 +86,6 @@ class JawampaClient(dispatcher: Dispatcher)(implicit ctx: ContextWrapper) {
 
     override def fetch(keys: Traversable[Long]): Unit = {}
   }
-
 }
 
 case class WampSub[T <: WampMsg : scala.reflect.Manifest](topic: String) {
