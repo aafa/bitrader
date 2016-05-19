@@ -1,7 +1,7 @@
 package app.bitrader.unit
 
 import app.bitrader.api.ApiSpec
-import app.bitrader.api.poloniex.CurrencyPair
+import app.bitrader.api.common.CurrencyPair
 
 /**
   * Created by Alex Afanasev

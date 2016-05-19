@@ -6,8 +6,9 @@ import android.support.v7.widget.{LinearLayoutManager, RecyclerView}
 import android.view.{View, ViewGroup}
 import android.widget.{LinearLayout, TextView}
 import app.bitrader._
+import app.bitrader.api.common.{CurrencyPair, OrderProcessing, OrderWampMsg}
 import app.bitrader.api.network.{JawampaClient, WampSub}
-import app.bitrader.api.poloniex.{CurrencyPair, OrdersBook}
+import app.bitrader.api.poloniex.OrdersBook
 import com.fortysevendeg.macroid.extras.RecyclerViewTweaks
 import diode.Dispatcher
 import io.github.aafa.helpers.{Styles, UiThreading}
@@ -84,10 +85,8 @@ class WampView(dispatcher: Dispatcher)(implicit c: ContextWrapper) extends Style
   }
   }
 
-  private object Locker
-
   def modifyOrders(s: Seq[OrderWampMsg]) = {
-    Locker.synchronized {
+    this.synchronized {
       processModifications(s.filterNot(modifyStream.contains))
       modifyStream = s
     }

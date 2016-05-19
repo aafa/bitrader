@@ -2,6 +2,7 @@ package app.bitrader
 
 import android.content.Context
 import app.bitrader.api.ApiService
+import app.bitrader.api.common._
 import app.bitrader.api.poloniex._
 import com.github.nscala_time.time.Imports._
 import diode.ActionResult.{EffectOnly, ModelUpdate}
@@ -14,8 +15,6 @@ import scala.concurrent.Future
   * Created by Alex Afanasev
   */
 object AppCircuit extends Circuit[RootModel] {
-
-  lazy val appContext: Context = APIContext.appContext
 
   def initialModel = RootModel()
 
@@ -50,7 +49,7 @@ object AppCircuit extends Circuit[RootModel] {
   ) {
     override def handle = {
       case UpdateOrderBook(cp) =>
-        val service: Future[OrdersBook] = APIContext.poloniexService(_.ordersBook(cp, 20))
+        val service: Future[OrdersBook] = APIContext.getService(apiService)(_.ordersBook(cp, 20))
         effectOnly(Effect(service.map(ReceiveOrderBook)))
       case ReceiveOrderBook(ob: OrdersBook) => updated(ob)
     }
@@ -66,7 +65,7 @@ object AppCircuit extends Circuit[RootModel] {
 
   val apiRequest: HandlerFunction = (model, action) => action match {
     case UpdateCharts =>
-      val request: Future[Seq[Chart]] = APIContext.poloniexService(// todo with selected api
+      val request: Future[Seq[Chart]] = APIContext.getService(apiService)(
         _.chartData(CurrencyPair.BTC_ETH, 5.hours.ago().unixtime, DateTime.now.unixtime, 300)
       )
       val effect: EffectSingle[ChartsUpdated] = Effect(request.map(r => ChartsUpdated(r)))

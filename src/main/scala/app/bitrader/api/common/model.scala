@@ -1,5 +1,6 @@
-package app.bitrader
+package app.bitrader.api.common
 
+import app.bitrader._
 import app.bitrader.api.poloniex.OrdersBook
 import com.fasterxml.jackson.annotation.{JsonCreator, JsonProperty}
 

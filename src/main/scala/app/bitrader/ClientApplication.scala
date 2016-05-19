@@ -25,8 +25,6 @@ class ClientApplication extends Application {
         Poloniex -> NetworkFacade.factory(Poloniex)
     )
 
-    // todo temp shortcut
-    APIContext.poloniexApi = NetworkFacade.factory(Poloniex)
   }
 
 }
@@ -41,7 +39,8 @@ object APIContext {
 
   var apis: Map[ApiService, AbstractFacade] = Map.empty
   var appContext: Context = _
-  var poloniexApi: PoloniexFacade = _
-  def poloniexService: UiService[PoloniexFacade] = new UiService(poloniexApi)
+
+  def getService(apiService: ApiService): UiService[AbstractFacade] = new UiService(get(apiService))
+  def get(apiService: ApiService): AbstractFacade = apis(apiService)
 }
 

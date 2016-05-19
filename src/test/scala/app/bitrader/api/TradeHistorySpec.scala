@@ -3,7 +3,7 @@ package app.bitrader.api
 import java.util.Date
 
 import android.os.Build.VERSION_CODES._
-import app.bitrader.api.poloniex.{CurrencyPair, OrdersBook, TradeHistory}
+import app.bitrader.api.poloniex.{OrdersBook, TradeHistory}
 import org.robolectric.annotation.Config
 
 /**

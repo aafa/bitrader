@@ -2,6 +2,7 @@ package app.bitrader.api.poloniex
 
 import android.content.Context
 import app.bitrader.TR
+import app.bitrader.api.common.CurrencyPair
 import app.bitrader.api.{AbstractFacade, ApiService}
 import app.bitrader.api.network.AuthInterceptor
 import retrofit.http.Query

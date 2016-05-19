@@ -1,7 +1,7 @@
 package app.bitrader.api
 
 import android.os.Build.VERSION_CODES._
-import app.bitrader.api.poloniex.{CurrencyPair, OrdersBook}
+import app.bitrader.api.poloniex.OrdersBook
 import org.robolectric.annotation.Config
 import app.bitrader._
 

@@ -6,7 +6,8 @@ import java.util.Date
 
 import android.content.Context
 import app.ObjectEnum
-import app.bitrader.api.poloniex.PoloniexFacade
+import app.bitrader.api.common.CurrencyPair
+import app.bitrader.api.poloniex.{Chart, OrdersBook, TradeHistory}
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.github.aafa.ScalaRetrofitBuilder
 import com.squareup.okhttp.{Cache, OkHttpClient}
@@ -47,17 +48,23 @@ abstract class AbstractFacade(implicit ctx: Context) extends API {
       .create(classTag[API].runtimeClass).asInstanceOf[API]
   }
 
-  private class CachedRetrofitBuilder(cacheDir: File, settings: OkHttpClient => Unit = () => _) extends ScalaRetrofitBuilder(
-    scalaMapperSettings = { om =>
-      om.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-      om.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"))
-    },
-    okClientSettings = { ok =>
-      settings(ok)
-      ok.setCache(new Cache(cacheDir, 10 * 1024 * 1024))
-    }
-  )
+  private class CachedRetrofitBuilder(cacheDir: File, settings: OkHttpClient => Unit = () => _)
+    extends ScalaRetrofitBuilder(
+      scalaMapperSettings = { om =>
+        om.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+        om.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"))
+      },
+      okClientSettings = { ok =>
+        settings(ok)
+        ok.setCache(new Cache(cacheDir, 10 * 1024 * 1024))
+      }
+    )
 
+  def chartData(pair: CurrencyPair, start: Long, end: Long, period: Int): Seq[Chart]
+
+  def ordersBook(pair: CurrencyPair, depth: Int): OrdersBook
+
+  def tradeHistory(pair: CurrencyPair): Seq[TradeHistory]
 }
 
 object NetworkFacade {

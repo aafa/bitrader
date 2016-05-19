@@ -10,7 +10,7 @@ import android.support.v4.widget.{DrawerLayout, NestedScrollView}
 import android.support.v7.widget.{CardView, Toolbar}
 import android.view.{Gravity, View}
 import android.widget.LinearLayout
-import app.bitrader.api.poloniex.{Chart, Currency, CurrencyPair, Poloniex}
+import app.bitrader.api.poloniex.{Chart, Currency, Poloniex}
 import app.bitrader.helpers.Id
 import app.bitrader.{APIContext, TR}
 import com.github.mikephil.charting.charts.CandleStickChart

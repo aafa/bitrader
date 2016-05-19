@@ -2,7 +2,8 @@ package app.bitrader.api.network
 
 import java.util.concurrent.TimeUnit
 
-import app.bitrader.{APIContext, AddWampMessages, WampMsg}
+import app.bitrader.api.common.WampMsg
+import app.bitrader.{APIContext, AddWampMessages}
 import diode.Dispatcher
 import diode.data.{Fetch, PotStream}
 import macroid.ContextWrapper
