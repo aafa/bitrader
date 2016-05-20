@@ -21,13 +21,13 @@ import scala.reflect._
   * Created by Alex Afanasev
   */
 
-private[bitrader] trait ApiService extends ApiService.Value {
+private[bitrader] trait ApiProvider extends ApiProvider.Value {
   type ApiFacade
 
   def facade(implicit ctx: Context): ApiFacade
 }
 
-private[bitrader] object ApiService extends ObjectEnum[ApiService]
+private[bitrader] object ApiProvider extends ObjectEnum[ApiProvider]
 
 sealed trait API {
   type PublicApi
@@ -78,6 +78,6 @@ abstract class AbstractFacade(implicit ctx: Context) extends API {
 }
 
 object NetworkFacade {
-  def factory(s: ApiService)(implicit ctx: Context): s.ApiFacade = s.facade
+  def factory(s: ApiProvider)(implicit ctx: Context): s.ApiFacade = s.facade
 }
 

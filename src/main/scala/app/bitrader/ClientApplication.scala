@@ -3,7 +3,7 @@ package app.bitrader
 import android.app.Application
 import android.content.Context
 import app.bitrader.api.poloniex.{Poloniex, PoloniexFacade}
-import app.bitrader.api.{AbstractFacade, ApiService, NetworkFacade, UiService}
+import app.bitrader.api._
 import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper}
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.fasterxml.jackson.module.scala.experimental.ScalaObjectMapper
@@ -34,11 +34,11 @@ object APIContext {
     jm
   }
 
-  lazy val apis: Map[ApiService, AbstractFacade] = Map(
+  lazy val apis: Map[ApiProvider, AbstractFacade] = Map(
     Poloniex -> NetworkFacade.factory(Poloniex)
   )
 
-  def getService(apiService: ApiService): UiService[AbstractFacade] = new UiService(get(apiService))
-  def get(apiService: ApiService): AbstractFacade = apis(apiService)
+  def getService(api: ApiProvider): UiService[AbstractFacade] = new UiService(get(api))
+  def get(api: ApiProvider): AbstractFacade = apis(api)
 }
 

@@ -3,14 +3,13 @@ package app.bitrader.api.poloniex
 import android.content.Context
 import app.bitrader.TR
 import app.bitrader.api.common.{CurrencyPair, WampMsg}
-import app.bitrader.api.{AbstractFacade, ApiService}
-import app.bitrader.api.network.{AuthInterceptor, JawampaClient, WampSub}
-import retrofit.http.Query
+import app.bitrader.api.network.{AuthInterceptor, WampSub}
+import app.bitrader.api.{AbstractFacade, ApiProvider}
 
 /**
   * Created by Alex Afanasev
   */
-case object Poloniex extends ApiService {
+case object Poloniex extends ApiProvider {
   override type ApiFacade = PoloniexFacade
 
   override def facade(implicit ctx: Context) = new PoloniexFacade

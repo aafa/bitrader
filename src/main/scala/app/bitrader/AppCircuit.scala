@@ -1,6 +1,6 @@
 package app.bitrader
 
-import app.bitrader.api.ApiService
+import app.bitrader.api.ApiProvider
 import app.bitrader.api.common._
 import app.bitrader.api.poloniex._
 import com.github.nscala_time.time.Imports._
@@ -16,7 +16,7 @@ object AppCircuit extends Circuit[RootModel] {
 
   def initialModel = RootModel()
 
-  private def api: ApiService = zoom(_.selectedApi).value
+  private def api: ApiProvider = zoom(_.selectedApi).value
   private def apiFacade = APIContext.getService(api)
 
   def serviceContext: ModelRW[RootModel, ServiceContext] = zoomRW(
@@ -92,8 +92,8 @@ object AppCircuit extends Circuit[RootModel] {
 // root model
 
 case class RootModel(
-                      selectedApi: ApiService = Poloniex,
-                      serviceContext: Map[ApiService, ServiceContext] = Map(
+                      selectedApi: ApiProvider = Poloniex,
+                      serviceContext: Map[ApiProvider, ServiceContext] = Map(
                         Poloniex -> ServiceContext()
                       )
                     )
