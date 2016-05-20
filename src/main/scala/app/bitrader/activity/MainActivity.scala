@@ -39,11 +39,8 @@ import diode.ModelR
 class MainActivity extends DrawerActivity with ActivityOperations {
 
   private val appCircuit = AppCircuit
-  private val selectedApi = Poloniex
-  private val zoomCurrencies: ModelR[RootModel, Map[String, Currency]] = appCircuit.serviceData.zoom(_.currencies)
-  private val chartSub: () => Unit = appCircuit.subscribe(
-    appCircuit.serviceData.zoom(_.chartsData))(m => layout.updateChartData(m.value)
-  )
+  private val zoomCurrencies = appCircuit.serviceData.zoom(_.currencies)
+  private val chartSub = appCircuit.dataSubscribe(_.chartsData)(layout.updateChartData)
 
   override lazy val layout = new MainActivityLayout(menuItems, zoomCurrencies)
 
@@ -55,7 +52,7 @@ class MainActivity extends DrawerActivity with ActivityOperations {
 
 //    APIContext.poloniexService(_.currencies()) map layout.updateData
     appCircuit(UpdateCharts)
-    layout.updateChartData(appCircuit.zoom(_.serviceContext(selectedApi).serviceData.chartsData).value)
+    layout.updateChartData(appCircuit.serviceData.zoom(_.chartsData).value)
   }
 
 

@@ -26,7 +26,8 @@ object AppCircuit extends Circuit[RootModel] {
       case a => a
     }))
 
-  def serviceData: ModelRW[RootModel, ServiceData] = serviceContext.zoomRW(_.serviceData)((m, v) => m.copy(serviceData = v))
+  def serviceData: ModelRW[RootModel, ServiceData] = serviceContext
+    .zoomRW(_.serviceData)((m, v) => m.copy(serviceData = v))
 
   val orderBookUpdatesHandler = new ActionHandler(
     serviceData.zoomRW(_.orderBook)((m, v) => m.copy(orderBook = v))
@@ -34,7 +35,6 @@ object AppCircuit extends Circuit[RootModel] {
   ) {
     override def handle = {
       case AddWampMessages(ms: Seq[OrderWampMsg]) =>
-        //        println(s"AddMessages OrderWampMsg $ms")
         updated(value ++ ms)
     }
   }
