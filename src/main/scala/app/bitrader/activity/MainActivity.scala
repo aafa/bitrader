@@ -1,46 +1,43 @@
 package app.bitrader.activity
 
-import android.content.res.Configuration
 import android.graphics.Color
 import android.graphics.drawable.Drawable
-import android.os.{Bundle, Parcel}
+import android.os.Bundle
 import android.support.design.widget._
 import android.support.v4.app.{Fragment, FragmentManager}
 import android.support.v4.widget.{DrawerLayout, NestedScrollView}
-import android.support.v7.widget.{CardView, Toolbar}
-import android.view.{Gravity, View}
+import android.support.v7.view.ContextThemeWrapper
+import android.support.v7.widget.{CardView, SearchView, Toolbar}
+import android.view._
 import android.widget.LinearLayout
-import app.bitrader.api.poloniex.{Chart, Currency, Poloniex}
+import app.bitrader.activity.menu.{ProfileActivity, ReadQrActivity, WampActivity}
+import app.bitrader.api.poloniex.{Chart, Currency}
 import app.bitrader.helpers.Id
-import app.bitrader.{APIContext, TR}
+import app.bitrader.helpers.activity.ActivityOperations
+import app.bitrader._
 import com.github.mikephil.charting.charts.CandleStickChart
 import com.github.mikephil.charting.data.{CandleData, CandleDataSet, CandleEntry}
 import com.joanzapata.iconify.widget.IconTextView
+import diode.ModelR
 import io.github.aafa.drawer.{BasicDrawerLayout, DrawerActivity, DrawerMenuItem}
-import io.github.aafa.helpers.{Styles, UiOperations, UiThreading}
-import io.github.aafa.macroid.AdditionalTweaks
+import io.github.aafa.helpers.{Styles, UiOperations}
+import io.github.aafa.macroid.{AdditionalTweaks, ThemedBlocks}
 import io.github.aafa.toolbar.ToolbarAboveLayout
 import macroid.FullDsl._
 import macroid._
 
-import collection.JavaConverters._
-import com.github.nscala_time.time.Imports._
-
-import scala.concurrent.ExecutionContext.Implicits.global
-import app.bitrader._
-import app.bitrader.activity.menu.{ProfileActivity, ReadQrActivity, WampActivity}
-import app.bitrader.helpers.activity.ActivityOperations
-import diode.ModelR
+import scala.collection.JavaConverters._
 
 /**
   * Created by aafa
   */
 
-class MainActivity extends DrawerActivity with ActivityOperations {
+class MainActivity extends DrawerActivity with ActivityOperations with MenuItems {
 
   private val appCircuit = AppCircuit
   private val zoomCurrencies = appCircuit.serviceData.zoom(_.currencies)
   private val chartSub = appCircuit.dataSubscribe(_.chartsData)(layout.updateChartData)
+
 
   override lazy val layout = new MainActivityLayout(menuItems, zoomCurrencies)
 
@@ -50,11 +47,10 @@ class MainActivity extends DrawerActivity with ActivityOperations {
 
     //todo setup charts wamp update
 
-//    APIContext.poloniexService(_.currencies()) map layout.updateData
-    appCircuit(UpdateCharts)
+    //    APIContext.poloniexService(_.currencies()) map layout.updateData
     layout.updateChartData(appCircuit.serviceData.zoom(_.chartsData).value)
+    appCircuit(UpdateCharts)
   }
-
 
 
   override def onPause(): Unit = {
@@ -72,15 +68,41 @@ class MainActivity extends DrawerActivity with ActivityOperations {
     DrawerMenuItem("ReadQrActivity", action = () => {
       startActivity[ReadQrActivity]
     }),
+    DrawerMenuItem("TestActivity", action = () => {
+      startActivity[TestActivity]
+    }),
     DrawerMenuItem("Account")
   )
+}
+
+trait MenuItems extends DrawerActivity with Styles {
+
+  override def onOptionsItemSelected(item: MenuItem): Boolean = {
+    super.onOptionsItemSelected(item)
+    println("item selected! " + item.getTitle)
+    true
+  }
+
+  override def onCreateOptionsMenu(menu: Menu): Boolean = {
+    super.onCreateOptionsMenu(menu)
+
+    val search: MenuItem = menu.add("search")
+    search.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+    search.setActionView(
+      (w[SearchView] <~ Tweak[SearchView](sv => {
+        sv.setQueryHint("coin pairs")
+      }) <~ vMatchWidth).get
+    )
+    true
+  }
+
 }
 
 class MainActivityLayout(override val menuItems: Seq[DrawerMenuItem],
                          zoomCurrencies: ModelR[RootModel, Map[String, Currency]]
                         )
                         (implicit cw: ContextWrapper, managerContext: FragmentManagerContext[Fragment, FragmentManager])
-  extends BasicDrawerLayout(menuItems) with MainStyles with ChartLayout {
+  extends BasicDrawerLayout(menuItems) with MainStyles with ChartLayout  {
 
 
   var textSlot = slot[IconTextView]
@@ -90,22 +112,19 @@ class MainActivityLayout(override val menuItems: Seq[DrawerMenuItem],
     gen.take(300) mkString " "
   }
 
-  def img: Drawable = TR.drawable.material_flat.get
+  lazy val img: Drawable = TR.drawable.material_flat.get
 
   def ui: Ui[View] = if (portrait)
     verticalLayout
   else
     w[CandleStickChart] <~ wire(candleStick) <~ candleStickSettings <~ vMatchParent
 
+  def verticalLayout: Ui[DrawerLayout] = {
+    import ThemedBlocks._
 
-  lazy val verticalLayout: Ui[DrawerLayout] = {
     drawer(
       l[CoordinatorLayout](
-        l[AppBarLayout](
-          l[CollapsingToolbarLayout](
-            w[Toolbar] <~ wire(toolBar) <~ vContentSizeMatchWidth(TR.dimen.toolbar_height.get) <~ pin
-          ) <~ vMatchParent <~ scrollFlags <~ ctlTweak
-        ) <~ id(Id.appbar) <~ vContentSizeMatchWidth(180.dp),
+        appBar(ContextWrapper(new ContextThemeWrapper(cw.bestAvailable, R.style.ThemeOverlay_AppCompat_Dark))),
 
         l[NestedScrollView](
           l[LinearLayout](
@@ -127,11 +146,18 @@ class MainActivityLayout(override val menuItems: Seq[DrawerMenuItem],
 
   // style
 
-  def fitsAll: Transformer = {
-    Transformer {
-      case a => a <~ fits
-    }
+
+  def appBar(c : ContextWrapper): Ui[AppBarLayout] = {
+    implicit val cw = c
+    println(s"actual Context $c")
+
+    l[AppBarLayout](
+      l[CollapsingToolbarLayout](
+        w[Toolbar] <~ wire(toolBar) <~ vContentSizeMatchWidth(TR.dimen.toolbar_height.get) <~ pin
+      ) <~ vMatchParent <~ scrollFlags <~ ctlTweak
+    ) <~ id(Id.appbar) <~ vContentSizeMatchWidth(180.dp)
   }
+
 
   def scrollFlags = modifyLpTweak[AppBarLayout.LayoutParams](lp => {
     lp.setScrollFlags(AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL
@@ -142,10 +168,17 @@ class MainActivityLayout(override val menuItems: Seq[DrawerMenuItem],
 
   def ctlTweak = Tweak[CollapsingToolbarLayout](ctl => {
     ctl.setContentScrimColor(TR.color.primary.get)
-    ctl.setCollapsedTitleTextColor(Color.WHITE)
-    ctl.setExpandedTitleColor(Color.WHITE)
+    //    ctl.setCollapsedTitleTextColor(Color.WHITE)
+    //    ctl.setExpandedTitleColor(Color.WHITE)
     ctl.setExpandedTitleMarginBottom(45.dp)
   })
+
+  def fitsAll: Transformer = {
+    Transformer {
+      case a => a <~ fits
+    }
+  }
+
 
   def fabTweak = modifyLpTweak[CoordinatorLayout.LayoutParams](params => {
     params.anchorGravity = Gravity.TOP | Gravity.RIGHT | Gravity.END
@@ -163,14 +196,14 @@ class MainActivityLayout(override val menuItems: Seq[DrawerMenuItem],
 
 }
 
-trait MainStyles extends ToolbarAboveLayout with UiOperations with Styles with AdditionalTweaks {
+trait MainStyles extends UiOperations with Styles with AdditionalTweaks {
 
 }
 
 trait ChartLayout {
   var candleStick = slot[CandleStickChart]
 
-  def updateChartData(chartData: Seq[Chart]): Unit = if (chartData.nonEmpty){
+  def updateChartData(chartData: Seq[Chart]): Unit = if (chartData.nonEmpty) {
     val data: CandleData = prepareChartData(chartData)
     Ui.run(updateChartUi(data))
   }

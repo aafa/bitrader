@@ -1,9 +1,9 @@
 <resources>
-    <string name="app_name">bitrader</string>
-    <string name="bitfinex_url">https://api.bitfinex.com/v1</string>
+    <string name="drawerOpen">Open</string>
+    <string name="drawerClose">Close</string>
 
-    <string name="poloniex_url">https://poloniex.com</string>
-    <string name="poloniex_trading_url">https://poloniex.com</string>
-    <string name="poloniex_wamp">wss://api.poloniex.com</string>
+    <string name="menu_map">Map</string>
+    <string name="menu_user_details">Profile</string>
 
+    <string name="search">Search</string>
 </resources>
