@@ -33,6 +33,7 @@ object Build extends android.AutoBuild {
       minSdkVersion in Android := "14"
     )),
 
+    typedResourcesIgnores in Android := Seq("me.dm7.barcodescanner"),
 
     run <<= run in Android,
     install <<= install in Android,
