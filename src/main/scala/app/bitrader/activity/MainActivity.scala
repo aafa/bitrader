@@ -154,7 +154,7 @@ class MainActivityLayout(override val menuItems: Seq[DrawerMenuItem],
               )
             ) <~ vMatchWidth <~ cardTweak
           ) <~ vertical
-        ) <~ vMatchParent <~ nestedScroll(40.dp)
+        ) <~ vMatchParent <~ nestedScroll(TR.dimen.appbar_overlay.value)
       ) <~ vMatchParent
     )
   }
@@ -170,7 +170,7 @@ class MainActivityLayout(override val menuItems: Seq[DrawerMenuItem],
       l[CollapsingToolbarLayout](
         w[Toolbar] <~ wire(toolBar) <~ vContentSizeMatchWidth(TR.dimen.toolbar_height.get) <~ pin
       ) <~ vMatchParent <~ scrollFlags <~ ctlTweak
-    ) <~ id(Id.appbar) <~ vContentSizeMatchWidth(180.dp)
+    ) <~ id(Id.appbar) <~ vContentSizeMatchWidth(TR.dimen.appbar_height.value)
   }
 
 
@@ -182,10 +182,10 @@ class MainActivityLayout(override val menuItems: Seq[DrawerMenuItem],
   //      w[FloatingActionButton] <~ drawable(AwesomeIcon(FontAwesomeIcons.fa_plus)) <~ fabTweak <~ SnackBuilding.snack("Test")
 
   def ctlTweak = Tweak[CollapsingToolbarLayout](ctl => {
-    ctl.setContentScrimColor(TR.color.primary.get)
+//    ctl.setContentScrimColor(TR.color.primary.get)
     //    ctl.setCollapsedTitleTextColor(Color.WHITE)
     //    ctl.setExpandedTitleColor(Color.WHITE)
-    ctl.setExpandedTitleMarginBottom(45.dp)
+    ctl.setExpandedTitleMarginBottom(TR.dimen.appbar_overlay.value)
   })
 
   def fitsAll: Transformer = {
