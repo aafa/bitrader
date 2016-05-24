@@ -27,6 +27,14 @@ trait ActivityOperations {
     PassParams.array.clear() // todo remove only pick
     maybePassable
   }
+
+  implicit class ActivityHelper(a: Activity) {
+    def changeTheme(theme: Int) = {
+      a.setTheme(theme)
+      a.finish()
+      a.startActivity(new Intent(a, a.getClass))
+    }
+  }
 }
 
 object IntentObject {

@@ -9,7 +9,7 @@ import android.support.v4.widget.{DrawerLayout, NestedScrollView}
 import android.support.v7.view.ContextThemeWrapper
 import android.support.v7.widget.{CardView, SearchView, Toolbar}
 import android.view._
-import android.widget.LinearLayout
+import android.widget.{Button, LinearLayout}
 import app.bitrader.activity.menu.{ProfileActivity, ReadQrActivity, WampActivity}
 import app.bitrader.api.poloniex.{Chart, Currency}
 import app.bitrader.helpers.Id
@@ -18,7 +18,7 @@ import app.bitrader._
 import com.github.mikephil.charting.charts.CandleStickChart
 import com.github.mikephil.charting.data.{CandleData, CandleDataSet, CandleEntry}
 import com.joanzapata.iconify.widget.IconTextView
-import diode.ModelR
+import diode.{Circuit, ModelR, ModelRW}
 import io.github.aafa.drawer.{BasicDrawerLayout, DrawerActivity, DrawerMenuItem}
 import io.github.aafa.helpers.{Styles, UiOperations}
 import io.github.aafa.macroid.{AdditionalTweaks, ThemedBlocks}
@@ -35,13 +35,14 @@ import scala.collection.JavaConverters._
 class MainActivity extends DrawerActivity with ActivityOperations with MenuItems {
 
   private val appCircuit = AppCircuit
-  private val zoomCurrencies = appCircuit.serviceData.zoom(_.currencies)
   private val chartSub = appCircuit.dataSubscribe(_.chartsData)(layout.updateChartData)
+  private val contextZoom: ModelRW[RootModel, ServiceContext] = appCircuit.serviceContext
 
-
-  override lazy val layout = new MainActivityLayout(menuItems, zoomCurrencies)
+  override lazy val layout = new MainActivityLayout(menuItems, appCircuit)
 
   override def onCreate(b: Bundle): Unit = {
+    this.setTheme(contextZoom.zoom(_.theme).value)
+
     super.onCreate(b)
     setContentView(layout.ui.get)
 
@@ -50,6 +51,8 @@ class MainActivity extends DrawerActivity with ActivityOperations with MenuItems
     //    APIContext.poloniexService(_.currencies()) map layout.updateData
     layout.updateChartData(appCircuit.serviceData.zoom(_.chartsData).value)
     appCircuit(UpdateCharts)
+
+    setTitle(appCircuit.zoom(_.selectedApi).value.toString)
   }
 
 
@@ -67,9 +70,11 @@ class MainActivity extends DrawerActivity with ActivityOperations with MenuItems
     }),
     DrawerMenuItem("ReadQrActivity", action = () => {
       startActivity[ReadQrActivity]
+      this.changeTheme(R.style.MainTheme)
     }),
     DrawerMenuItem("TestActivity", action = () => {
       startActivity[TestActivity]
+      this.changeTheme(R.style.GreenTheme)
     }),
     DrawerMenuItem("Account")
   )
@@ -99,13 +104,15 @@ trait MenuItems extends DrawerActivity with Styles {
 }
 
 class MainActivityLayout(override val menuItems: Seq[DrawerMenuItem],
-                         zoomCurrencies: ModelR[RootModel, Map[String, Currency]]
+                         appCircuit: AppCircuit.type
                         )
                         (implicit cw: ContextWrapper, managerContext: FragmentManagerContext[Fragment, FragmentManager])
-  extends BasicDrawerLayout(menuItems) with MainStyles with ChartLayout  {
+  extends BasicDrawerLayout(menuItems) with MainStyles with ChartLayout {
 
+  private val zoomCurrencies = appCircuit.serviceData.zoom(_.currencies)
 
   var textSlot = slot[IconTextView]
+  var btn = slot[Button]
 
   val longString: String = {
     def gen: Stream[String] = Stream.cons("I {fa-heart-o} to {fa-code} on {fa-android}", gen)
@@ -119,18 +126,20 @@ class MainActivityLayout(override val menuItems: Seq[DrawerMenuItem],
   else
     w[CandleStickChart] <~ wire(candleStick) <~ candleStickSettings <~ vMatchParent
 
-  def verticalLayout: Ui[DrawerLayout] = {
-    import ThemedBlocks._
+  println(s"original Context $cw")
 
+  def verticalLayout: Ui[DrawerLayout] = {
     drawer(
       l[CoordinatorLayout](
-        appBar(ContextWrapper(new ContextThemeWrapper(cw.bestAvailable, R.style.ThemeOverlay_AppCompat_Dark))),
+        appBar,
 
         l[NestedScrollView](
           l[LinearLayout](
             l[CardView](
               w[CandleStickChart] <~ wire(candleStick) <~ candleStickSettings
             ) <~ vContentSizeMatchWidth(200.dp) <~ cardTweak <~ id(Id.card),
+
+            w[Button] <~ text("green theme") <~ wire(btn) <~ onClick(),
 
             l[CardView](
               l[LinearLayout](
@@ -147,9 +156,8 @@ class MainActivityLayout(override val menuItems: Seq[DrawerMenuItem],
   // style
 
 
-  def appBar(c : ContextWrapper): Ui[AppBarLayout] = {
-    implicit val cw = c
-    println(s"actual Context $c")
+  def appBar: Ui[AppBarLayout] = {
+    //    ContextWrapper(new ContextThemeWrapper(cw.bestAvailable, R.style.ThemeOverlay_AppCompat_Dark))
 
     l[AppBarLayout](
       l[CollapsingToolbarLayout](

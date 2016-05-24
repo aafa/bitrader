@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">bitrader</string>
+
     <string name="bitfinex_url">https://api.bitfinex.com/v1</string>
+    <string name="bitfinex_trading_url">https://api.bitfinex.com/v1</string>
+    <string name="bitfinex_wamp">wss://api2.bitfinex.com:3000/ws</string>
 
     <string name="poloniex_url">https://poloniex.com</string>
     <string name="poloniex_trading_url">https://poloniex.com</string>

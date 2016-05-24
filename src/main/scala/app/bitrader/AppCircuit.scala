@@ -1,6 +1,7 @@
 package app.bitrader
 
 import app.bitrader.api.ApiProvider
+import app.bitrader.api.bitfinex.Bitfinex
 import app.bitrader.api.common._
 import app.bitrader.api.poloniex._
 import com.github.nscala_time.time.Imports._
@@ -94,12 +95,14 @@ object AppCircuit extends Circuit[RootModel] {
 case class RootModel(
                       selectedApi: ApiProvider = Poloniex,
                       serviceContext: Map[ApiProvider, ServiceContext] = Map(
-                        Poloniex -> ServiceContext()
+                        Poloniex -> ServiceContext(theme = R.style.MainTheme),
+                        Bitfinex -> ServiceContext(theme = R.style.GreenTheme)
                       )
                     )
 
 
 case class ServiceContext(
+                           theme: Int,
                            auth: UserProfile = UserProfile(),
                            serviceData: ServiceData = ServiceData()
                          )

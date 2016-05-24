@@ -15,7 +15,7 @@
     <application
             android:allowBackup="true"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme"
+            android:theme="@style/GreenTheme"
             android:name="app.bitrader.ClientApplication">
         <activity android:name="app.bitrader.activity.MainActivity">
             <intent-filter>
@@ -29,6 +29,7 @@
         <activity android:name=".activity.menu.ProfileActivity"/>
         <activity android:name=".activity.menu.ReadQrActivity"/>
         <activity android:name=".activity.TestActivity"/>
+        <activity android:name=".activity.Test" />
 
     </application>
 
