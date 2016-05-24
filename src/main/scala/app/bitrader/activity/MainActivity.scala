@@ -1,28 +1,27 @@
 package app.bitrader.activity
 
-import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.support.design.widget._
 import android.support.v4.app.{Fragment, FragmentManager}
 import android.support.v4.widget.{DrawerLayout, NestedScrollView}
-import android.support.v7.view.ContextThemeWrapper
 import android.support.v7.widget.{CardView, SearchView, Toolbar}
 import android.view._
 import android.widget.{Button, LinearLayout}
+import app.bitrader._
 import app.bitrader.activity.menu.{ProfileActivity, ReadQrActivity, WampActivity}
-import app.bitrader.api.poloniex.{Chart, Currency}
+import app.bitrader.api.ApiProvider
+import app.bitrader.api.bitfinex.Bitfinex
+import app.bitrader.api.poloniex.{Chart, Poloniex}
 import app.bitrader.helpers.Id
 import app.bitrader.helpers.activity.ActivityOperations
-import app.bitrader._
 import com.github.mikephil.charting.charts.CandleStickChart
 import com.github.mikephil.charting.data.{CandleData, CandleDataSet, CandleEntry}
 import com.joanzapata.iconify.widget.IconTextView
-import diode.{Circuit, ModelR, ModelRW}
+import diode.{ModelR, ModelRW}
 import io.github.aafa.drawer.{BasicDrawerLayout, DrawerActivity, DrawerMenuItem}
 import io.github.aafa.helpers.{Styles, UiOperations}
-import io.github.aafa.macroid.{AdditionalTweaks, ThemedBlocks}
-import io.github.aafa.toolbar.ToolbarAboveLayout
+import io.github.aafa.macroid.AdditionalTweaks
 import macroid.FullDsl._
 import macroid._
 
@@ -36,7 +35,8 @@ class MainActivity extends DrawerActivity with ActivityOperations with MenuItems
 
   private val appCircuit = AppCircuit
   private val chartSub = appCircuit.dataSubscribe(_.chartsData)(layout.updateChartData)
-  private val contextZoom: ModelRW[RootModel, ServiceContext] = appCircuit.serviceContext
+  private val contextZoom = appCircuit.serviceContext
+  private val selectedApiSubscription = appCircuit.subscribe(appCircuit.zoom(_.selectedApi))(m => updateApi(m.value))
 
   override lazy val layout = new MainActivityLayout(menuItems, appCircuit)
 
@@ -55,10 +55,16 @@ class MainActivity extends DrawerActivity with ActivityOperations with MenuItems
     setTitle(appCircuit.zoom(_.selectedApi).value.toString)
   }
 
-
   override def onPause(): Unit = {
     super.onPause()
     chartSub.apply()
+    selectedApiSubscription.apply()
+  }
+
+
+  def updateApi(value: ApiProvider): Unit = {
+    startActivity[MainActivity]
+    this.finish()
   }
 
   lazy val menuItems: Seq[DrawerMenuItem] = Seq(
@@ -139,7 +145,8 @@ class MainActivityLayout(override val menuItems: Seq[DrawerMenuItem],
               w[CandleStickChart] <~ wire(candleStick) <~ candleStickSettings
             ) <~ vContentSizeMatchWidth(200.dp) <~ cardTweak <~ id(Id.card),
 
-            w[Button] <~ text("green theme") <~ wire(btn) <~ onClick(),
+            w[Button] <~ text("poloniex") <~ wire(btn) <~ onClick(AppCircuit(SelectApi(Poloniex))),
+            w[Button] <~ text("bitfinex") <~ wire(btn) <~ onClick(AppCircuit(SelectApi(Bitfinex))),
 
             l[CardView](
               l[LinearLayout](

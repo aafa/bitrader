@@ -9,6 +9,8 @@ import app.bitrader.api.poloniex.{Chart, OrdersBook}
   * Created by Alex Afanasev
   */
 
+case class SelectApi(api: ApiProvider)
+
 case class UpdateOrderBook(cp: CurrencyPair)
 
 case class ReceiveOrderBook(ob: OrdersBook)

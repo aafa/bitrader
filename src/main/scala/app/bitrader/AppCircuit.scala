@@ -30,6 +30,12 @@ object AppCircuit extends Circuit[RootModel] {
   def serviceData: ModelRW[RootModel, ServiceData] = serviceContext
     .zoomRW(_.serviceData)((m, v) => m.copy(serviceData = v))
 
+  val selectApi = new ActionHandler(zoomRW(_.selectedApi)((m,v) => m.copy(selectedApi = v))) {
+    override protected def handle = {
+      case SelectApi(api) => updated(api)
+    }
+  }
+
   val orderBookUpdatesHandler = new ActionHandler(
     serviceData.zoomRW(_.orderBook)((m, v) => m.copy(orderBook = v))
       .zoomRW(_.changes)((m, v) => m.copy(changes = v))
@@ -82,7 +88,7 @@ object AppCircuit extends Circuit[RootModel] {
 
   override val actionHandler = composeHandlers(
     orderBookUpdatesHandler, orderBookList,
-    uiUpdates, apiRequest, wampSubscription
+    uiUpdates, apiRequest, wampSubscription, selectApi
   )
 
   def dataSubscribe[Data <: AnyRef](get: ServiceData => Data)(listen: Data => Unit) =
