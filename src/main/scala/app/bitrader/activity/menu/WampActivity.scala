@@ -16,6 +16,7 @@ import macroid.FullDsl._
 import macroid.{ContextWrapper, Contexts, Ui, _}
 
 import scala.collection.SortedMap
+import scala.collection.mutable.ArrayBuffer
 
 /**
   * Created by Alex Afanasev
@@ -59,8 +60,8 @@ class WampView(dispatcher: Dispatcher)(implicit c: ContextWrapper) extends Style
   val bidsAdapter = new MessagesAdapter(true)
 
   def rv: Ui[RecyclerView] = w[RecyclerView] <~
-    rvFixedSize <~
-    rvLayoutManager(new LinearLayoutManager(c.bestAvailable))
+    rvNoFixedSize <~
+    rvLayoutManager(new LinearLayoutManager(c.getOriginal))
 
 
   val ui: View = {
@@ -94,7 +95,7 @@ class WampView(dispatcher: Dispatcher)(implicit c: ContextWrapper) extends Style
     }
   }
 
-  def updateOrdersList(ob: OrdersBook) =  {
+  def updateOrdersList(ob: OrdersBook) = {
     asksAdapter.updateOrderList(ob.asksMap)
     bidsAdapter.updateOrderList(ob.bidsMap)
   }
@@ -104,7 +105,7 @@ class WampView(dispatcher: Dispatcher)(implicit c: ContextWrapper) extends Style
 
 
 class MessagesAdapter(val reverse: Boolean = false, size: Int = 20)(implicit context: ContextWrapper)
-  extends RecyclerView.Adapter[ViewHolder] with UiThreading {
+  extends RecyclerView.Adapter[ItemHolder] with UiThreading {
 
   var orders: OrdersMap = SortedMap.empty
 
@@ -136,25 +137,25 @@ class MessagesAdapter(val reverse: Boolean = false, size: Int = 20)(implicit con
   }
 
 
-  override def getItemCount: Int = list.size
+  override def getItemCount: Int = orders.size
 
-  def list: Seq[OrderPair] = {
-    var seq = orders.to[Seq]
+  def dataArray: Vector[OrderPair] = {
+    var seq = orders.to[Vector]
     if (reverse) {
       seq = seq.reverse
     }
     seq
   }
 
-  override def onBindViewHolder(vh: ViewHolder, i: Int): Unit = {
-    val (k, v) = list(i)
+  override def onBindViewHolder(vh: ItemHolder, i: Int): Unit = {
+    val (k, v) = dataArray(i)
     Ui.run(
       vh.title <~ text("%s   %.3f".format(k, v))
     )
   }
 
-  override def onCreateViewHolder(viewGroup: ViewGroup, i: Int): ViewHolder = {
-    ViewHolder(new WampItemAdapter())
+  override def onCreateViewHolder(viewGroup: ViewGroup, i: Int): ItemHolder = {
+    ItemHolder(new WampItemAdapter())
   }
 
 
@@ -179,7 +180,7 @@ class WampItemAdapter(implicit context: ContextWrapper) {
   def layout = content
 }
 
-case class ViewHolder(adapter: WampItemAdapter)(implicit context: ContextWrapper)
+case class ItemHolder(adapter: WampItemAdapter)(implicit context: ContextWrapper)
   extends RecyclerView.ViewHolder(adapter.layout) {
 
   val content = adapter.layout

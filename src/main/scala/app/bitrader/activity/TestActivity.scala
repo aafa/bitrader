@@ -15,7 +15,7 @@ class TestActivity extends AppCompatActivity with Contexts[AppCompatActivity] wi
 
   override def onCreate(b: Bundle): Unit = {
     super.onCreate(b)
-    setContentView(R.layout.main)
+    setContentView(R.layout.app_bar)
 
     val toolbar: Toolbar = findViewById(TR.toolbar.id).asInstanceOf[Toolbar]
     toolbar.setTitle("Main activity")
