@@ -6,4 +6,5 @@
     <string name="menu_user_details">Profile</string>
 
     <string name="search">Search</string>
+    <string name="flexible_title">flexible_title</string>
 </resources>

@@ -6,4 +6,5 @@
     <dimen name="appbar_height">180dp</dimen>
     <dimen name="appbar_overlay">40dp</dimen>
     <dimen name="fab_right">15dp</dimen>
+    <dimen name="padding">10dp</dimen>
 </resources>
