@@ -1,31 +1,26 @@
 package app.bitrader.activity
 
-import android.app.Activity
 import android.content.res.{Configuration, Resources}
-import android.graphics.{Color, PorterDuff, PorterDuffColorFilter}
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.support.design.widget.NavigationView.OnNavigationItemSelectedListener
 import android.support.design.widget._
-import android.support.v4.app.{Fragment, FragmentManager}
-import android.support.v4.widget.{DrawerLayout, NestedScrollView}
+import android.support.v4.view.GravityCompat
+import android.support.v4.widget.DrawerLayout
 import android.support.v7.app.{ActionBarDrawerToggle, AppCompatActivity}
-import android.support.v7.view.ContextThemeWrapper
-import android.support.v7.widget.{CardView, SearchView, Toolbar}
+import android.support.v7.widget.{CardView, Toolbar}
 import android.view._
 import android.widget._
 import app.bitrader._
-import app.bitrader.activity.menu.{ProfileActivity, ReadQrActivity, WampActivity}
+import app.bitrader.activity.menu.{ReadQrActivity, WampActivity}
 import app.bitrader.api.ApiProvider
-import app.bitrader.api.bitfinex.Bitfinex
-import app.bitrader.api.poloniex.{Chart, Poloniex}
+import app.bitrader.api.poloniex.Chart
 import app.bitrader.helpers.Id
 import app.bitrader.helpers.activity.ActivityOperations
 import com.github.mikephil.charting.charts.CandleStickChart
 import com.github.mikephil.charting.data.{CandleData, CandleDataSet, CandleEntry}
 import com.joanzapata.iconify.widget.IconTextView
 import diode.ModelR
-import io.github.aafa.drawer.{BasicDrawerLayout, DrawerActivity, DrawerMenuItem}
 import io.github.aafa.helpers.{Styles, UiOperations, UiThreading}
 import io.github.aafa.macroid.AdditionalTweaks
 import macroid.FullDsl._
@@ -83,25 +78,6 @@ class MainActivity extends AppCompatActivity with Contexts[AppCompatActivity]
     this.finish()
   }
 
-
-  lazy val menuItems: Seq[DrawerMenuItem] = Seq(
-    DrawerMenuItem("Wamp", action = () => {
-      startActivity[WampActivity]
-    }),
-    DrawerMenuItem("ProfileActivity", action = () => {
-      startActivity[ProfileActivity]
-    }),
-    DrawerMenuItem("ReadQrActivity", action = () => {
-      startActivity[ReadQrActivity]
-      this.changeTheme(R.style.MainTheme)
-    }),
-    DrawerMenuItem("TestActivity", action = () => {
-      startActivity[TestActivity]
-      this.changeTheme(R.style.GreenTheme)
-    }),
-    DrawerMenuItem("Account")
-  )
-
   override def drawerLayout: Option[DrawerLayout] = Some(layout.mainView)
 
   override def toolbarView: Option[Toolbar] = Some(layout.toolbarView)
@@ -131,6 +107,7 @@ trait DrawerItems extends AppCompatActivity with Contexts[AppCompatActivity] wit
       case _ =>
     }
 
+    drawerLayout map (v => v.closeDrawer(GravityCompat.START))
     true
   }
 
@@ -148,7 +125,7 @@ trait DrawerItems extends AppCompatActivity with Contexts[AppCompatActivity] wit
         }
       }
       actionBarDrawerToggle = Some(drawerToggle)
-      drawerLayout.setDrawerListener(drawerToggle)
+      drawerLayout.addDrawerListener(drawerToggle)
 
       val navigationView: NavigationView = drawerLayout.findView(TR.nav_view)
       navigationView.setNavigationItemSelectedListener(this)
