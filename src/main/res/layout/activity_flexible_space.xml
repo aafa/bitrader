@@ -14,26 +14,17 @@
 		android:id="@+id/flexible_example_appbar"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:theme="@style/MainTheme"
+		android:theme="@style/MyToolbar"
 		>
 
 		<android.support.design.widget.CollapsingToolbarLayout
 			android:id="@+id/flexible_example_collapsing"
 			android:layout_width="match_parent"
 			android:layout_height="300dp"
-			app:title="@string/flexible_title"
 			app:expandedTitleMarginBottom="94dp"
 			app:layout_scrollFlags="scroll|exitUntilCollapsed"
 			app:contentScrim="?colorPrimary"
 			>
-
-			<ImageView
-				android:layout_width="fill_parent"
-				android:layout_height="match_parent"
-				android:src="@drawable/material_flat"
-				android:tint="#BB3E50B4"
-				android:scaleType="centerCrop"
-				/>
 
 			<android.support.v7.widget.Toolbar
 				android:id="@+id/flexible_example_toolbar"
@@ -65,49 +56,25 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				app:contentPaddingBottom="16dp"
-				app:contentPaddingLeft="16dp"
-				app:contentPaddingRight="16dp"
-				app:cardCornerRadius="4dp"
+				app:contentPaddingLeft="4dp"
+				app:contentPaddingRight="4dp"
+				app:cardCornerRadius="2dp"
 				app:cardBackgroundColor="@android:color/white"
 				app:cardElevation="4dp"
 				android:layout_margin="8dp"
 				>
 
 				<LinearLayout
+                    android:id="@+id/graphSlot"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
 					android:orientation="vertical"
 					>
 
-					<TextView
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						/>
-					<!--android:text="@string/text_header"-->
-					<!--android:textAppearance="@style/TextAppearance.Header"-->
-					<!--style="@style/TextComponent.ItemRow"-->
-
-					<TextView
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						android:fontFamily="sans-serif-light"
-						android:lineSpacingExtra="8dp"
-						android:textSize="16sp"
-						/>
 				</LinearLayout>
 			</android.support.v7.widget.CardView>
 		</LinearLayout>
 	</android.support.v4.widget.NestedScrollView>
 
-	<android.support.design.widget.FloatingActionButton
-		android:id="@+id/flexible_example_fab"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_marginRight="32dp"
-		android:elevation="8dp"
-		android:src="@drawable/ic_menu_camera"
-		app:layout_anchor="@id/flexible_example_cardview"
-		app:layout_anchorGravity="top|right|end"
-		tools:ignore="RtlHardcoded"
-		/>
+
 </android.support.design.widget.CoordinatorLayout>

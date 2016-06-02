@@ -7,4 +7,5 @@
     <dimen name="appbar_overlay">40dp</dimen>
     <dimen name="fab_right">15dp</dimen>
     <dimen name="padding">10dp</dimen>
+    <dimen name="chartHeight">200dp</dimen>
 </resources>

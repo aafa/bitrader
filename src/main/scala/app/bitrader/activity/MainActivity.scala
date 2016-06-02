@@ -1,13 +1,14 @@
 package app.bitrader.activity
 
 import android.app.Activity
-import android.content.res.Resources
+import android.content.res.{Configuration, Resources}
 import android.graphics.{Color, PorterDuff, PorterDuffColorFilter}
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.support.design.widget._
 import android.support.v4.app.{Fragment, FragmentManager}
 import android.support.v4.widget.{DrawerLayout, NestedScrollView}
+import android.support.v7.app.{ActionBarDrawerToggle, AppCompatActivity}
 import android.support.v7.view.ContextThemeWrapper
 import android.support.v7.widget.{CardView, SearchView, Toolbar}
 import android.view._
@@ -35,14 +36,16 @@ import scala.collection.JavaConverters._
   * Created by aafa
   */
 
-class MainActivity extends DrawerActivity with ActivityOperations with MenuItems {
+class MainActivity extends AppCompatActivity with Contexts[AppCompatActivity]
+  with ActivityOperations with MenuItems with DrawerItems{
 
   private val appCircuit = AppCircuit
   private val chartSub = appCircuit.dataSubscribe(_.chartsData)(layout.updateChartData)
   private val contextZoom = appCircuit.serviceContext
-  private val selectedApiSubscription = appCircuit.subscribe(appCircuit.zoom(_.selectedApi))(m => updateApi(m.value))
+  private val selectedApiSubscription = appCircuit
+    .subscribe(appCircuit.zoom(_.selectedApi))(m => updateApi(m.value))
 
-  override lazy val layout = new MainActivityLayout(menuItems, appCircuit, this.getLayoutInflater)
+  lazy val layout = new MainActivityLayout(appCircuit, this.getLayoutInflater)
 
   override def onCreate(b: Bundle): Unit = {
     this.setTheme(contextZoom.zoom(_.theme).value)
@@ -56,6 +59,7 @@ class MainActivity extends DrawerActivity with ActivityOperations with MenuItems
     layout.updateChartData(appCircuit.serviceData.zoom(_.chartsData).value)
     appCircuit(UpdateCharts)
 
+    setSupportActionBar(layout.toolbarView)
     setTitle(appCircuit.zoom(_.selectedApi).value.toString)
   }
 
@@ -94,9 +98,65 @@ class MainActivity extends DrawerActivity with ActivityOperations with MenuItems
     }),
     DrawerMenuItem("Account")
   )
+
+  override def drawerLayout: Option[DrawerLayout] = Some(layout.drawerLayout)
+
+  override def toolbarView: Option[Toolbar] = Some(layout.toolbarView)
 }
 
-trait MenuItems extends DrawerActivity with Styles {
+trait DrawerItems extends AppCompatActivity {
+  var actionBarDrawerToggle: Option[ActionBarDrawerToggle] = None
+
+  def drawerLayout: Option[DrawerLayout]
+  def toolbarView: Option[Toolbar]
+
+  override def setContentView(view: View): Unit = {
+    super.setContentView(view)
+    addDrawerToggler
+  }
+
+  def addDrawerToggler: Unit = {
+    drawerLayout map { drawerLayout =>
+      val drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, android.R.string.ok, android.R.string.cancel) {
+        override def onDrawerClosed(drawerView: View): Unit = {
+          super.onDrawerClosed(drawerView)
+          invalidateOptionsMenu()
+        }
+
+        override def onDrawerOpened(drawerView: View): Unit = {
+          super.onDrawerOpened(drawerView)
+          invalidateOptionsMenu()
+        }
+      }
+      actionBarDrawerToggle = Some(drawerToggle)
+      drawerLayout.setDrawerListener(drawerToggle)
+    }
+
+    toolbarView map { tb =>
+      setSupportActionBar(tb)
+      getSupportActionBar.setDisplayHomeAsUpEnabled(true)
+      getSupportActionBar.setHomeButtonEnabled(true)
+    }
+
+  }
+
+  override def onPostCreate(savedInstanceState: Bundle): Unit = {
+    super.onPostCreate(savedInstanceState)
+    actionBarDrawerToggle map (_.syncState)
+  }
+
+  override def onConfigurationChanged(newConfig: Configuration): Unit = {
+    super.onConfigurationChanged(newConfig)
+    actionBarDrawerToggle map (_.onConfigurationChanged(newConfig))
+  }
+
+  override def onOptionsItemSelected(item: MenuItem): Boolean = {
+    if (actionBarDrawerToggle.isDefined && actionBarDrawerToggle.get.onOptionsItemSelected(item)) true
+    else super.onOptionsItemSelected(item)
+  }
+}
+
+trait MenuItems extends AppCompatActivity with Styles {
 
   override def onOptionsItemSelected(item: MenuItem): Boolean = {
     super.onOptionsItemSelected(item)
@@ -106,34 +166,21 @@ trait MenuItems extends DrawerActivity with Styles {
 
   override def onCreateOptionsMenu(menu: Menu): Boolean = {
     super.onCreateOptionsMenu(menu)
-    getSupportActionBar.getThemedContext.setTheme(R.style.MyToolbar)
+    getMenuInflater.inflate(R.menu.menu, menu)
 
-    val search: MenuItem = menu.add("search")
-    search.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
-    search.setActionView(
-      (w[SearchView] <~ Tweak[SearchView](sv => {
-        sv.setQueryHint("coin pairs")
-      }) <~ vMatchWidth).get
-    )
     true
   }
 
 }
 
-class MainActivityLayout(override val menuItems: Seq[DrawerMenuItem],
+class MainActivityLayout(
                          appCircuit: AppCircuit.type,
                          li: LayoutInflater
                         )
-                        (implicit cw: ContextWrapper, managerContext: FragmentManagerContext[Fragment, FragmentManager])
-  extends BasicDrawerLayout(menuItems) with MainStyles with ChartLayout with UiThreading {
+                        (implicit cw: ContextWrapper)
+  extends MainStyles with ChartLayout with UiThreading  {
 
-  def applyThemeColors = {
-    runOnUiThread(toolBar map (t => colorizeToolbar(t, Color.WHITE)))
-    Ui.run(Ui(toolBar map (t => t.setTitle("other"))))
-    Ui.run(Ui(toolBar map (t => t.setSubtitle("sub other"))))
-    Ui.run(Ui(toolBar map (t => t.invalidate())))
-  }
-
+  import TypedResource._
 
   private val zoomCurrencies = appCircuit.serviceData.zoom(_.currencies)
 
@@ -146,36 +193,23 @@ class MainActivityLayout(override val menuItems: Seq[DrawerMenuItem],
   }
 
   lazy val img: Drawable = TR.drawable.material_flat.get
+  lazy val candleChartUi = w[CandleStickChart] <~ wire(candleStick) <~ candleStickSettings <~ vContentSizeMatchWidth(TR.dimen.chartHeight.get)
 
   def ui: Ui[View] = if (portrait)
     verticalLayout
   else
-    w[CandleStickChart] <~ wire(candleStick) <~ candleStickSettings <~ vMatchParent
+    candleChartUi <~ vMatchParent
 
-  def verticalLayout: Ui[DrawerLayout] = {
-    drawer(
-      l[CoordinatorLayout](
-        appBar,
+  val mainView: DrawerLayout = li.inflate(TR.layout.activity_main)
+  val toolbarView: Toolbar = mainView.findView(TR.flexible_example_toolbar)
+  val graphSlot: LinearLayout = mainView.findView(TR.graphSlot)
+  val drawerLayout: DrawerLayout = mainView.findView(TR.drawer_layout)
 
-        l[NestedScrollView](
-          l[LinearLayout](
-            l[CardView](
-              w[CandleStickChart] <~ wire(candleStick) <~ candleStickSettings
-            ) <~ vContentSizeMatchWidth(200.dp) <~ cardTweak <~ id(Id.card),
-
-            w[Button] <~ text("poloniex") <~ wire(btn) <~ onClick(AppCircuit(SelectApi(Poloniex))),
-            w[Button] <~ text("bitfinex") <~ wire(btn) <~ onClick(AppCircuit(SelectApi(Bitfinex))),
-
-            l[CardView](
-              l[LinearLayout](
-                w[IconTextView] <~ wire(textSlot) <~ text(zoomCurrencies.value.toString())
-              )
-            ) <~ vMatchWidth <~ cardTweak
-          ) <~ vertical
-        ) <~ vMatchParent <~ nestedScroll(TR.dimen.appbar_overlay.value)
-      ) <~ vMatchParent
-    )
+  def verticalLayout: Ui[View] = {
+    graphSlot.addView(candleChartUi.get)
+    Ui(mainView)
   }
+
 
 
   // style
@@ -202,15 +236,6 @@ class MainActivityLayout(override val menuItems: Seq[DrawerMenuItem],
     }
   }
 
-  def appBar: Ui[AppBarLayout] = {
-    l[AppBarLayout](
-      l[CollapsingToolbarLayout](
-        w[Toolbar] <~ wire(toolBar) <~ vContentSizeMatchWidth(TR.dimen.toolbar_height.get) <~ pin
-      ) <~ vMatchParent <~ scrollFlags <~ ctlTweak
-    ) <~ id(Id.appbar) <~ vContentSizeMatchWidth(TR.dimen.appbar_height.value)
-  }
-
-
   def scrollFlags = modifyLpTweak[AppBarLayout.LayoutParams](lp => {
     lp.setScrollFlags(AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL
       | AppBarLayout.LayoutParams.SCROLL_FLAG_EXIT_UNTIL_COLLAPSED)
@@ -222,7 +247,7 @@ class MainActivityLayout(override val menuItems: Seq[DrawerMenuItem],
     //    ctl.setContentScrimColor(TR.color.primary.get)
     //    ctl.setCollapsedTitleTextColor(Color.WHITE)
     //    ctl.setExpandedTitleColor(Color.WHITE)
-    ctl.setExpandedTitleMarginBottom(TR.dimen.appbar_overlay.value)
+    ctl.setExpandedTitleMarginBottom(TR.dimen.appbar_overlay.get)
   })
 
   def fitsAll: Transformer = {
@@ -248,9 +273,7 @@ class MainActivityLayout(override val menuItems: Seq[DrawerMenuItem],
 
 }
 
-trait MainStyles extends UiOperations with Styles with AdditionalTweaks {
-
-}
+trait MainStyles extends UiOperations with Styles with AdditionalTweaks
 
 trait ChartLayout {
   var candleStick = slot[CandleStickChart]
