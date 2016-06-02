@@ -5,6 +5,7 @@ import android.content.res.{Configuration, Resources}
 import android.graphics.{Color, PorterDuff, PorterDuffColorFilter}
 import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.support.design.widget.NavigationView.OnNavigationItemSelectedListener
 import android.support.design.widget._
 import android.support.v4.app.{Fragment, FragmentManager}
 import android.support.v4.widget.{DrawerLayout, NestedScrollView}
@@ -37,7 +38,7 @@ import scala.collection.JavaConverters._
   */
 
 class MainActivity extends AppCompatActivity with Contexts[AppCompatActivity]
-  with ActivityOperations with MenuItems with DrawerItems{
+  with ActivityOperations with MenuItems with DrawerItems {
 
   private val appCircuit = AppCircuit
   private val chartSub = appCircuit.dataSubscribe(_.chartsData)(layout.updateChartData)
@@ -82,6 +83,7 @@ class MainActivity extends AppCompatActivity with Contexts[AppCompatActivity]
     this.finish()
   }
 
+
   lazy val menuItems: Seq[DrawerMenuItem] = Seq(
     DrawerMenuItem("Wamp", action = () => {
       startActivity[WampActivity]
@@ -105,15 +107,31 @@ class MainActivity extends AppCompatActivity with Contexts[AppCompatActivity]
   override def toolbarView: Option[Toolbar] = Some(layout.toolbarView)
 }
 
-trait DrawerItems extends AppCompatActivity {
+trait DrawerItems extends AppCompatActivity with Contexts[AppCompatActivity] with ActivityOperations with OnNavigationItemSelectedListener{
+  import TypedResource._
   var actionBarDrawerToggle: Option[ActionBarDrawerToggle] = None
 
   def drawerLayout: Option[DrawerLayout]
+
   def toolbarView: Option[Toolbar]
 
   override def setContentView(view: View): Unit = {
     super.setContentView(view)
     addDrawerToggler
+  }
+
+  override def onNavigationItemSelected(item: MenuItem): Boolean ={
+
+    item.getItemId match {
+      case R.id.wamp =>
+        startActivity[WampActivity]
+
+      case R.id.readQrActivity =>
+        startActivity[ReadQrActivity]
+      case _ =>
+    }
+
+    true
   }
 
   def addDrawerToggler: Unit = {
@@ -131,12 +149,15 @@ trait DrawerItems extends AppCompatActivity {
       }
       actionBarDrawerToggle = Some(drawerToggle)
       drawerLayout.setDrawerListener(drawerToggle)
+
+      val navigationView: NavigationView = drawerLayout.findView(TR.nav_view)
+      navigationView.setNavigationItemSelectedListener(this)
     }
 
     toolbarView map { tb =>
-//      setSupportActionBar(tb)
-//      getSupportActionBar.setDisplayHomeAsUpEnabled(true)
-//      getSupportActionBar.setHomeButtonEnabled(true)
+      //      setSupportActionBar(tb)
+      //      getSupportActionBar.setDisplayHomeAsUpEnabled(true)
+      //      getSupportActionBar.setHomeButtonEnabled(true)
     }
 
   }
@@ -175,11 +196,11 @@ trait MenuItems extends AppCompatActivity with Styles {
 }
 
 class MainActivityLayout(
-                         appCircuit: AppCircuit.type,
-                         li: LayoutInflater
+                          appCircuit: AppCircuit.type,
+                          li: LayoutInflater
                         )
                         (implicit cw: ContextWrapper)
-  extends MainStyles with ChartLayout with UiThreading  {
+  extends MainStyles with ChartLayout with UiThreading {
 
   import TypedResource._
 
@@ -223,7 +244,6 @@ class MainActivityLayout(
   def ctlTweak = Tweak[CollapsingToolbarLayout](ctl => {
     ctl.setExpandedTitleMarginBottom(TR.dimen.appbar_overlay.get)
   })
-
 
 
   def fabTweak = modifyLpTweak[CoordinatorLayout.LayoutParams](params => {
