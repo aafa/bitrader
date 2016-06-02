@@ -21,7 +21,12 @@ object Dependencies {
 
     libraryDependencies ++= Seq(
       aar("com.github.aafa" %% "macroid-design" % "0.1.2-SNAPSHOT"),
+
       aar("com.mikepenz" % "materialdrawer" % "5.2.9"),
+      aar("com.mikepenz" % "iconics-core" % "2.6.0"),
+      aar("com.mikepenz" % "google-material-typeface" % "2.2.0.1.original") exclude("Android-Iconics", "library-core"),
+      aar("com.mikepenz" % "fontawesome-typeface" % "4.6.0.1") exclude("Android-Iconics", "library-core"),
+
       "io.github.aafa" %% "scala-retrofit" % "0.1.1-SNAPSHOT",
 
       "ws.wamp.jawampa" % "jawampa-netty" % "0.4.1"	,

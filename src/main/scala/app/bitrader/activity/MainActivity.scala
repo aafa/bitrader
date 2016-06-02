@@ -24,10 +24,11 @@ import com.github.mikephil.charting.charts.CandleStickChart
 import com.github.mikephil.charting.data.{CandleData, CandleDataSet, CandleEntry}
 import com.joanzapata.iconify.fonts.MaterialIcons
 import com.joanzapata.iconify.widget.IconTextView
+import com.mikepenz.google_material_typeface_library.GoogleMaterial
 import com.mikepenz.materialdrawer.AccountHeader.OnAccountHeaderListener
 import com.mikepenz.materialdrawer.Drawer.OnDrawerItemClickListener
 import com.mikepenz.materialdrawer.{AccountHeader, AccountHeaderBuilder, DrawerBuilder}
-import com.mikepenz.materialdrawer.model.{PrimaryDrawerItem, ProfileDrawerItem, SecondaryDrawerItem}
+import com.mikepenz.materialdrawer.model.{PrimaryDrawerItem, ProfileDrawerItem, ProfileSettingDrawerItem, SecondaryDrawerItem}
 import com.mikepenz.materialdrawer.model.interfaces.{IDrawerItem, IProfile}
 import diode.ModelR
 import io.github.aafa.helpers.{Styles, UiOperations, UiThreading}
@@ -92,11 +93,11 @@ class MainActivity extends AppCompatActivity with Contexts[AppCompatActivity]
 trait DrawerSetup {
   this: MainActivity =>
 
-  def profiles: Seq[ProfileDrawerItem] = {
+  def profiles: Seq[IProfile[_]] = {
     appCircuit.zoom(_.serviceContext).value.keySet.toSeq map (k =>
-      new ProfileDrawerItem().withName(k.toString).withTag(k).withSetSelected(k == appCircuit.selectApi.value)
+      new ProfileDrawerItem().withName(k.toString).withTag(k)
       )
-  }
+  } :+ new ProfileSettingDrawerItem().withName("Add profile").withIcon(GoogleMaterial.Icon.gmd_add)
 
   def drawerSetup(mainActivity: MainActivity) = {
     val accountHeader: AccountHeader = new AccountHeaderBuilder()
@@ -104,10 +105,11 @@ trait DrawerSetup {
       .addProfiles(profiles: _*)
       .withOnAccountHeaderListener(new OnAccountHeaderListener {
         override def onProfileChanged(view: View, iProfile: IProfile[_], b: Boolean): Boolean = {
-          val item: ProfileDrawerItem = iProfile.asInstanceOf[ProfileDrawerItem]
-          item.getTag match {
-            case t: ApiProvider =>
-              appCircuit(SelectApi(t))
+          iProfile match {
+            case p: ProfileDrawerItem =>
+              val apiProvider: ApiProvider = p.getTag.asInstanceOf[ApiProvider]
+              appCircuit(SelectApi(apiProvider))
+            case s: ProfileSettingDrawerItem =>
           }
 
           true
