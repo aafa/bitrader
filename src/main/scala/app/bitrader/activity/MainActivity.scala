@@ -1,5 +1,6 @@
 package app.bitrader.activity
 
+import android.app.Activity
 import android.content.res.{Configuration, Resources}
 import android.graphics.drawable.Drawable
 import android.os.Bundle
@@ -8,18 +9,26 @@ import android.support.design.widget._
 import android.support.v4.view.GravityCompat
 import android.support.v4.widget.DrawerLayout
 import android.support.v7.app.{ActionBarDrawerToggle, AppCompatActivity}
+import android.support.v7.widget.RecyclerView.ViewHolder
 import android.support.v7.widget.{CardView, Toolbar}
 import android.view._
 import android.widget._
 import app.bitrader._
 import app.bitrader.activity.menu.{ReadQrActivity, WampActivity}
 import app.bitrader.api.ApiProvider
-import app.bitrader.api.poloniex.Chart
+import app.bitrader.api.bitfinex.Bitfinex
+import app.bitrader.api.poloniex.{Chart, Poloniex}
 import app.bitrader.helpers.Id
 import app.bitrader.helpers.activity.ActivityOperations
 import com.github.mikephil.charting.charts.CandleStickChart
 import com.github.mikephil.charting.data.{CandleData, CandleDataSet, CandleEntry}
+import com.joanzapata.iconify.fonts.MaterialIcons
 import com.joanzapata.iconify.widget.IconTextView
+import com.mikepenz.materialdrawer.AccountHeader.OnAccountHeaderListener
+import com.mikepenz.materialdrawer.Drawer.OnDrawerItemClickListener
+import com.mikepenz.materialdrawer.{AccountHeader, AccountHeaderBuilder, DrawerBuilder}
+import com.mikepenz.materialdrawer.model.{PrimaryDrawerItem, ProfileDrawerItem, SecondaryDrawerItem}
+import com.mikepenz.materialdrawer.model.interfaces.{IDrawerItem, IProfile}
 import diode.ModelR
 import io.github.aafa.helpers.{Styles, UiOperations, UiThreading}
 import io.github.aafa.macroid.AdditionalTweaks
@@ -33,9 +42,9 @@ import scala.collection.JavaConverters._
   */
 
 class MainActivity extends AppCompatActivity with Contexts[AppCompatActivity]
-  with ActivityOperations with MenuItems with DrawerItems {
+  with ActivityOperations with MenuItems with DrawerSetup {
 
-  private val appCircuit = AppCircuit
+  val appCircuit = AppCircuit
   private val chartSub = appCircuit.dataSubscribe(_.chartsData)(layout.updateChartData)
   private val contextZoom = appCircuit.serviceContext
   private val selectedApiSubscription = appCircuit
@@ -57,7 +66,8 @@ class MainActivity extends AppCompatActivity with Contexts[AppCompatActivity]
 
     setSupportActionBar(layout.toolbarView)
     setTitle(appCircuit.zoom(_.selectedApi).value.toString)
-    getSupportActionBar.setDisplayHomeAsUpEnabled(true)
+
+    drawerSetup(this)
   }
 
 
@@ -77,14 +87,60 @@ class MainActivity extends AppCompatActivity with Contexts[AppCompatActivity]
     startActivity[MainActivity]
     this.finish()
   }
-
-  override def drawerLayout: Option[DrawerLayout] = Some(layout.mainView)
-
-  override def toolbarView: Option[Toolbar] = Some(layout.toolbarView)
 }
 
-trait DrawerItems extends AppCompatActivity with Contexts[AppCompatActivity] with ActivityOperations with OnNavigationItemSelectedListener{
+trait DrawerSetup {
+  this: MainActivity =>
+
+  def profiles: Seq[ProfileDrawerItem] = {
+    appCircuit.zoom(_.serviceContext).value.keySet.toSeq map (k =>
+      new ProfileDrawerItem().withName(k.toString).withTag(k).withSetSelected(k == appCircuit.selectApi.value)
+      )
+  }
+
+  def drawerSetup(mainActivity: MainActivity) = {
+    val accountHeader: AccountHeader = new AccountHeaderBuilder()
+      .withActivity(mainActivity)
+      .addProfiles(profiles: _*)
+      .withOnAccountHeaderListener(new OnAccountHeaderListener {
+        override def onProfileChanged(view: View, iProfile: IProfile[_], b: Boolean): Boolean = {
+          val item: ProfileDrawerItem = iProfile.asInstanceOf[ProfileDrawerItem]
+          item.getTag match {
+            case t: ApiProvider =>
+              appCircuit(SelectApi(t))
+          }
+
+          true
+        }
+      })
+      .withHeaderBackground(R.drawable.material_flat)
+      .build()
+
+    new DrawerBuilder().withActivity(mainActivity)
+      .withToolbar(mainActivity.layout.toolbarView)
+      .withAccountHeader(accountHeader)
+      .addDrawerItems(
+        new PrimaryDrawerItem().withName("Wamp").withIdentifier(1),
+        new SecondaryDrawerItem().withName("Read qr").withIdentifier(2)
+      )
+      .withOnDrawerItemClickListener(new OnDrawerItemClickListener {
+        override def onItemClick(view: View, i: Int, iDrawerItem: IDrawerItem[_, _ <: ViewHolder]): Boolean = {
+          iDrawerItem.getIdentifier match {
+            case 1 => startActivity[WampActivity]
+            case 2 => startActivity[ReadQrActivity]
+          }
+          true
+        }
+      })
+      .withCloseOnClick(true)
+      .build()
+  }
+}
+
+trait DrawerItems extends AppCompatActivity with Contexts[AppCompatActivity] with ActivityOperations with OnNavigationItemSelectedListener {
+
   import TypedResource._
+
   var actionBarDrawerToggle: Option[ActionBarDrawerToggle] = None
 
   def drawerLayout: Option[DrawerLayout]
@@ -96,7 +152,7 @@ trait DrawerItems extends AppCompatActivity with Contexts[AppCompatActivity] wit
     addDrawerToggler
   }
 
-  override def onNavigationItemSelected(item: MenuItem): Boolean ={
+  override def onNavigationItemSelected(item: MenuItem): Boolean = {
 
     item.getItemId match {
       case R.id.wamp =>
@@ -199,7 +255,7 @@ class MainActivityLayout(
   else
     candleChartUi <~ vMatchParent
 
-  val mainView: DrawerLayout = li.inflate(TR.layout.activity_main)
+  val mainView: CoordinatorLayout = li.inflate(TR.layout.activity_flexible_space)
   val toolbarView: Toolbar = mainView.findView(TR.flexible_example_toolbar)
   val graphSlot: LinearLayout = mainView.findView(TR.graphSlot)
 

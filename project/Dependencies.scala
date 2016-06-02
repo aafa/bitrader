@@ -21,6 +21,7 @@ object Dependencies {
 
     libraryDependencies ++= Seq(
       aar("com.github.aafa" %% "macroid-design" % "0.1.2-SNAPSHOT"),
+      aar("com.mikepenz" % "materialdrawer" % "5.2.9"),
       "io.github.aafa" %% "scala-retrofit" % "0.1.1-SNAPSHOT",
 
       "ws.wamp.jawampa" % "jawampa-netty" % "0.4.1"	,
