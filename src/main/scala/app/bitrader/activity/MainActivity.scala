@@ -61,6 +61,7 @@ class MainActivity extends AppCompatActivity with Contexts[AppCompatActivity]
 
     setSupportActionBar(layout.toolbarView)
     setTitle(appCircuit.zoom(_.selectedApi).value.toString)
+    getSupportActionBar.setDisplayHomeAsUpEnabled(true)
   }
 
 
@@ -99,7 +100,7 @@ class MainActivity extends AppCompatActivity with Contexts[AppCompatActivity]
     DrawerMenuItem("Account")
   )
 
-  override def drawerLayout: Option[DrawerLayout] = Some(layout.drawerLayout)
+  override def drawerLayout: Option[DrawerLayout] = Some(layout.mainView)
 
   override def toolbarView: Option[Toolbar] = Some(layout.toolbarView)
 }
@@ -133,9 +134,9 @@ trait DrawerItems extends AppCompatActivity {
     }
 
     toolbarView map { tb =>
-      setSupportActionBar(tb)
-      getSupportActionBar.setDisplayHomeAsUpEnabled(true)
-      getSupportActionBar.setHomeButtonEnabled(true)
+//      setSupportActionBar(tb)
+//      getSupportActionBar.setDisplayHomeAsUpEnabled(true)
+//      getSupportActionBar.setHomeButtonEnabled(true)
     }
 
   }
@@ -203,38 +204,14 @@ class MainActivityLayout(
   val mainView: DrawerLayout = li.inflate(TR.layout.activity_main)
   val toolbarView: Toolbar = mainView.findView(TR.flexible_example_toolbar)
   val graphSlot: LinearLayout = mainView.findView(TR.graphSlot)
-  val drawerLayout: DrawerLayout = mainView.findView(TR.drawer_layout)
 
   def verticalLayout: Ui[View] = {
     graphSlot.addView(candleChartUi.get)
     Ui(mainView)
   }
 
-
-
   // style
 
-
-  def colorizeToolbar(toolbar: Toolbar, color: Int) = {
-    val filter: PorterDuffColorFilter = new PorterDuffColorFilter(color, PorterDuff.Mode.MULTIPLY)
-
-    toolbar.setTitleTextColor(color)
-    toolbar.setSubtitleTextColor(color)
-
-    println("applyThemeColors " + toolbar.getTitle)
-
-    for (i <- 0 to toolbar.getChildCount) {
-      val view: View = toolbar.getChildAt(i)
-      println("apply styles view " + view)
-
-      view match {
-        case v: ImageButton => v.getDrawable.setColorFilter(filter)
-        case t: TextView => t.setTextColor(color)
-        case am: ActionMenuView =>
-        case _ =>
-      }
-    }
-  }
 
   def scrollFlags = modifyLpTweak[AppBarLayout.LayoutParams](lp => {
     lp.setScrollFlags(AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL
@@ -244,17 +221,9 @@ class MainActivityLayout(
   //      w[FloatingActionButton] <~ drawable(AwesomeIcon(FontAwesomeIcons.fa_plus)) <~ fabTweak <~ SnackBuilding.snack("Test")
 
   def ctlTweak = Tweak[CollapsingToolbarLayout](ctl => {
-    //    ctl.setContentScrimColor(TR.color.primary.get)
-    //    ctl.setCollapsedTitleTextColor(Color.WHITE)
-    //    ctl.setExpandedTitleColor(Color.WHITE)
     ctl.setExpandedTitleMarginBottom(TR.dimen.appbar_overlay.get)
   })
 
-  def fitsAll: Transformer = {
-    Transformer {
-      case a => a <~ fits
-    }
-  }
 
 
   def fabTweak = modifyLpTweak[CoordinatorLayout.LayoutParams](params => {
