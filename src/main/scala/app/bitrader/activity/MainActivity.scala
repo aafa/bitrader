@@ -36,6 +36,7 @@ import app.bitrader.api.common.CurrencyPair
 import com.miguelcatalan.materialsearchview.MaterialSearchView
 import com.miguelcatalan.materialsearchview.MaterialSearchView.OnQueryTextListener
 import com.mikepenz.iconics.context.IconicsLayoutInflater
+import com.orhanobut.logger.Logger
 
 import scala.collection.JavaConverters._
 import scala.language.postfixOps
@@ -62,6 +63,8 @@ class MainActivity extends AppCompatActivity with Contexts[AppCompatActivity]
 
     super.onCreate(b)
     setContentView(layout.ui.get)
+
+    Logger.d("main!")
 
     //todo setup charts wamp update
 
