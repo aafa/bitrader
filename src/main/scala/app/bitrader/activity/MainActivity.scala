@@ -1,14 +1,10 @@
 package app.bitrader.activity
 
-import android.app.Activity
-import android.content.res.{Configuration, Resources}
+import android.content.res.Resources
 import android.graphics.drawable.Drawable
 import android.os.Bundle
-import android.support.design.widget.NavigationView.OnNavigationItemSelectedListener
 import android.support.design.widget._
-import android.support.v4.view.GravityCompat
-import android.support.v4.widget.DrawerLayout
-import android.support.v7.app.{ActionBarDrawerToggle, AppCompatActivity}
+import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.RecyclerView.ViewHolder
 import android.support.v7.widget.{CardView, Toolbar}
 import android.view._
@@ -16,20 +12,18 @@ import android.widget._
 import app.bitrader._
 import app.bitrader.activity.menu.{ReadQrActivity, WampActivity}
 import app.bitrader.api.ApiProvider
-import app.bitrader.api.bitfinex.Bitfinex
-import app.bitrader.api.poloniex.{Chart, Poloniex}
+import app.bitrader.api.poloniex.Chart
 import app.bitrader.helpers.Id
 import app.bitrader.helpers.activity.ActivityOperations
 import com.github.mikephil.charting.charts.CandleStickChart
 import com.github.mikephil.charting.data.{CandleData, CandleDataSet, CandleEntry}
-import com.joanzapata.iconify.fonts.MaterialIcons
 import com.joanzapata.iconify.widget.IconTextView
 import com.mikepenz.google_material_typeface_library.GoogleMaterial
 import com.mikepenz.materialdrawer.AccountHeader.OnAccountHeaderListener
 import com.mikepenz.materialdrawer.Drawer.OnDrawerItemClickListener
-import com.mikepenz.materialdrawer.{AccountHeader, AccountHeaderBuilder, Drawer, DrawerBuilder}
-import com.mikepenz.materialdrawer.model.{PrimaryDrawerItem, ProfileDrawerItem, ProfileSettingDrawerItem, SecondaryDrawerItem}
 import com.mikepenz.materialdrawer.model.interfaces.{IDrawerItem, IProfile}
+import com.mikepenz.materialdrawer.model.{PrimaryDrawerItem, ProfileDrawerItem, ProfileSettingDrawerItem}
+import com.mikepenz.materialdrawer.{AccountHeader, AccountHeaderBuilder, Drawer, DrawerBuilder}
 import diode.ModelR
 import io.github.aafa.helpers.{Styles, UiOperations, UiThreading}
 import io.github.aafa.macroid.AdditionalTweaks
@@ -111,10 +105,10 @@ trait DrawerSetup {
       .withActivity(mainActivity)
       .addProfiles(menuItems: _*)
       .withOnAccountHeaderListener(new OnAccountHeaderListener {
-        override def onProfileChanged(view: View, iProfile: IProfile[_], b: Boolean): Boolean = {
-          iProfile match {
+        override def onProfileChanged(view: View, item: IProfile[_], b: Boolean): Boolean = {
+          item match {
             case p: ProfileDrawerItem => appCircuit(SelectApi(apiKey(p)))
-            case s: ProfileSettingDrawerItem =>
+            case s: ProfileSettingDrawerItem => // todo settings
           }
 
           true
@@ -148,80 +142,6 @@ trait DrawerSetup {
       .build()
 
     drawer.setSelection(-1)
-  }
-}
-
-trait DrawerItems extends AppCompatActivity with Contexts[AppCompatActivity] with ActivityOperations with OnNavigationItemSelectedListener {
-
-  import TypedResource._
-
-  var actionBarDrawerToggle: Option[ActionBarDrawerToggle] = None
-
-  def drawerLayout: Option[DrawerLayout]
-
-  def toolbarView: Option[Toolbar]
-
-  override def setContentView(view: View): Unit = {
-    super.setContentView(view)
-    addDrawerToggler
-  }
-
-  override def onNavigationItemSelected(item: MenuItem): Boolean = {
-
-    item.getItemId match {
-      case R.id.wamp =>
-        startActivity[WampActivity]
-
-      case R.id.readQrActivity =>
-        startActivity[ReadQrActivity]
-      case _ =>
-    }
-
-    drawerLayout map (v => v.closeDrawer(GravityCompat.START))
-    true
-  }
-
-  def addDrawerToggler: Unit = {
-    drawerLayout map { drawerLayout =>
-      val drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, android.R.string.ok, android.R.string.cancel) {
-        override def onDrawerClosed(drawerView: View): Unit = {
-          super.onDrawerClosed(drawerView)
-          invalidateOptionsMenu()
-        }
-
-        override def onDrawerOpened(drawerView: View): Unit = {
-          super.onDrawerOpened(drawerView)
-          invalidateOptionsMenu()
-        }
-      }
-      actionBarDrawerToggle = Some(drawerToggle)
-      drawerLayout.addDrawerListener(drawerToggle)
-
-      val navigationView: NavigationView = drawerLayout.findView(TR.nav_view)
-      navigationView.setNavigationItemSelectedListener(this)
-    }
-
-    toolbarView map { tb =>
-      //      setSupportActionBar(tb)
-      //      getSupportActionBar.setDisplayHomeAsUpEnabled(true)
-      //      getSupportActionBar.setHomeButtonEnabled(true)
-    }
-
-  }
-
-  override def onPostCreate(savedInstanceState: Bundle): Unit = {
-    super.onPostCreate(savedInstanceState)
-    actionBarDrawerToggle map (_.syncState)
-  }
-
-  override def onConfigurationChanged(newConfig: Configuration): Unit = {
-    super.onConfigurationChanged(newConfig)
-    actionBarDrawerToggle map (_.onConfigurationChanged(newConfig))
-  }
-
-  override def onOptionsItemSelected(item: MenuItem): Boolean = {
-    if (actionBarDrawerToggle.isDefined && actionBarDrawerToggle.get.onOptionsItemSelected(item)) true
-    else super.onOptionsItemSelected(item)
   }
 }
 
