@@ -29,8 +29,13 @@ import io.github.aafa.helpers.{Styles, UiOperations, UiThreading}
 import io.github.aafa.macroid.AdditionalTweaks
 import macroid.FullDsl._
 import macroid._
+import TypedResource._
+import android.support.v4.view.LayoutInflaterCompat
+import com.miguelcatalan.materialsearchview.MaterialSearchView
+import com.mikepenz.iconics.context.IconicsLayoutInflater
 
 import scala.collection.JavaConverters._
+import scala.language.postfixOps
 import scala.util.Random
 
 /**
@@ -50,6 +55,7 @@ class MainActivity extends AppCompatActivity with Contexts[AppCompatActivity]
 
   override def onCreate(b: Bundle): Unit = {
     this.setTheme(contextZoom.zoom(_.theme).value)
+    LayoutInflaterCompat.setFactory(getLayoutInflater, new IconicsLayoutInflater(getDelegate))
 
     super.onCreate(b)
     setContentView(layout.ui.get)
@@ -145,17 +151,23 @@ trait DrawerSetup {
   }
 }
 
-trait MenuItems extends AppCompatActivity with Styles {
+trait MenuItems extends AppCompatActivity {
+  self : MainActivity =>
 
   override def onOptionsItemSelected(item: MenuItem): Boolean = {
     super.onOptionsItemSelected(item)
-    println("item selected! " + item.getTitle)
+
+
     true
   }
 
   override def onCreateOptionsMenu(menu: Menu): Boolean = {
     super.onCreateOptionsMenu(menu)
     getMenuInflater.inflate(R.menu.menu, menu)
+
+    val searchView: MaterialSearchView = layout.mainView.findView(TR.search_view)
+    searchView.setVisibility(View.VISIBLE)
+    searchView.setMenuItem(menu.findItem(R.id.action_search))
 
     true
   }
@@ -169,7 +181,6 @@ class MainActivityLayout(
                         (implicit cw: ContextWrapper)
   extends MainStyles with ChartLayout with UiThreading {
 
-  import TypedResource._
 
   private val zoomCurrencies = appCircuit.serviceData.zoom(_.currencies)
 
