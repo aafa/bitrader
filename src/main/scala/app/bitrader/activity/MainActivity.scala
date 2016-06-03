@@ -93,22 +93,26 @@ class MainActivity extends AppCompatActivity with Contexts[AppCompatActivity]
 trait DrawerSetup {
   this: MainActivity =>
 
-  def profiles: Seq[IProfile[_]] = {
-    appCircuit.zoom(_.serviceContext).value.keySet.toSeq map (k =>
-      new ProfileDrawerItem().withName(k.toString).withTag(k)
-      )
-  } :+ new ProfileSettingDrawerItem().withName("Add profile").withIcon(GoogleMaterial.Icon.gmd_add)
+  def profileWrapper(k: ApiProvider): ProfileDrawerItem = {
+    new ProfileDrawerItem().withName(k.toString)
+  }
+
+  lazy val providers: Seq[ApiProvider] = appCircuit.zoom(_.serviceContext).value.keys.toSeq
+  lazy val profileItems = providers zip (providers map profileWrapper) toMap
+  lazy val apiKey: Map[ProfileDrawerItem, ApiProvider] = profileItems.map(_.swap)
+
+  lazy val menuItems: Seq[IProfile[_]] = profileItems.values.toSeq :+
+    new ProfileSettingDrawerItem().withName("Add profile").withIcon(GoogleMaterial.Icon.gmd_add)
+
 
   def drawerSetup(mainActivity: MainActivity) = {
     val accountHeader: AccountHeader = new AccountHeaderBuilder()
       .withActivity(mainActivity)
-      .addProfiles(profiles: _*)
+      .addProfiles(menuItems: _*)
       .withOnAccountHeaderListener(new OnAccountHeaderListener {
         override def onProfileChanged(view: View, iProfile: IProfile[_], b: Boolean): Boolean = {
           iProfile match {
-            case p: ProfileDrawerItem =>
-              val apiProvider: ApiProvider = p.getTag.asInstanceOf[ApiProvider]
-              appCircuit(SelectApi(apiProvider))
+            case p: ProfileDrawerItem => appCircuit(SelectApi(apiKey(p)))
             case s: ProfileSettingDrawerItem =>
           }
 
@@ -117,6 +121,8 @@ trait DrawerSetup {
       })
       .withHeaderBackground(R.drawable.material_flat)
       .build()
+
+    accountHeader.setActiveProfile(profileItems(appCircuit.zoom(_.selectedApi).value))
 
     new DrawerBuilder().withActivity(mainActivity)
       .withToolbar(mainActivity.layout.toolbarView)
