@@ -77,9 +77,9 @@ object AppCircuit extends Circuit[RootModel] {
 
   val apiRequest = new ActionHandler(serviceData) {
     override protected def handle = {
-      case UpdateCharts =>
+      case UpdateCharts(cp) =>
         val request: Future[Seq[Chart]] = apiFacade(
-          _.chartData(CurrencyPair.BTC_ETH, 5.hours.ago().unixtime, DateTime.now.unixtime, 300)
+          _.chartData(cp, 5.hours.ago().unixtime, DateTime.now.unixtime, 300)
         )
         val effect: EffectSingle[ChartsUpdated] = Effect(request.map(r => ChartsUpdated(r)))
         effectOnly(effect)

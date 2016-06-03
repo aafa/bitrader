@@ -14,9 +14,6 @@ class CurrencySpec extends UnitSpec{
   }
 
   "CurrencyPair" should "have values list" in {
-    CurrencyPair.BTC_XMR // its awkward that we need to call them first
-    CurrencyPair.BTC_ETH
-
     assert(CurrencyPair.values contains CurrencyPair.BTC_ETH)
     assert(CurrencyPair.values contains CurrencyPair.BTC_XMR)
   }

@@ -31,7 +31,10 @@ import macroid.FullDsl._
 import macroid._
 import TypedResource._
 import android.support.v4.view.LayoutInflaterCompat
+import android.widget.AdapterView.OnItemClickListener
+import app.bitrader.api.common.CurrencyPair
 import com.miguelcatalan.materialsearchview.MaterialSearchView
+import com.miguelcatalan.materialsearchview.MaterialSearchView.OnQueryTextListener
 import com.mikepenz.iconics.context.IconicsLayoutInflater
 
 import scala.collection.JavaConverters._
@@ -64,7 +67,7 @@ class MainActivity extends AppCompatActivity with Contexts[AppCompatActivity]
 
     //    APIContext.poloniexService(_.currencies()) map layout.updateData
     layout.updateChartData(appCircuit.serviceData.zoom(_.chartsData).value)
-    appCircuit(UpdateCharts)
+    appCircuit(UpdateCharts(CurrencyPair.BTC_ETH))
 
     setSupportActionBar(layout.toolbarView)
     setTitle(appCircuit.zoom(_.selectedApi).value.toString)
@@ -168,6 +171,23 @@ trait MenuItems extends AppCompatActivity {
     val searchView: MaterialSearchView = layout.mainView.findView(TR.search_view)
     searchView.setVisibility(View.VISIBLE)
     searchView.setMenuItem(menu.findItem(R.id.action_search))
+
+    searchView.setSuggestions(CurrencyPair.values.toArray map (_.toString))
+
+    searchView.setOnQueryTextListener(new OnQueryTextListener {
+      override def onQueryTextSubmit(s: String): Boolean = {
+        val hasValue: Boolean = CurrencyPair.values.exists(_.toString == s)
+        if (hasValue) {
+          appCircuit(UpdateCharts(CurrencyPair.withName(s)))
+          searchView.closeSearch()
+        }
+        hasValue
+      }
+
+      override def onQueryTextChange(s: String): Boolean = true
+    })
+
+    searchView.setSubmitOnClick(true)
 
     true
   }

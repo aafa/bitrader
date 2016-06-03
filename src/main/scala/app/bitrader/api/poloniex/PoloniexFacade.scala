@@ -2,6 +2,7 @@ package app.bitrader.api.poloniex
 
 import android.content.Context
 import app.bitrader.TR
+import app.bitrader.api.common.CurrencyPair.CurrencyPair
 import app.bitrader.api.common.{CurrencyPair, WampMsg}
 import app.bitrader.api.network.{AuthInterceptor, WampSub}
 import app.bitrader.api.{AbstractFacade, ApiProvider}

@@ -2,6 +2,7 @@ package app.bitrader.api.poloniex
 
 import app.bitrader.api.APIDescriptor
 import app.bitrader.api.common.CurrencyPair
+import app.bitrader.api.common.CurrencyPair.CurrencyPair
 import retrofit.http._
 
 /**

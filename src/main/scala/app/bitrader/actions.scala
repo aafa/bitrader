@@ -1,7 +1,8 @@
 package app.bitrader
 
 import app.bitrader.api.ApiProvider
-import app.bitrader.api.common.{CurrencyPair, OrderWampMsg, WampMsg}
+import app.bitrader.api.common.CurrencyPair.CurrencyPair
+import app.bitrader.api.common.{OrderWampMsg, WampMsg}
 import app.bitrader.api.network.WampSub
 import app.bitrader.api.poloniex.{Chart, OrdersBook}
 
@@ -29,7 +30,7 @@ case class UpdateCurrencies(api: ApiProvider)
 
 case class CurrenciesUpdated(api: ApiProvider)
 
-case object UpdateCharts
+case class UpdateCharts(cp: CurrencyPair)
 
 case class ChartsUpdated(c: Seq[Chart])
 

@@ -22,6 +22,7 @@ object Dependencies {
     libraryDependencies ++= Seq(
       aar("com.github.aafa" %% "macroid-design" % "0.1.2-SNAPSHOT"),
 
+      "com.github.orhanobut" % "logger" % "1.12",
       "com.miguelcatalan" % "materialsearchview" % "1.4.0",
       aar("com.mikepenz" % "materialdrawer" % "5.2.9"),
       aar("com.mikepenz" % "iconics-core" % "2.6.0"),

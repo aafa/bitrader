@@ -5,10 +5,11 @@ import app.ObjectEnum
 /**
   * Created by Alex Afanasev
   */
-sealed trait CurrencyPair extends CurrencyPair.Value
 
-object CurrencyPair extends ObjectEnum[CurrencyPair] {
-  case object BTC_ETH extends CurrencyPair
-  case object BTC_NXT extends CurrencyPair
-  case object BTC_XMR extends CurrencyPair
+object CurrencyPair extends Enumeration {
+  type CurrencyPair = Value
+  val BTC_ETH = Value("BTC_ETH")
+  val BTC_NXT = Value("BTC_NXT")
+  val BTC_XMR = Value("BTC_XMR")
 }
+

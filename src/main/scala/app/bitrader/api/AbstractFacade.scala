@@ -7,6 +7,7 @@ import java.util.Date
 import android.content.Context
 import app.ObjectEnum
 import app.bitrader.AppCircuit
+import app.bitrader.api.common.CurrencyPair.CurrencyPair
 import app.bitrader.api.common.{CurrencyPair, WampMsg}
 import app.bitrader.api.network.{JawampaClient, WampSub}
 import app.bitrader.api.poloniex.{Chart, OrdersBook, TradeHistory}
