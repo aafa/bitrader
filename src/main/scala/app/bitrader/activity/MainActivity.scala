@@ -27,7 +27,7 @@ import com.joanzapata.iconify.widget.IconTextView
 import com.mikepenz.google_material_typeface_library.GoogleMaterial
 import com.mikepenz.materialdrawer.AccountHeader.OnAccountHeaderListener
 import com.mikepenz.materialdrawer.Drawer.OnDrawerItemClickListener
-import com.mikepenz.materialdrawer.{AccountHeader, AccountHeaderBuilder, DrawerBuilder}
+import com.mikepenz.materialdrawer.{AccountHeader, AccountHeaderBuilder, Drawer, DrawerBuilder}
 import com.mikepenz.materialdrawer.model.{PrimaryDrawerItem, ProfileDrawerItem, ProfileSettingDrawerItem, SecondaryDrawerItem}
 import com.mikepenz.materialdrawer.model.interfaces.{IDrawerItem, IProfile}
 import diode.ModelR
@@ -37,6 +37,7 @@ import macroid.FullDsl._
 import macroid._
 
 import scala.collection.JavaConverters._
+import scala.util.Random
 
 /**
   * Created by aafa
@@ -94,7 +95,7 @@ trait DrawerSetup {
   this: MainActivity =>
 
   def profileWrapper(k: ApiProvider): ProfileDrawerItem = {
-    new ProfileDrawerItem().withName(k.toString)
+    new ProfileDrawerItem().withName(k.toString).withIdentifier(Random.nextLong())  // inject random id to have them distinct
   }
 
   lazy val providers: Seq[ApiProvider] = appCircuit.zoom(_.serviceContext).value.keys.toSeq
@@ -124,24 +125,29 @@ trait DrawerSetup {
 
     accountHeader.setActiveProfile(profileItems(appCircuit.zoom(_.selectedApi).value))
 
-    new DrawerBuilder().withActivity(mainActivity)
+    type IDrawer = IDrawerItem[_, _ <: ViewHolder]
+    def itemWrapper(s: String) = new PrimaryDrawerItem().withName(s)
+      .withSelectable(false).withIdentifier(Random.nextLong())
+
+    lazy val actions: Map[IDrawer, () => Unit] = Map(
+      itemWrapper("Wamp") -> { () => startActivity[WampActivity] },
+      itemWrapper("Read qr") -> { () => startActivity[ReadQrActivity] }
+    )
+
+    val drawer: Drawer = new DrawerBuilder().withActivity(mainActivity)
       .withToolbar(mainActivity.layout.toolbarView)
       .withAccountHeader(accountHeader)
-      .addDrawerItems(
-        new PrimaryDrawerItem().withName("Wamp").withIdentifier(1),
-        new SecondaryDrawerItem().withName("Read qr").withIdentifier(2)
-      )
+      .addDrawerItems(actions.keys.toSeq: _*)
       .withOnDrawerItemClickListener(new OnDrawerItemClickListener {
-        override def onItemClick(view: View, i: Int, iDrawerItem: IDrawerItem[_, _ <: ViewHolder]): Boolean = {
-          iDrawerItem.getIdentifier match {
-            case 1 => startActivity[WampActivity]
-            case 2 => startActivity[ReadQrActivity]
-          }
+        override def onItemClick(view: View, i: Int, item: IDrawer): Boolean = {
+          actions(item).apply()
           true
         }
       })
       .withCloseOnClick(true)
       .build()
+
+    drawer.setSelection(-1)
   }
 }
 
