@@ -184,7 +184,9 @@ trait MenuItems extends AppCompatActivity {
         hasValue
       }
 
-      override def onQueryTextChange(s: String): Boolean = true
+      override def onQueryTextChange(s: String): Boolean = {
+        true
+      }
     })
 
     searchView.setSubmitOnClick(true)

@@ -12,5 +12,7 @@
 
     <color name="toolbar_title">#ffffff</color>
     <color name="background_app">#ffffff</color>
+    <color name="black">#000000</color>
+    <color name="grayText">#939292</color>
 
 </resources>
