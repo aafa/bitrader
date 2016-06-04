@@ -29,5 +29,9 @@ trait PoloniexTradingAPI {
   @FormUrlEncoded
   def cancelOrder(@FieldMap map: java.util.Map[String, String]): Map[String, Int]
 
+  @POST("/tradingApi")
+  @FormUrlEncoded
+  def returnCompleteBalances(@FieldMap map: java.util.Map[String, String]): Map[String, CompleteBalance]
+
 
 }

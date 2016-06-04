@@ -85,3 +85,10 @@ case class ActualOrder(
                         @JsonProperty("orderNumber") orderNumber: String,
                         @JsonProperty("resultingTrades") resultingTrades: Seq[TradeHistory]
                       )
+
+@JsonCreator
+case class CompleteBalance(
+                        @JsonProperty("available") available: BigDecimal,
+                        @JsonProperty("onOrders") onOrders: BigDecimal,
+                        @JsonProperty("btcValue") btcValue: BigDecimal
+                      )
