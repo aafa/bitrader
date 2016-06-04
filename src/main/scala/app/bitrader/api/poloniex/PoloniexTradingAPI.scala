@@ -21,6 +21,13 @@ trait PoloniexTradingAPI {
   @FormUrlEncoded
   def returnTradeHistory(@FieldMap map: java.util.Map[String, String]): Seq[Map[String, Seq[TradeHistory]]]
 
+  @POST("/tradingApi")
+  @FormUrlEncoded
+  def placeOrder(@FieldMap map: java.util.Map[String, String]): ActualOrder
+
+  @POST("/tradingApi")
+  @FormUrlEncoded
+  def cancelOrder(@FieldMap map: java.util.Map[String, String]): Map[String, Int]
 
 
 }

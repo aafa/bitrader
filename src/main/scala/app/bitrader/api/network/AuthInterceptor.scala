@@ -6,6 +6,7 @@ import javax.crypto.spec.SecretKeySpec
 
 import android.content.Context
 import app.bitrader.LocalProperties
+import com.orhanobut.logger.Logger
 import com.squareup.okhttp.Interceptor.Chain
 import com.squareup.okhttp._
 import okio.{Buffer, BufferedSink}

@@ -68,7 +68,7 @@ case class OrderDetails(
 
 @JsonCreator
 case class TradeHistory(
-                         @JsonProperty("globalTradeID") globalTradeID: Long,
+                         @JsonProperty("globalTradeID") globalTradeID: Option[Long],
                          @JsonProperty("tradeID") tradeID: String,
                          @JsonProperty("date") date: Date,
                          @JsonProperty("rate") rate: BigDecimal,
@@ -78,4 +78,10 @@ case class TradeHistory(
                          @JsonProperty("orderNumber") orderNumber: Option[String],
                          @JsonProperty("type") tpe: String,
                          @JsonProperty("category") category: Option[String]
+                      )
+
+@JsonCreator
+case class ActualOrder(
+                        @JsonProperty("orderNumber") orderNumber: String,
+                        @JsonProperty("resultingTrades") resultingTrades: Seq[TradeHistory]
                       )

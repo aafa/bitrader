@@ -12,7 +12,7 @@ class TradeHistorySpec extends ApiSpec {
 
   def assertHistory(history: Seq[TradeHistory]): Unit = {
     history map (th => {
-      assert(th.globalTradeID > 0)
+      assert(th.globalTradeID.nonEmpty)
       assert(th.tradeID.nonEmpty)
       assert(th.date.before(new Date))
     })

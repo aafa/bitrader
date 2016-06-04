@@ -53,4 +53,26 @@ class PoloniexFacade(implicit ctx: Context) extends AbstractFacade  {
   def myTradeHistory(currencyPair: String = "all") = privateApi.returnTradeHistory(params("returnTradeHistory", Map("currencyPair" -> currencyPair)))
 
   def returnOpenOrders(currencyPair: String = "all") = privateApi.returnOpenOrders(params("returnOpenOrders", Map("currencyPair" -> currencyPair)))
+
+  def buy(currencyPair: String, rate: Double, amount: Double) = privateApi.placeOrder(
+    params("buy", Map(
+      "currencyPair" -> currencyPair,
+      "rate" -> rate.toString,
+      "amount" -> amount.toString
+    ))
+  )
+
+  def sell(currencyPair: String, rate: Double, amount: Double) = privateApi.placeOrder(
+    params("sell", Map(
+      "currencyPair" -> currencyPair,
+      "rate" -> rate.toString,
+      "amount" -> amount.toString
+    ))
+  )
+
+  def cancelOrder(orderNumber: String) = privateApi.cancelOrder(
+    params("cancelOrder", Map(
+      "orderNumber" -> orderNumber
+    ))
+  )
 }

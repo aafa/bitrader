@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.github.aafa.ScalaRetrofitBuilder
 import com.squareup.okhttp.{Cache, OkHttpClient}
 import retrofit.RestAdapter
+import retrofit.RestAdapter.Log
 
 import scala.reflect._
 
@@ -53,7 +54,7 @@ abstract class AbstractFacade(implicit ctx: Context) extends API {
 
   def wampSubscribe[WM <: WampMsg : scala.reflect.Manifest](subs: WampSub[WM]): Unit
 
-  def wampClose : Unit
+  def wampClose: Unit
 
   // private
 
@@ -65,6 +66,9 @@ abstract class AbstractFacade(implicit ctx: Context) extends API {
     new CachedRetrofitBuilder(ctx.getApplicationContext.getCacheDir, settings)
       .setEndpoint(url)
       .setLogLevel(RestAdapter.LogLevel.FULL)
+      .setLog(new Log {
+        override def log(message: String): Unit = println(message)
+      })
       .build()
       .create(classTag[API].runtimeClass).asInstanceOf[API]
   }
@@ -82,6 +86,7 @@ abstract class AbstractFacade(implicit ctx: Context) extends API {
         ok.setCache(new Cache(cacheDir, 10 * 1024 * 1024))
       }
     )
+
 }
 
 object NetworkFacade {
