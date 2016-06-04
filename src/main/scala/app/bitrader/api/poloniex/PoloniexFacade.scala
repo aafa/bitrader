@@ -6,6 +6,7 @@ import app.bitrader.api.common.CurrencyPair.CurrencyPair
 import app.bitrader.api.common.{CurrencyPair, WampMsg}
 import app.bitrader.api.network.{AuthInterceptor, WampSub}
 import app.bitrader.api.{AbstractFacade, ApiProvider}
+import scala.collection.JavaConverters._
 
 /**
   * Created by Alex Afanasev
@@ -37,9 +38,19 @@ class PoloniexFacade(implicit ctx: Context) extends AbstractFacade  {
 
   def currencies() : Map[String, Currency] = publicApi.currencies()
 
-  def balances: Map[String, String] = privateApi.get(nonce, "returnBalances")
-
   override def wampSubscribe[WM <: WampMsg : scala.reflect.Manifest](sub: WampSub[WM]): Unit = wampApi.openSubscription[WM](sub)
 
   override def wampClose: Unit = wampApi.closeConnection()
+
+  // private
+
+  def params(command: String, params: Map[String, String] = Map.empty) = {
+    (Map("nonce" -> nonce, "command" -> command) ++ params).asJava
+  }
+
+  def balances: Map[String, String] = privateApi.post(params("returnBalances"))
+
+  def myTradeHistory(currencyPair: String = "all") = privateApi.returnTradeHistory(params("returnTradeHistory", Map("currencyPair" -> currencyPair)))
+
+  def returnOpenOrders(currencyPair: String = "all") = privateApi.returnOpenOrders(params("returnOpenOrders", Map("currencyPair" -> currencyPair)))
 }

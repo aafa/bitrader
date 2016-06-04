@@ -57,16 +57,25 @@ case class Currency(
                  )
 
 @JsonCreator
+case class OrderDetails(
+                         @JsonProperty("orderNumber") orderNumber : Long,
+                         @JsonProperty("type") tpe: String,
+                         @JsonProperty("rate") rate: BigDecimal,
+                         @JsonProperty("amount") amount: Double,
+                         @JsonProperty("total") total: Double
+                       )
+
+
+@JsonCreator
 case class TradeHistory(
-                         @JsonProperty("globalTradeID") var globalTradeID: Long,
-                         @JsonProperty("tradeID") var tradeID: Long,
-                         @JsonProperty("date") var date: Date,
-                         @JsonProperty("type") var tpe: String,
-                         @JsonProperty("rate") var rate: BigDecimal,
-                         @JsonProperty("amount") var amount: BigDecimal,
-                         @JsonProperty("total") var total: BigDecimal
-                 )
-
-
-
-
+                         @JsonProperty("globalTradeID") globalTradeID: Long,
+                         @JsonProperty("tradeID") tradeID: String,
+                         @JsonProperty("date") date: Date,
+                         @JsonProperty("rate") rate: BigDecimal,
+                         @JsonProperty("amount") amount: Double,
+                         @JsonProperty("total") total: Option[Double],
+                         @JsonProperty("fee") fee: Option[BigDecimal],
+                         @JsonProperty("orderNumber") orderNumber: Option[String],
+                         @JsonProperty("type") tpe: String,
+                         @JsonProperty("category") category: Option[String]
+                      )

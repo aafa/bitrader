@@ -41,4 +41,6 @@ class BitfinexFacade(implicit ctx: Context) extends AbstractFacade  {
   override def ordersBook(pair: CurrencyPair, depth: Int): OrdersBook = ???
 
   override def tradeHistory(pair: CurrencyPair): Seq[TradeHistory] = ???
+
+  override def balances: Map[String, String] = ???
 }

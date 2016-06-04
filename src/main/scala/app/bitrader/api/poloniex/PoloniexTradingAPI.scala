@@ -11,6 +11,16 @@ trait PoloniexTradingAPI {
 
   @POST("/tradingApi")
   @FormUrlEncoded
-  def get(@Field("nonce") nonce: String, @Field("command") command: String): Map[String, String]
+  def post(@FieldMap map: java.util.Map[String, String]): Map[String, String]
+
+  @POST("/tradingApi")
+  @FormUrlEncoded
+  def returnOpenOrders(@FieldMap map: java.util.Map[String, String]): Map[String, Seq[OrderDetails]]
+
+  @POST("/tradingApi")
+  @FormUrlEncoded
+  def returnTradeHistory(@FieldMap map: java.util.Map[String, String]): Seq[Map[String, Seq[TradeHistory]]]
+
+
 
 }

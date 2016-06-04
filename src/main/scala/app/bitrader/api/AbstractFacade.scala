@@ -43,6 +43,8 @@ sealed trait API {
 abstract class AbstractFacade(implicit ctx: Context) extends API {
   def nonce: String = new Date().getTime.toString
 
+  // public
+
   def chartData(pair: CurrencyPair, start: Long, end: Long, period: Int): Seq[Chart]
 
   def ordersBook(pair: CurrencyPair, depth: Int): OrdersBook
@@ -52,6 +54,10 @@ abstract class AbstractFacade(implicit ctx: Context) extends API {
   def wampSubscribe[WM <: WampMsg : scala.reflect.Manifest](subs: WampSub[WM]): Unit
 
   def wampClose : Unit
+
+  // private
+
+  def balances: Map[String, String]
 
   // build stuff
 
