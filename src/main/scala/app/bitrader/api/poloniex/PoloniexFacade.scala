@@ -76,7 +76,9 @@ class PoloniexFacade(implicit ctx: Context) extends AbstractFacade  {
     ))
   )
 
-  def returnDepositAddresses = ???
+  def returnDepositAddresses = privateApi.returnDepositAddresses(
+    params("returnDepositAddresses")
+  )
 
   def returnCompleteBalances = privateApi.returnCompleteBalances(
     params("returnCompleteBalances", Map(

@@ -33,5 +33,9 @@ trait PoloniexTradingAPI {
   @FormUrlEncoded
   def returnCompleteBalances(@FieldMap map: java.util.Map[String, String]): Map[String, CompleteBalance]
 
+  @POST("/tradingApi")
+  @FormUrlEncoded
+  def returnDepositAddresses(@FieldMap map: java.util.Map[String, String]): Map[String, String]
+
 
 }
