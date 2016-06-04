@@ -6,19 +6,23 @@ import app.bitrader.api.poloniex.{ActualOrder, OrderDetails, TradeHistory}
 /**
   * Created by Alex Afanasev
   */
-class MakeOrderSpec extends ApiSpec{
+class MakeOrderSpec extends ApiSpec {
 
   it should "make orders" in {
-    checkCurrentOrders
 
+    assume(poloniex.balances.exists {
+      case (coin, amount) => coin == "ETH" && amount.toDouble > 0
+    })
+
+    // assuming we have eth
     val buyResult: ActualOrder = poloniex.sell(CurrencyPair.BTC_ETH.toString, 999, 0.5)
     println(buyResult)
 
-    assert(checkCurrentOrders.keys.nonEmpty)
+    assert(checkCurrentOrders.nonEmpty)
 
     poloniex.cancelOrder(buyResult.orderNumber)
 
-    assert(checkCurrentOrders.keys.isEmpty)
+    assert(checkCurrentOrders.isEmpty)
   }
 
   def checkCurrentOrders: Map[String, Seq[OrderDetails]] = {
