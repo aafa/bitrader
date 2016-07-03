@@ -1,5 +1,6 @@
 package app.bitrader.wamp
 
+import app.CommonTypes
 import app.bitrader._
 import app.bitrader.activity.menu.MessagesAdapter
 
@@ -11,7 +12,7 @@ import scala.collection.SortedMap
 class WampSpec extends AbstractSpec{
   class TestMessages extends MessagesAdapter()
 
-  def bd(k: Int, v: Int): (OrderKey, OrderValue) = (BigDecimal(k), BigDecimal(v))
+  def bd(k: Int, v: Int): (OrderKey, OrderValue) = (k.toString, BigDecimal(v))
 
   it should "work with wamp" in {
     val messages = new TestMessages
@@ -41,7 +42,7 @@ class WampSpec extends AbstractSpec{
     assert(orders.size == 2)
     assert(get(5) == (5,25))
 
-    messages.addOrder(4,15)
+    messages.addOrder((4.toString, 15))
     assert(orders.size == 3)
     assert(get(4) == (4,15))
 

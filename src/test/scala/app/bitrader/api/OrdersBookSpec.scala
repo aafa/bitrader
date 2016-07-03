@@ -28,7 +28,7 @@ class OrdersBookSpec extends ApiSpec {
     assert(order.asks.nonEmpty)
 
     order.asks map {
-      case (price: OrderKey, volume: BigDecimal) => assert(price > 0 && volume > 0)
+      case (price: OrderKey, volume: BigDecimal) => assert(price.toFloat > 0 && volume > 0)
       case _ => assert(false, "should't be here")
     }
   }

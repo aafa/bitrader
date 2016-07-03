@@ -37,7 +37,7 @@ case class Chart(
 case class OrdersBook(
                    @JsonProperty("asks") var asks: Seq[OrderPair],
                    @JsonProperty("bids") var bids: Seq[OrderPair],
-                   @JsonProperty("isFrozen") var isFrozen: Byte,
+                   @JsonProperty("isFrozen") var isFrozen: String,
                    @JsonProperty("seq") var seq: Long
                  ){
 

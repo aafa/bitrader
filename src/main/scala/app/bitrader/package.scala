@@ -8,6 +8,7 @@ import com.github.nscala_time.time.Imports._
 import macroid.ContextWrapper
 
 import scala.collection.SortedMap
+import scala.language.implicitConversions
 
 /**
   * Created by Alexey Afanasev on 17.04.16.
@@ -49,16 +50,17 @@ trait ObjectEnum[A] {
 
 
 trait CommonTypes {
-  type OrderKey = BigDecimal
+  type OrderKey = String
   type OrderValue = BigDecimal
   type OrderPair = (OrderKey, OrderValue)
   type OrdersMap = SortedMap[OrderKey, OrderValue]
 
   implicit class EmptyOrderInt(k: Int) {
+    implicit def convert(k : Int): OrderKey = k.toString
     def emptyPair: OrderPair = (k, 0)
   }
 
-  implicit class EmptyOrder(k: BigDecimal) {
+  implicit class EmptyOrder(k: OrderKey) {
     def emptyPair: OrderPair = (k, 0)
   }
 

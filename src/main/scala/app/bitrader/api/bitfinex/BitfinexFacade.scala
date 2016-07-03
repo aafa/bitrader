@@ -18,11 +18,11 @@ import app.bitrader.api.{AbstractFacade, ApiProvider}
 case object Bitfinex extends ApiProvider {
   override type ApiFacade = BitfinexFacade
 
-  override def facade(implicit ctx: Context) = new BitfinexFacade
+  override def facade(implicit ctx: Context) = ??? //new BitfinexFacade
 }
 
 
-class BitfinexFacade(implicit ctx: Context) extends AbstractFacade  {
+abstract class BitfinexFacade(implicit ctx: Context) extends AbstractFacade  {
 
   override type PublicApi = BitfinexPublicAPI
   override type PrivateApi = BitfinexPrivateAPI

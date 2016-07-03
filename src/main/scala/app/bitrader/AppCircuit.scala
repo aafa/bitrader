@@ -116,7 +116,7 @@ case class ServiceContext(
 case class ServiceData(
                         orderBook: OrderBookContainer =
                         OrderBookContainer(
-                          orders = OrdersBook(Seq.empty, Seq.empty, 0, 0),
+                          orders = OrdersBook(Seq.empty, Seq.empty, "0", 0),
                           changes = Seq.empty),
                         currencies: Map[String, Currency] = Map.empty,
                         chartsData: Seq[Chart] = Seq.empty

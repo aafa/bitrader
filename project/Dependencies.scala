@@ -39,6 +39,9 @@ object Dependencies {
 
       "me.dm7.barcodescanner" % "zxing" % "1.8.4",
 
+      "com.github.fommil" %% "spray-json-shapeless" % "1.2.0",
+      "com.squareup.okhttp3" % "okhttp" % "3.3.1",
+
       "com.joanzapata.iconify" % "android-iconify-fontawesome" % iconify,
       "com.joanzapata.iconify" % "android-iconify-material" % iconify
     ),

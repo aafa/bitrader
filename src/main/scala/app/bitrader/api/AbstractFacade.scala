@@ -8,7 +8,7 @@ import android.content.Context
 import app.ObjectEnum
 import app.bitrader.AppCircuit
 import app.bitrader.api.common.CurrencyPair.CurrencyPair
-import app.bitrader.api.common.{CurrencyPair, WampMsg}
+import app.bitrader.api.common.WampMsg
 import app.bitrader.api.network.{JawampaClient, WampSub}
 import app.bitrader.api.poloniex.{Chart, OrdersBook, TradeHistory}
 import com.fasterxml.jackson.databind.DeserializationFeature
@@ -35,10 +35,12 @@ sealed trait API {
   type PublicApi
   type PrivateApi
   type WampApi = JawampaClient // todo custom trait
+  type OkHttpApi
 
   val publicApi: PublicApi
   val privateApi: PrivateApi
   val wampApi: WampApi
+  val okHttp: OkHttpApi
 }
 
 abstract class AbstractFacade(implicit ctx: Context) extends API {
@@ -66,9 +68,9 @@ abstract class AbstractFacade(implicit ctx: Context) extends API {
     new CachedRetrofitBuilder(ctx.getApplicationContext.getCacheDir, settings)
       .setEndpoint(url)
       .setLogLevel(RestAdapter.LogLevel.FULL)
-      .setLog(new Log {
-        override def log(message: String): Unit = println(message)
-      })
+//      .setLog(new Log {
+//        override def log(message: String): Unit = println(message)
+//      })
       .build()
       .create(classTag[API].runtimeClass).asInstanceOf[API]
   }
