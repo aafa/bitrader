@@ -10,7 +10,7 @@ import app.bitrader.AppCircuit
 import app.bitrader.api.common.CurrencyPair.CurrencyPair
 import app.bitrader.api.common.WampMsg
 import app.bitrader.api.network.{JawampaClient, WampSub}
-import app.bitrader.api.poloniex.{Chart, OrdersBook, TradeHistory}
+import app.bitrader.api.poloniex.{Chart, OrdersBook, Ticker, TradeHistory}
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.github.aafa.ScalaRetrofitBuilder
 import com.squareup.okhttp.{Cache, OkHttpClient}
@@ -47,6 +47,8 @@ abstract class AbstractFacade(implicit ctx: Context) extends API {
   def nonce: String = new Date().getTime.toString
 
   // public
+
+  def returnTicket: Map[String, Ticker]
 
   def chartData(pair: CurrencyPair, start: Long, end: Long, period: Int): Seq[Chart]
 

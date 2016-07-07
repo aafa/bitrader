@@ -2,12 +2,18 @@ package app.bitrader.api
 
 import app.bitrader._
 import app.bitrader.api.common.CurrencyPair
-import app.bitrader.api.poloniex.OrdersBook
+import app.bitrader.api.poloniex.{OrdersBook, Ticker}
 
 /**
   * Created by Alex Afanasev
   */
 class OrdersBookSpec extends ApiSpec {
+
+  it should "read ticker" in {
+    val tickets: Map[String, Ticker] = poloniex.returnTicket
+    assert(tickets.nonEmpty)
+  }
+
 
   it should "work with orders book" in {
     val ordersBook: OrdersBook = poloniex.ordersBook(CurrencyPair.BTC_ETH, 20)

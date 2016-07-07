@@ -1,6 +1,7 @@
 package app.bitrader.api.poloniex
 
 import java.net.URL
+import java.util.Date
 
 import app.bitrader.api.common.CurrencyPair._
 import okhttp3.HttpUrl.Builder
@@ -19,12 +20,15 @@ class PoloniexOkAPI {
   def request(url: HttpUrl): Request = new Request.Builder().url(url).get().build()
   def execute(request1: Request): Response = ok.newCall(request1).execute()
 
-  def get[Result : JsonReader](map: Map[String, String]): Result = {
+  def get[Result : JsonReader](params: Map[String, String]): Result = {
+    def nonce: String = new Date().getTime.toString
     val reqBuilder: Builder = baseUrl.newBuilder()
 
-    for ((k,v) <- map){
+    for ((k,v) <- params){
       reqBuilder.addEncodedQueryParameter(k, v)
     }
+
+    reqBuilder.addEncodedQueryParameter("nonce", nonce)
 
     val r: Request = request(reqBuilder.build())
     val response: Response = execute(r)

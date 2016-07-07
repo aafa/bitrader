@@ -32,6 +32,8 @@ class PoloniexFacade(implicit ctx: Context) extends AbstractFacade {
     _.interceptors().add(new AuthInterceptor(ctx)))
   override val okHttp: PoloniexOkAPI = new PoloniexOkAPI
 
+  def returnTicket: Map[String, Ticker] = okHttp.returnTicker()
+
   def ordersBook(pair: CurrencyPair, depth: Int): OrdersBook = okHttp.ordersBook(pair, depth)
 
   def ordersBook(depth: Int): Map[String, OrdersBook] = okHttp.ordersBook(depth)
