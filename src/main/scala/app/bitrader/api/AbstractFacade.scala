@@ -10,7 +10,7 @@ import app.bitrader.AppCircuit
 import app.bitrader.api.common.CurrencyPair.CurrencyPair
 import app.bitrader.api.common.WampMsg
 import app.bitrader.api.network.{JawampaClient, WampSub}
-import app.bitrader.api.poloniex.{Chart, OrdersBook, Ticker, TradeHistory}
+import app.bitrader.api.poloniex._
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.github.aafa.ScalaRetrofitBuilder
 import com.squareup.okhttp.{Cache, OkHttpClient}
@@ -48,17 +48,21 @@ abstract class AbstractFacade(implicit ctx: Context) extends API {
 
   // public
 
-  def returnTicket: Map[String, Ticker]
+  def returnTicket: Map[String, Any]
 
   def chartData(pair: CurrencyPair, start: Long, end: Long, period: Int): Seq[Chart]
 
   def ordersBook(pair: CurrencyPair, depth: Int): OrdersBook
+
+  def ordersBook(depth: Int): Map[String, OrdersBook]
 
   def tradeHistory(pair: CurrencyPair): Seq[TradeHistory]
 
   def wampSubscribe[WM <: WampMsg : scala.reflect.Manifest](subs: WampSub[WM]): Unit
 
   def wampClose: Unit
+
+  def currencies(): Map[String, Currency]
 
   // private
 

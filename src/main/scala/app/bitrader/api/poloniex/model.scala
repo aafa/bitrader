@@ -23,7 +23,7 @@ case class Ticker(
 
 @JsonCreator
 case class Chart(
-                  @JsonProperty("date") var unixtime: Long,
+                  @JsonProperty("date") var date: Long,
                   @JsonProperty("high") var high: BigDecimal,
                   @JsonProperty("low") var low: BigDecimal,
                   @JsonProperty("open") var open: BigDecimal,
@@ -76,7 +76,7 @@ case class TradeHistory(
                          @JsonProperty("total") total: Option[Double],
                          @JsonProperty("fee") fee: Option[BigDecimal],
                          @JsonProperty("orderNumber") orderNumber: Option[String],
-                         @JsonProperty("type") tpe: String,
+                         @JsonProperty("type") `type`: String,
                          @JsonProperty("category") category: Option[String]
                       )
 

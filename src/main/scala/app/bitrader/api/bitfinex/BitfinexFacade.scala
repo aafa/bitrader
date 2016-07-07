@@ -9,7 +9,7 @@ import app.bitrader.TR
 import app.bitrader.api.common.CurrencyPair.CurrencyPair
 import app.bitrader.api.common.{CurrencyPair, WampMsg}
 import app.bitrader.api.network.{AuthInterceptor, WampSub}
-import app.bitrader.api.poloniex.{Chart, OrdersBook, TradeHistory}
+import app.bitrader.api.poloniex._
 import app.bitrader.api.{AbstractFacade, ApiProvider}
 
 /**
@@ -18,11 +18,11 @@ import app.bitrader.api.{AbstractFacade, ApiProvider}
 case object Bitfinex extends ApiProvider {
   override type ApiFacade = BitfinexFacade
 
-  override def facade(implicit ctx: Context) = ??? //new BitfinexFacade
+  override def facade(implicit ctx: Context) = new BitfinexFacade
 }
 
 
-abstract class BitfinexFacade(implicit ctx: Context) extends AbstractFacade  {
+class BitfinexFacade(implicit ctx: Context) extends AbstractFacade  {
 
   override type PublicApi = BitfinexPublicAPI
   override type PrivateApi = BitfinexPrivateAPI
@@ -43,4 +43,13 @@ abstract class BitfinexFacade(implicit ctx: Context) extends AbstractFacade  {
   override def tradeHistory(pair: CurrencyPair): Seq[TradeHistory] = ???
 
   override def balances: Map[String, String] = ???
+
+  override def returnTicket: Map[String, Ticker] = ???
+
+  override def ordersBook(depth: Int): Map[String, OrdersBook] = ???
+
+  override def currencies(): Map[String, Currency] = ???
+
+  override type OkHttpApi = PoloniexOkAPI
+  override val okHttp = new PoloniexOkAPI
 }

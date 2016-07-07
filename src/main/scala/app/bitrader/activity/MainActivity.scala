@@ -276,7 +276,7 @@ trait ChartLayout {
   }
 
   def prepareChartData(chartData: Seq[Chart]): CandleData = {
-    val xs: Seq[String] = chartData map (_.unixtime.utimeFormatted)
+    val xs: Seq[String] = chartData map (_.date.utimeFormatted)
     val ys: Seq[CandleEntry] = chartData map (chart => new CandleEntry(chartData.indexOf(chart),
       chart.high.floatValue(), chart.low.floatValue(), chart.open.floatValue(), chart.close.floatValue()))
     val set = new CandleDataSet(ys.asJava, "Data")

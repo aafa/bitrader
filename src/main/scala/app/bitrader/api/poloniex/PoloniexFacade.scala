@@ -40,9 +40,9 @@ class PoloniexFacade(implicit ctx: Context) extends AbstractFacade {
 
   def tradeHistory(pair: CurrencyPair): Seq[TradeHistory] = publicApi.tradeHistory(pair)
 
-  def chartData(pair: CurrencyPair, start: Long, end: Long, period: Int): Seq[Chart] = publicApi.chartData(pair, start, end, period)
+  def chartData(pair: CurrencyPair, start: Long, end: Long, period: Int): Seq[Chart] = okHttp.chartData(pair, start, end, period)
 
-  def currencies(): Map[String, Currency] = publicApi.currencies()
+  def currencies(): Map[String, Currency] = okHttp.currencies()
 
   override def wampSubscribe[WM <: WampMsg : scala.reflect.Manifest](sub: WampSub[WM]): Unit = wampApi.openSubscription[WM](sub)
 

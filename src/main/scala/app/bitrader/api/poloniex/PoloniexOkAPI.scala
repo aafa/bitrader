@@ -30,9 +30,14 @@ class PoloniexOkAPI {
 
     reqBuilder.addEncodedQueryParameter("nonce", nonce)
 
+    println("request: " + reqBuilder.toString)
+
     val r: Request = request(reqBuilder.build())
     val response: Response = execute(r)
-    response.body().string().parseJson.convertTo[Result]
+    val respString: String = response.body().string()
+
+    println("response: " + respString)
+    respString.parseJson.convertTo[Result]
   }
 
   def returnTicker(): Map[String, Ticker] = get[Map[String, Ticker]](Map(
@@ -50,5 +55,22 @@ class PoloniexOkAPI {
     "depth" -> depth.toString,
     "currencyPair" -> "all"
   ))
+
+  def chartData(pair: CurrencyPair, start: Long, end: Long, period: Int): Seq[Chart] = get[Seq[Chart]](Map(
+    "command" -> "returnChartData",
+    "start" -> start.toString,
+    "end" -> end.toString,
+    "period" -> period.toString,
+    "currencyPair" -> pair.toString
+  ))
+
+  def currencies() : Map[String, Currency] = get[Map[String, Currency]](Map(
+    "command" -> "returnCurrencies"
+  ))
+
+//  def tradeHistory(pair: CurrencyPair) : Seq[TradeHistory] = get[Seq[TradeHistory]](Map(
+//    "command" -> "returnTradeHistory",
+//    "currencyPair" -> pair.toString
+//  ))
 
 }
