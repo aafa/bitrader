@@ -3,6 +3,7 @@ package app.bitrader.api.poloniex
 import java.net.URL
 
 import app.bitrader.api.common.CurrencyPair._
+import okhttp3.HttpUrl.Builder
 import okhttp3.{HttpUrl, OkHttpClient, Request, Response}
 import spray.json._
 
@@ -13,36 +14,37 @@ class PoloniexOkAPI {
   val ok = new OkHttpClient()
   import fommil.sjs.FamilyFormats._
 
-  val baseUrl: HttpUrl = HttpUrl.get(new URL("https://poloniex.com/public?command=returnOrderBook"))
+  val baseUrl: HttpUrl = HttpUrl.get(new URL("https://poloniex.com/public"))
 
   def request(url: HttpUrl): Request = new Request.Builder().url(url).get().build()
   def execute(request1: Request): Response = ok.newCall(request1).execute()
 
-  def returnTicker(): Map[String, Ticker] = {
-    val response: Response = execute(request(baseUrl))
-    response.body().string().parseJson.convertTo[Map[String, Ticker]]
-  }
+  def get[Result : JsonReader](map: Map[String, String]): Result = {
+    val reqBuilder: Builder = baseUrl.newBuilder()
 
-  def ordersBook(pair: CurrencyPair, depth : Int) : OrdersBook = {
+    for ((k,v) <- map){
+      reqBuilder.addEncodedQueryParameter(k, v)
+    }
 
-    val r: Request = request(baseUrl.newBuilder()
-      .addEncodedQueryParameter("depth", depth.toString)
-      .addEncodedQueryParameter("currencyPair", pair.toString)
-      .build())
-
+    val r: Request = request(reqBuilder.build())
     val response: Response = execute(r)
-    response.body().string().parseJson.convertTo[OrdersBook]
+    response.body().string().parseJson.convertTo[Result]
   }
 
-  def ordersBook(depth : Int) : Map[String, OrdersBook] = {
+  def returnTicker(): Map[String, Ticker] = get[Map[String, Ticker]](Map(
+    "command" -> "returnTicker"
+  ))
 
-    val r: Request = request(baseUrl.newBuilder()
-      .addEncodedQueryParameter("depth", depth.toString)
-      .addEncodedQueryParameter("currencyPair", "all")
-      .build())
+  def ordersBook(pair: CurrencyPair, depth : Int) : OrdersBook = get[OrdersBook](Map(
+    "command" -> "returnOrderBook",
+    "depth" -> depth.toString,
+    "currencyPair" -> pair.toString
+  ))
 
-    val response: Response = execute(r)
-    response.body().string().parseJson.convertTo[Map[String, OrdersBook]]
-  }
+  def ordersBook(depth : Int) : Map[String, OrdersBook] = get[Map[String, OrdersBook]](Map(
+    "command" -> "returnOrderBook",
+    "depth" -> depth.toString,
+    "currencyPair" -> "all"
+  ))
 
 }
