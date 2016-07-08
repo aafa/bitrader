@@ -38,7 +38,7 @@ class PoloniexFacade(implicit ctx: Context) extends AbstractFacade {
 
   def ordersBook(depth: Int): Map[String, OrdersBook] = okHttp.ordersBook(depth)
 
-  def tradeHistory(pair: CurrencyPair): Seq[TradeHistory] = publicApi.tradeHistory(pair)
+  def tradeHistory(pair: CurrencyPair): Seq[TradeHistory] = okHttp.tradeHistory(pair)
 
   def chartData(pair: CurrencyPair, start: Long, end: Long, period: Int): Seq[Chart] = okHttp.chartData(pair, start, end, period)
 

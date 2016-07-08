@@ -1,7 +1,5 @@
 package app.bitrader.api.poloniex
 
-import java.util.Date
-
 import app.ObjectEnum
 import app.bitrader._
 import com.fasterxml.jackson.annotation.{JsonCreator, JsonProperty}
@@ -70,7 +68,7 @@ case class OrderDetails(
 case class TradeHistory(
                          @JsonProperty("globalTradeID") globalTradeID: Option[Long],
                          @JsonProperty("tradeID") tradeID: String,
-                         @JsonProperty("date") date: Date,
+                         @JsonProperty("date") date: String,  // todo parse Date
                          @JsonProperty("rate") rate: BigDecimal,
                          @JsonProperty("amount") amount: Double,
                          @JsonProperty("total") total: Option[Double],

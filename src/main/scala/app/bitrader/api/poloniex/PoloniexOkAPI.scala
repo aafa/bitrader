@@ -68,9 +68,9 @@ class PoloniexOkAPI {
     "command" -> "returnCurrencies"
   ))
 
-//  def tradeHistory(pair: CurrencyPair) : Seq[TradeHistory] = get[Seq[TradeHistory]](Map(
-//    "command" -> "returnTradeHistory",
-//    "currencyPair" -> pair.toString
-//  ))
+  def tradeHistory(pair: CurrencyPair) : Seq[TradeHistory] = get[Seq[TradeHistory]](Map(
+    "command" -> "returnTradeHistory",
+    "currencyPair" -> pair.toString
+  ))
 
 }
