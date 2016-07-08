@@ -31,19 +31,13 @@ private[bitrader] trait ApiProvider extends ApiProvider.Value {
 
 private[bitrader] object ApiProvider extends ObjectEnum[ApiProvider]
 
-sealed trait API {
-  type PublicApi
-  type PrivateApi
-  type WampApi = JawampaClient // todo custom trait
-  type OkHttpApi
-
-  val publicApi: PublicApi
-  val privateApi: PrivateApi
-  val wampApi: WampApi
-  val okHttp: OkHttpApi
+sealed trait Facade {
+  val publicApi: Api
+  val privateApi: Api
+  val wampApi: JawampaClient
 }
 
-abstract class AbstractFacade(implicit ctx: Context) extends API {
+abstract class AbstractFacade(implicit ctx: Context) extends Facade {
   def nonce: String = new Date().getTime.toString
 
   // public
@@ -70,6 +64,7 @@ abstract class AbstractFacade(implicit ctx: Context) extends API {
 
   // build stuff
 
+  @deprecated
   protected def buildApi[API: ClassTag](url: String, settings: OkHttpClient => Unit = () => _): API = {
     new CachedRetrofitBuilder(ctx.getApplicationContext.getCacheDir, settings)
       .setEndpoint(url)

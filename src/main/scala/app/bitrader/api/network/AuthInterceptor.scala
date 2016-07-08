@@ -7,14 +7,14 @@ import javax.crypto.spec.SecretKeySpec
 import android.content.Context
 import app.bitrader.LocalProperties
 import com.orhanobut.logger.Logger
-import com.squareup.okhttp.Interceptor.Chain
-import com.squareup.okhttp._
+import okhttp3.{Interceptor, Request, Response}
+import okhttp3.Interceptor.Chain
 import okio.{Buffer, BufferedSink}
 
 /**
   * Created by Alex Afanasev
   */
-class AuthInterceptor(ctx: Context) extends Interceptor {
+class AuthInterceptor() extends Interceptor {
 
   override def intercept(chain: Chain): Response = {
     val request: Request = chain.request()

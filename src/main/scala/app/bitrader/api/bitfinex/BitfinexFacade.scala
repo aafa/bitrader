@@ -8,7 +8,7 @@ import android.content.Context
 import app.bitrader.TR
 import app.bitrader.api.common.CurrencyPair.CurrencyPair
 import app.bitrader.api.common.{CurrencyPair, WampMsg}
-import app.bitrader.api.network.{AuthInterceptor, WampSub}
+import app.bitrader.api.network.{AuthInterceptor, JawampaClient, WampSub}
 import app.bitrader.api.poloniex._
 import app.bitrader.api.{AbstractFacade, ApiProvider}
 
@@ -24,13 +24,9 @@ case object Bitfinex extends ApiProvider {
 
 class BitfinexFacade(implicit ctx: Context) extends AbstractFacade  {
 
-  override type PublicApi = BitfinexPublicAPI
-  override type PrivateApi = BitfinexPrivateAPI
-
-  override val wampApi: WampApi = buildWamp(TR.string.bitfinex_wamp.value)
-  override val publicApi: PublicApi = buildApi[PublicApi](TR.string.bitfinex_url.value)
-  override val privateApi: PrivateApi = buildApi[PrivateApi](TR.string.bitfinex_trading_url.value,
-    _.interceptors().add(new AuthInterceptor(ctx)))
+  override val wampApi: JawampaClient = buildWamp(TR.string.bitfinex_wamp.value)
+  override val publicApi = ???
+  override val privateApi = ???
 
   override def chartData(pair: CurrencyPair, start: Long, end: Long, period: Int): Seq[Chart] = Seq.empty
 
@@ -50,6 +46,4 @@ class BitfinexFacade(implicit ctx: Context) extends AbstractFacade  {
 
   override def currencies(): Map[String, Currency] = ???
 
-  override type OkHttpApi = PoloniexOkAPI
-  override val okHttp = new PoloniexOkAPI
 }

@@ -1,44 +1,12 @@
 package app.bitrader.api.poloniex
 
-import java.net.URL
-import java.util.Date
-
+import app.bitrader.api.AbstractApi
 import app.bitrader.api.common.CurrencyPair._
-import okhttp3.HttpUrl.Builder
-import okhttp3.{HttpUrl, OkHttpClient, Request, Response}
-import spray.json._
-
+import fommil.sjs.FamilyFormats._
 /**
   * Created by Alex Afanasev
   */
-class PoloniexOkAPI {
-  val ok = new OkHttpClient()
-  import fommil.sjs.FamilyFormats._
-
-  val baseUrl: HttpUrl = HttpUrl.get(new URL("https://poloniex.com/public"))
-
-  def request(url: HttpUrl): Request = new Request.Builder().url(url).get().build()
-  def execute(request1: Request): Response = ok.newCall(request1).execute()
-
-  def get[Result : JsonReader](params: Map[String, String]): Result = {
-    def nonce: String = new Date().getTime.toString
-    val reqBuilder: Builder = baseUrl.newBuilder()
-
-    for ((k,v) <- params){
-      reqBuilder.addEncodedQueryParameter(k, v)
-    }
-
-    reqBuilder.addEncodedQueryParameter("nonce", nonce)
-
-    println("request: " + reqBuilder.toString)
-
-    val r: Request = request(reqBuilder.build())
-    val response: Response = execute(r)
-    val respString: String = response.body().string()
-
-    println("response: " + respString)
-    respString.parseJson.convertTo[Result]
-  }
+class PoloniexOkAPI(url: String) extends AbstractApi(url){
 
   def returnTicker(): Map[String, Ticker] = get[Map[String, Ticker]](Map(
     "command" -> "returnTicker"
