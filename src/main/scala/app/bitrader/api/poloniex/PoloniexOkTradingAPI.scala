@@ -10,7 +10,7 @@ import fommil.sjs.FamilyFormats._
   */
 class PoloniexOkTradingAPI(url: String) extends AbstractApi(url) {
 
-  override def httpClient: OkHttpClient = new OkHttpClient.Builder()
+  override lazy val httpClient: OkHttpClient = new OkHttpClient.Builder()
     .addInterceptor(new AuthInterceptor())
     .build()
 

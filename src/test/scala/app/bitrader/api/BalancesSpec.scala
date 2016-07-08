@@ -11,7 +11,7 @@ class BalancesSpec extends ApiSpec {
   it should "check balance" in {
     val balances: Map[String, CompleteBalance] = poloniex.returnCompleteBalances
 
-    println("total btc amount " + balances.map(_._2.btcValue).sum)
+    println("total btc amount " + balances.map(_._2.btcValue.toDouble).sum)
 
     println(poloniex.returnDepositAddresses)
   }

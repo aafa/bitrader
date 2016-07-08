@@ -86,7 +86,7 @@ case class ActualOrder(
 
 @JsonCreator
 case class CompleteBalance(
-                        @JsonProperty("available") available: BigDecimal,
-                        @JsonProperty("onOrders") onOrders: BigDecimal,
-                        @JsonProperty("btcValue") btcValue: BigDecimal
+                        @JsonProperty("available") available: String,  // todo BigDecimal
+                        @JsonProperty("onOrders") onOrders: String,
+                        @JsonProperty("btcValue") btcValue: String
                       )

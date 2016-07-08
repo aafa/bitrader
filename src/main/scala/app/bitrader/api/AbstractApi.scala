@@ -12,7 +12,7 @@ import fommil.sjs.FamilyFormats._
   * Created by Alex Afanasev
   */
 abstract class AbstractApi(url: String) extends Api{
-  def httpClient = new OkHttpClient()
+  lazy val httpClient = new OkHttpClient()
 
   val baseUrl: HttpUrl = HttpUrl.get(new URL(url))
 
