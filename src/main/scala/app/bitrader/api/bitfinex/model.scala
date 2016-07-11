@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.{JsonCreator, JsonProperty}
   */
 @JsonCreator
 case class Ticker(
-                   @JsonProperty("last_price") var last_price: Option[java.lang.Float],
+                   @JsonProperty("last_price") var last_price: Option[Float],
                    @JsonProperty("low") var low: Option[String],
                    @JsonProperty("high") var high: Option[Float],
                    @JsonProperty("mid") var mid: Float

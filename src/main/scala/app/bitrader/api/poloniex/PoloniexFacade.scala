@@ -22,9 +22,6 @@ case object Poloniex extends ApiProvider {
 
 class PoloniexFacade(implicit ctx: Context) extends AbstractFacade {
 
-  type PublicApi = PoloniexOkAPI
-  type PrivateApi = PoloniexTradingAPI
-
   override val wampApi: JawampaClient = buildWamp(TR.string.poloniex_wamp.value)
   override val publicApi: PoloniexOkAPI = new PoloniexOkAPI(TR.string.poloniex_url.value)
   override val privateApi: PoloniexOkTradingAPI = new PoloniexOkTradingAPI(TR.string.poloniex_trading_url.value)

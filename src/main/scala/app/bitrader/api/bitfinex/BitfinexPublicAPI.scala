@@ -1,12 +1,19 @@
 package app.bitrader.api.bitfinex
 
-import app.bitrader.api.APIDescriptor
-import retrofit.http.{GET, Path}
+import app.bitrader.api.AbstractApi
 
 /**
   * Created by Alexey Afanasev on 21.04.16.
   */
-trait BitfinexPublicAPI {
-  @GET("/pubticker/{symbol}") def pubticker(@Path("symbol") symbol: String): Ticker
+class BitfinexPublicAPI(url: String) extends AbstractApi(url) {
+  import fommil.sjs.FamilyFormats._
+
+  //  @GET("/pubticker/{symbol}")
+  // todo path variables
+  def pubticker(symbol: String): Ticker = {
+    get[Ticker](Map(
+      "symbol" -> symbol
+    ))
+  }
 
 }

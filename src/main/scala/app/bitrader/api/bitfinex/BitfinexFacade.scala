@@ -25,7 +25,7 @@ case object Bitfinex extends ApiProvider {
 class BitfinexFacade(implicit ctx: Context) extends AbstractFacade  {
 
   override val wampApi: JawampaClient = buildWamp(TR.string.bitfinex_wamp.value)
-  override val publicApi = ???
+  override val publicApi = new BitfinexPublicAPI(TR.string.bitfinex_url.value)
   override val privateApi = ???
 
   override def chartData(pair: CurrencyPair, start: Long, end: Long, period: Int): Seq[Chart] = Seq.empty
