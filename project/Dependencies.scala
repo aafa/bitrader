@@ -35,11 +35,7 @@ object Dependencies {
       // json libs
       "com.fasterxml.jackson.core" % "jackson-databind" % "2.7.2",
       "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.7.2",
-      "com.github.fommil" %% "spray-json-shapeless" % "1.2.0",
-
       "com.mediamath" %% "scala-json" % "1.0",
-
-      //
 
       "ws.wamp.jawampa" % "jawampa-netty" % "0.4.1",
       "me.chrons" %% "diode" % "0.5.1",

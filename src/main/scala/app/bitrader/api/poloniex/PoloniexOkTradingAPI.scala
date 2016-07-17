@@ -2,7 +2,6 @@ package app.bitrader.api.poloniex
 
 import app.bitrader.api.AbstractApi
 import app.bitrader.api.network.AuthInterceptor
-import fommil.sjs.FamilyFormats._
 import okhttp3.OkHttpClient
 /**
   * Created by Alex Afanasev

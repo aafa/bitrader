@@ -2,7 +2,6 @@ package app.bitrader.api.poloniex
 
 import app.bitrader.api.AbstractApi
 import app.bitrader.api.common.CurrencyPair._
-import fommil.sjs.FamilyFormats._
 /**
   * Created by Alex Afanasev
   */
