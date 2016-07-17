@@ -6,7 +6,7 @@
     <string name="bitfinex_trading_url">https://api.bitfinex.com/v1</string>
     <string name="bitfinex_wamp">wss://api2.bitfinex.com:3000/ws</string>
 
-    <string name="poloniex_url">https://poloniex.com</string>
+    <string name="poloniex_url">https://poloniex.com/public</string>
     <string name="poloniex_trading_url">https://poloniex.com/tradingApi</string>
     <string name="poloniex_wamp">wss://api.poloniex.com</string>
 
