@@ -37,9 +37,10 @@ object APIContext {
     jm
   }
 
+  // todo fix Bitfinex
   lazy val apis: Map[ApiProvider, AbstractFacade] = Map(
-    Poloniex -> NetworkFacade.factory(Poloniex),
-    Bitfinex -> NetworkFacade.factory(Bitfinex)
+    Poloniex -> NetworkFacade.factory(Poloniex)
+//    Bitfinex -> NetworkFacade.factory(Bitfinex)
   )
 
   def getService(api: ApiProvider): UiService[AbstractFacade] = new UiService(get(api))
