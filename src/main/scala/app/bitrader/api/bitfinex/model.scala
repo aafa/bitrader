@@ -1,11 +1,13 @@
 package app.bitrader.api.bitfinex
 
 import com.fasterxml.jackson.annotation.{JsonCreator, JsonProperty}
+import json.accessor
 
 /**
   * Created by Alexey Afanasev on 21.04.16.
   */
 @JsonCreator
+@accessor
 case class Ticker(
                    @JsonProperty("last_price") var last_price: Option[Float],
                    @JsonProperty("low") var low: Option[String],

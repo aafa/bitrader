@@ -1,6 +1,6 @@
 import android.Keys._
 import sbt.Keys._
-import sbt._
+import sbt.{Resolver, _}
 
 object Dependencies {
 
@@ -18,6 +18,9 @@ object Dependencies {
 
   lazy val libs: Seq[sbt.Setting[_]] = Seq(
     resolvers ++= resolverUrls,
+    resolvers += "mmreleases" at "https://artifactory.mediamath.com/artifactory/libs-release-global",
+    resolvers += Resolver.sonatypeRepo("releases"),
+    addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full),
 
     libraryDependencies ++= Seq(
       aar("com.github.aafa" %% "macroid-design" % "0.1.2-SNAPSHOT"),
@@ -29,18 +32,22 @@ object Dependencies {
       aar("com.mikepenz" % "google-material-typeface" % "2.2.0.1.original") exclude("Android-Iconics", "library-core"),
       aar("com.mikepenz" % "fontawesome-typeface" % "4.6.0.1") exclude("Android-Iconics", "library-core"),
 
+      // json libs
       "com.fasterxml.jackson.core" % "jackson-databind" % "2.7.2",
       "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.7.2",
+      "com.github.fommil" %% "spray-json-shapeless" % "1.2.0",
 
-      "ws.wamp.jawampa" % "jawampa-netty" % "0.4.1"	,
+      "com.mediamath" %% "scala-json" % "1.0",
+
+      //
+
+      "ws.wamp.jawampa" % "jawampa-netty" % "0.4.1",
       "me.chrons" %% "diode" % "0.5.1",
       "me.chrons" %% "boopickle" % "1.1.3",
       "com.github.nscala-time" %% "nscala-time" % "2.12.0",
       "com.github.PhilJay" % "MPAndroidChart" % "v2.2.4",
 
       "me.dm7.barcodescanner" % "zxing" % "1.8.4",
-
-      "com.github.fommil" %% "spray-json-shapeless" % "1.2.0",
       "com.squareup.okhttp3" % "okhttp" % "3.3.1",
 
       "com.joanzapata.iconify" % "android-iconify-fontawesome" % iconify,
@@ -48,7 +55,7 @@ object Dependencies {
     ),
 
     fork in Test := true,
-//    testForkedParallel := true, // todo figure out why its getting slow
+    //    testForkedParallel := true, // todo figure out why its getting slow
     libraryDependencies ++= Seq(
       "com.geteit" %% "robotest" % "0.12" % Test,
       "org.scalatest" %% "scalatest" % "2.2.5" % Test

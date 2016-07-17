@@ -3,10 +3,9 @@ package app.bitrader.api
 import java.net.URL
 import java.util.Date
 
+import json.{JSONAccessor, JValue}
 import okhttp3.HttpUrl.Builder
 import okhttp3._
-import spray.json._
-import fommil.sjs.FamilyFormats._
 
 /**
   * Created by Alex Afanasev
@@ -19,7 +18,8 @@ abstract class AbstractApi(url: String) extends Api{
   def execute(request1: Request): Response = httpClient.newCall(request1).execute()
   def nonce: String = new Date().getTime.toString
 
-  def get[Result : JsonReader](params: Map[String, String]): Result = {
+  // todo append path params
+  def get[Result : JSONAccessor](params: Map[String, String], appendUrl: String = ""): Result = {
     val reqBuilder: Builder = baseUrl.newBuilder()
 
     for ((k,v) <- params){
@@ -35,11 +35,11 @@ abstract class AbstractApi(url: String) extends Api{
     val respString: String = response.body().string()
 
     println("response: " + respString)
-    respString.parseJson.convertTo[Result]
+    JValue.fromString(respString).toObject[Result]
   }
 
 
-  def post[Result : JsonReader](params: Map[String, String]): Result = {
+  def post[Result : JSONAccessor](params: Map[String, String]): Result = {
     val rb = new FormBody.Builder()
 
     for ((k,v) <- params){
@@ -52,6 +52,6 @@ abstract class AbstractApi(url: String) extends Api{
     val response: Response = execute(r)
     val respString: String = response.body().string()
 
-    respString.parseJson.convertTo[Result]
+    JValue.fromString(respString).toObject[Result]
   }
 }

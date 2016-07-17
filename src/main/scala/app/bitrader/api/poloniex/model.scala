@@ -3,6 +3,7 @@ package app.bitrader.api.poloniex
 import app.ObjectEnum
 import app.bitrader._
 import com.fasterxml.jackson.annotation.{JsonCreator, JsonProperty}
+import json.accessor
 import org.joda.time.DateTime
 
 import scala.collection.SortedMap
@@ -12,6 +13,7 @@ import scala.collection.SortedMap
   * Created by Alexey Afanasev on 22.04.16.
   */
 @JsonCreator
+@accessor
 case class Ticker(
                    @JsonProperty("last") var last: String,
                    @JsonProperty("lowestAsk") var lowestAsk: String,
@@ -20,6 +22,7 @@ case class Ticker(
                  )
 
 @JsonCreator
+@accessor
 case class Chart(
                   @JsonProperty("date") var date: Long,
                   @JsonProperty("high") var high: BigDecimal,
@@ -32,6 +35,7 @@ case class Chart(
                  )
 
 @JsonCreator
+@accessor
 case class OrdersBook(
                    @JsonProperty("asks") var asks: Seq[OrderPair],
                    @JsonProperty("bids") var bids: Seq[OrderPair],
@@ -44,17 +48,19 @@ case class OrdersBook(
 }
 
 @JsonCreator
+@accessor
 case class Currency(
                    @JsonProperty("name") var name: String,
                    @JsonProperty("txFee") var txFee: BigDecimal,
                    @JsonProperty("minConf") var minConf: Int,
                    @JsonProperty("depositAddress") var depositAddress: Option[String],
-                   @JsonProperty("disabled") var disabled: Byte,
-                   @JsonProperty("delisted") var delisted: Byte,
-                   @JsonProperty("frozen") var frozen: Byte
+                   @JsonProperty("disabled") var disabled: Int,
+                   @JsonProperty("delisted") var delisted: Int,
+                   @JsonProperty("frozen") var frozen: Int
                  )
 
 @JsonCreator
+@accessor
 case class OrderDetails(
                          @JsonProperty("orderNumber") orderNumber : Long,
                          @JsonProperty("type") tpe: String,
@@ -65,6 +71,7 @@ case class OrderDetails(
 
 
 @JsonCreator
+@accessor
 case class TradeHistory(
                          @JsonProperty("globalTradeID") globalTradeID: Option[Long],
                          @JsonProperty("tradeID") tradeID: String,
@@ -79,12 +86,14 @@ case class TradeHistory(
                       )
 
 @JsonCreator
+@accessor
 case class ActualOrder(
                         @JsonProperty("orderNumber") orderNumber: String,
                         @JsonProperty("resultingTrades") resultingTrades: Seq[TradeHistory]
                       )
 
 @JsonCreator
+@accessor
 case class CompleteBalance(
                         @JsonProperty("available") available: String,  // todo BigDecimal
                         @JsonProperty("onOrders") onOrders: String,
