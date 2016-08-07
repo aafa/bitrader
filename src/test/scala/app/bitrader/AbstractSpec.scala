@@ -3,14 +3,16 @@ package app.bitrader
 import android.os.Build.VERSION_CODES._
 import macroid.ContextWrapper
 import org.joda.time.DateTime
-import org.robolectric.RuntimeEnvironment
+import org.junit.runner.RunWith
+import org.robolectric.{RobolectricTestRunner, RuntimeEnvironment}
 import org.robolectric.annotation.Config
 import org.scalatest.{FlatSpec, Matchers, RobolectricSuite}
 
 /**
   * Created by Alex Afanasev
   */
-@Config(sdk = Array(LOLLIPOP))
+@Config(sdk = Array(LOLLIPOP), manifest = "src/main/AndroidManifest.xml")
+@RunWith(classOf[RobolectricTestRunner])
 abstract class AbstractSpec extends FlatSpec with Matchers with RobolectricSuite {
 
   implicit val cw = ContextWrapper(RuntimeEnvironment.application)

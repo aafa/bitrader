@@ -3,6 +3,7 @@ package app.bitrader.api
 import android.os.Build.VERSION_CODES._
 import app.bitrader.api.poloniex.Currency
 import org.robolectric.annotation.Config
+import org.assertj.android.api.Assertions._
 
 /**
   * Created by Alex Afanasev

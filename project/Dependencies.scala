@@ -15,6 +15,7 @@ object Dependencies {
 
   private val gmsVersion: String = "8.1.0"
   private val iconify: String = "2.2.2"
+  private val assertJ: String = "1.1.1"
 
   lazy val libs: Seq[sbt.Setting[_]] = Seq(
     resolvers ++= resolverUrls,
@@ -51,8 +52,14 @@ object Dependencies {
     ),
 
     fork in Test := true,
-    //    testForkedParallel := true, // todo figure out why its getting slow
+    javaOptions in Test ++= Seq("-XX:MaxPermSize=2048M", "-XX:+CMSClassUnloadingEnabled"),   // usually needed due to using forked tests
+    parallelExecution in Test := false,
     libraryDependencies ++= Seq(
+      "com.squareup.assertj" % "assertj-android" % assertJ % Test,
+      "com.squareup.assertj" % "assertj-android-gridlayout-v7" % assertJ % Test,
+      "com.squareup.assertj" % "assertj-android-cardview-v7" % assertJ % Test,
+      "com.squareup.assertj" % "assertj-android-recyclerview-v7" % assertJ % Test,
+
       "com.geteit" %% "robotest" % "0.12" % Test,
       "org.scalatest" %% "scalatest" % "2.2.5" % Test
     )
