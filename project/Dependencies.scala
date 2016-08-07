@@ -16,6 +16,8 @@ object Dependencies {
   private val gmsVersion: String = "8.1.0"
   private val iconify: String = "2.2.2"
   private val assertJ: String = "1.1.1"
+  val macroidVersion: String = "2.0.0-M5-SNAPSHOT"
+  val androidSdk: String = "23.4.0"
 
   lazy val libs: Seq[sbt.Setting[_]] = Seq(
     resolvers ++= resolverUrls,
@@ -24,7 +26,14 @@ object Dependencies {
     addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full),
 
     libraryDependencies ++= Seq(
-      aar("com.github.aafa" %% "macroid-design" % "0.1.2-SNAPSHOT"),
+      "org.macroid" %% "macroid" % macroidVersion,
+      "org.macroid" %% "macroid-viewable" % macroidVersion,
+      "com.fortysevendeg" %% "macroid-extras" % "0.2",
+
+      // android libs
+      aar("com.android.support" % "recyclerview-v7" % androidSdk),
+      aar("com.android.support" % "cardview-v7" % androidSdk),
+      aar("com.android.support" % "design" % androidSdk),
 
       "com.github.orhanobut" % "logger" % "1.12",
       "com.miguelcatalan" % "materialsearchview" % "1.4.0",

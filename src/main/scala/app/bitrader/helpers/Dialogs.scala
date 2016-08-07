@@ -3,7 +3,7 @@ package app.bitrader.helpers
 import android.app.ProgressDialog
 import android.content.DialogInterface
 import android.content.DialogInterface.OnClickListener
-import io.github.aafa.helpers.UiThreading
+import app.bitrader.helpers.UiThreading
 import macroid.FullDsl._
 import macroid.{ContextWrapper, Ui}
 

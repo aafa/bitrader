@@ -4,7 +4,7 @@ import android.graphics.{PorterDuff, PorterDuffColorFilter}
 import android.support.v7.widget.Toolbar
 import android.view.View
 import android.widget.{ActionMenuView, ImageButton, TextView}
-import io.github.aafa.macroid.AdditionalTweaks
+import app.bitrader.helpers.AdditionalTweaks
 import macroid.{ContextWrapper, Transformer}
 import macroid._
 

@@ -13,7 +13,7 @@ import app.bitrader._
 import app.bitrader.activity.menu.{ReadQrActivity, WampActivity}
 import app.bitrader.api.ApiProvider
 import app.bitrader.api.poloniex.Chart
-import app.bitrader.helpers.Id
+import app.bitrader.helpers._
 import app.bitrader.helpers.activity.ActivityOperations
 import com.github.mikephil.charting.charts.CandleStickChart
 import com.github.mikephil.charting.data.{CandleData, CandleDataSet, CandleEntry}
@@ -25,8 +25,6 @@ import com.mikepenz.materialdrawer.model.interfaces.{IDrawerItem, IProfile}
 import com.mikepenz.materialdrawer.model.{PrimaryDrawerItem, ProfileDrawerItem, ProfileSettingDrawerItem}
 import com.mikepenz.materialdrawer.{AccountHeader, AccountHeaderBuilder, Drawer, DrawerBuilder}
 import diode.ModelR
-import io.github.aafa.helpers.{Styles, UiOperations, UiThreading}
-import io.github.aafa.macroid.AdditionalTweaks
 import macroid.FullDsl._
 import macroid._
 import TypedResource._

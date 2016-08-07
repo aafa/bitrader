@@ -4,7 +4,7 @@ import android.os.Bundle
 import android.support.design.widget.CoordinatorLayout
 import android.support.v4.app.Fragment
 import android.view.{LayoutInflater, View, ViewGroup}
-import io.github.aafa.helpers.Styles
+import app.bitrader.helpers.Styles
 import macroid.FullDsl._
 import macroid.{ContextWrapper, Contexts}
 

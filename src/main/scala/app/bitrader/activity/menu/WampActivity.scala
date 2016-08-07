@@ -9,9 +9,8 @@ import app.bitrader._
 import app.bitrader.api.common.{CurrencyPair, OrderProcessing, OrderWampMsg}
 import app.bitrader.api.network.{JawampaClient, WampSub}
 import app.bitrader.api.poloniex.OrdersBook
-import com.fortysevendeg.macroid.extras.RecyclerViewTweaks
+import app.bitrader.helpers.{Styles, UiThreading}
 import diode.Dispatcher
-import io.github.aafa.helpers.{Styles, UiThreading}
 import macroid.FullDsl._
 import macroid.{ContextWrapper, Contexts, Ui, _}
 
@@ -53,7 +52,7 @@ class WampActivity extends Activity with Contexts[Activity] {
 
 class WampView(dispatcher: Dispatcher)(implicit c: ContextWrapper) extends Styles with UiThreading {
 
-  import RecyclerViewTweaks._
+  import com.fortysevendeg.macroid.extras.RecyclerViewTweaks._
 
   var modifyStream = Seq.empty[OrderWampMsg]
   val asksAdapter = new MessagesAdapter()

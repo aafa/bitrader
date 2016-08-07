@@ -9,7 +9,6 @@ import org.robolectric.res.{Fs, FsFile}
   */
 abstract class ApiSpec extends AbstractSpec {
 
-  override val aarsDir: FsFile = Fs.currentDirectory().join("target/android/intermediates/aars")
 
   class TestApplication extends ClientApplication
   lazy val poloniex: PoloniexFacade = NetworkFacade.factory(Poloniex)

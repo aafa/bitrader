@@ -1,6 +1,6 @@
 <resources>
 
-    <style name="MainTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="MainTheme" parent="@style/Theme.AppCompat.Light.DarkActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
 
