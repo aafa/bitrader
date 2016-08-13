@@ -28,7 +28,7 @@ object Dependencies {
     libraryDependencies ++= Seq(
       "org.macroid" %% "macroid" % macroidVersion,
       "org.macroid" %% "macroid-viewable" % macroidVersion,
-      "com.fortysevendeg" %% "macroid-extras" % "0.2",
+      "com.fortysevendeg" %% "macroid-extras" % "0.3",
 
       // android libs
       aar("com.android.support" % "recyclerview-v7" % androidSdk),

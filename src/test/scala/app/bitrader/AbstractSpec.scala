@@ -2,12 +2,15 @@ package app.bitrader
 
 import android.os.Build.VERSION_CODES._
 import macroid.ContextWrapper
+import org.apache.tools.ant.taskdefs.Jar.FilesetManifestConfig
 import org.joda.time.DateTime
 import org.junit.runner.RunWith
 import org.robolectric.{RobolectricTestRunner, RuntimeEnvironment}
 import org.robolectric.annotation.Config
 import org.robolectric.res.{Fs, FsFile}
 import org.scalatest.{FlatSpec, Matchers, RobolectricSuite}
+
+import scala.reflect.io.File
 
 /**
   * Created by Alex Afanasev
@@ -16,11 +19,9 @@ import org.scalatest.{FlatSpec, Matchers, RobolectricSuite}
 @RunWith(classOf[RobolectricTestRunner])
 abstract class AbstractSpec extends FlatSpec with Matchers with RobolectricSuite {
 
-  override val aarsDir: FsFile = {
-    val file: FsFile = Fs.fileFromPath("/Users/aafa/.android/sbt/exploded-aars")
-    print("!! aarsDir: " + file.getPath)
-    file
-  }
+  // todo https://philio.me/android-data-binding-with-robolectric-3/
+
+  override val aarsDir: FsFile = Fs.fileFromPath("/Users/aafa/.android/sbt/exploded-aars")
 
   implicit val cw = ContextWrapper(RuntimeEnvironment.application)
   implicit val c = RuntimeEnvironment.application
