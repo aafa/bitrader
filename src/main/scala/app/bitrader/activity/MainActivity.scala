@@ -158,6 +158,8 @@ trait DrawerSetup {
 trait MenuItems extends AppCompatActivity {
   self : MainActivity =>
 
+  lazy val searchView: MaterialSearchView = layout.mainView.findView(TR.search_view)
+
   override def onOptionsItemSelected(item: MenuItem): Boolean = {
     super.onOptionsItemSelected(item)
 
@@ -169,10 +171,8 @@ trait MenuItems extends AppCompatActivity {
     super.onCreateOptionsMenu(menu)
     getMenuInflater.inflate(R.menu.menu, menu)
 
-    val searchView: MaterialSearchView = layout.mainView.findView(TR.search_view)
     searchView.setVisibility(View.VISIBLE)
     searchView.setMenuItem(menu.findItem(R.id.action_search))
-
     searchView.setSuggestions(CurrencyPair.values.toArray map (_.toString))
 
     searchView.setOnQueryTextListener(new OnQueryTextListener {
