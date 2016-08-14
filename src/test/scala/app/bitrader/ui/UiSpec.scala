@@ -3,6 +3,7 @@ package app.bitrader.ui
 import android.view.Menu
 import app.bitrader.{AbstractSpec, R, TR}
 import app.bitrader.activity.MainActivity
+import com.github.mikephil.charting.charts.CandleStickChart
 import org.assertj.android.api.Assertions._
 import org.robolectric.fakes.RoboMenuItem
 import org.robolectric.shadows.ShadowFrameLayout
@@ -27,9 +28,19 @@ class UiSpec extends AbstractSpec {
     assertThat(mainActivity.searchView).isVisible
 
     mainActivity.searchView.performClick()
-    mainActivity.searchView.setQuery("BTC_ETH", false)
+    mainActivity.searchView.setQuery("BTC", false)
 
     val layout: ShadowFrameLayout = Shadows.shadowOf(mainActivity.searchView)
 
+  }
+
+  it should "have chart loaded" in {
+    val chart: CandleStickChart = mainActivity.layout.candleStick.get
+    assertThat(chart).isVisible
+
+    assert(chart.getCandleData != null)
+    assert(chart.getCandleData.getDataSetCount > 0)
+    assert(chart.getCandleData.getDataSets.get(0).getLabel == "Data")
+    assert(chart.getCandleData.getDataSets.get(0).getEntryCount > 0)
   }
 }
