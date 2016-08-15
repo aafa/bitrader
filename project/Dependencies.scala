@@ -36,7 +36,7 @@ object Dependencies {
       aar("com.android.support" % "design" % androidSdk),
 
       "com.github.orhanobut" % "logger" % "1.12",
-      "com.miguelcatalan" % "materialsearchview" % "1.4.0",
+      aar("com.miguelcatalan" % "materialsearchview" % "1.4.0") withSources(),
       aar("com.mikepenz" % "materialdrawer" % "5.2.9"),
       aar("com.mikepenz" % "iconics-core" % "2.6.0"),
       aar("com.mikepenz" % "google-material-typeface" % "2.2.0.1.original") exclude("Android-Iconics", "library-core"),

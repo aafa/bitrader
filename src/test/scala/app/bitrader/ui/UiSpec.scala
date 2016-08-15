@@ -1,6 +1,7 @@
 package app.bitrader.ui
 
-import android.view.Menu
+import android.view.{Menu, View}
+import android.widget.ListView
 import app.bitrader.{AbstractSpec, R, TR}
 import app.bitrader.activity.MainActivity
 import com.github.mikephil.charting.charts.CandleStickChart
@@ -27,11 +28,19 @@ class UiSpec extends AbstractSpec {
     assertThat(mainActivity.searchView).isNotNull
     assertThat(mainActivity.searchView).isVisible
 
+  }
+
+  it should "have suggestionList reacting to input properly" in {
     mainActivity.searchView.performClick()
     mainActivity.searchView.setQuery("BTC", false)
 
-    val layout: ShadowFrameLayout = Shadows.shadowOf(mainActivity.searchView)
+    val suggestionList: ListView = mainActivity.searchView.findViewById(R.id.suggestion_list).asInstanceOf[ListView]
 
+    assert(suggestionList.getAdapter.getCount > 0)
+    assertThat(suggestionList).hasCount(3)
+
+    mainActivity.searchView.setQuery("BTC_NONE", false)
+    assertThat(suggestionList).hasCount(0)
   }
 
   it should "have chart loaded" in {
