@@ -48,6 +48,7 @@ class MainActivity extends AppCompatActivity with Contexts[AppCompatActivity]
   with ActivityOperations with MenuItems with DrawerSetup {
 
   val appCircuit = AppCircuit
+
   private val chartSub = appCircuit.dataSubscribe(_.chartsData)(layout.updateChartData)
   private val contextZoom = appCircuit.serviceContext
   private val selectedApiSubscription = appCircuit
