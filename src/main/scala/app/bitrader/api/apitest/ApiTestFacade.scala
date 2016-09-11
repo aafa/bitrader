@@ -28,6 +28,7 @@ class ApiTestFacade(implicit ctx: Context) extends AbstractFacade {
 
   def tradeHistory(pair: CurrencyPair): Seq[TradeHistory] = Seq.empty
 
+  // todo gen with scalacheck? http://stackoverflow.com/questions/33370733/scalacheck-case-class-random-data-generator
   def chartData(pair: CurrencyPair, start: Long, end: Long, period: Int): Seq[Chart] = Seq(Chart(
     123, BigDecimal(123), BigDecimal(123), BigDecimal(123),
     BigDecimal(123), BigDecimal(123), BigDecimal(123), BigDecimal(123)
