@@ -9,7 +9,6 @@ import app.bitrader.{AbstractSpec, ClientApplication}
 abstract class ApiSpec extends AbstractSpec {
 
 
-  class TestApplication extends ClientApplication
   lazy val poloniex: PoloniexFacade = NetworkFacade.factory(Poloniex)
   lazy val poloniexService: UiService[PoloniexFacade] = new UiService(poloniex)
 

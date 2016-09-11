@@ -3,6 +3,7 @@ package app.bitrader
 import android.app.Application
 import android.content.Context
 import app.bitrader.api._
+import app.bitrader.api.apitest.ApiTest
 import app.bitrader.api.poloniex.Poloniex
 import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper}
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
@@ -16,18 +17,24 @@ import com.orhanobut.logger.Logger
   */
 class ClientApplication extends Application {
 
+  val diModule: DiModule = DiModuleProd
+
   override def onCreate(): Unit = {
     super.onCreate()
     Iconify.`with`(new FontAwesomeModule).`with`(new MaterialModule)
 
     Logger.init("Bitrader")
-    APIContext.appContext = getApplicationContext
+
+    AppContext.appContext = getApplicationContext
+    AppContext.diModule = diModule
   }
 
 }
 
-object APIContext {
+object AppContext {
+
   implicit var appContext: Context = _
+  var diModule : DiModule  = _
 
   lazy val jacksonMapper = {
     val jm = new ObjectMapper() with ScalaObjectMapper
@@ -38,7 +45,8 @@ object APIContext {
 
   // todo fix Bitfinex
   lazy val apis: Map[ApiProvider, AbstractFacade] = Map(
-    Poloniex -> NetworkFacade.factory(Poloniex)
+    Poloniex -> NetworkFacade.factory(Poloniex),
+    ApiTest -> NetworkFacade.factory(ApiTest)
 //    Bitfinex -> NetworkFacade.factory(Bitfinex)
   )
 
@@ -46,3 +54,10 @@ object APIContext {
   def get(api: ApiProvider): AbstractFacade = apis(api)
 }
 
+trait DiModule {
+  val appCircuit : ICircuit
+}
+
+object DiModuleProd extends DiModule{
+  val appCircuit = new AppCircuit
+}

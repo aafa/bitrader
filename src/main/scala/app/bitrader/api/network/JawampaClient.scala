@@ -3,7 +3,7 @@ package app.bitrader.api.network
 import java.util.concurrent.TimeUnit
 
 import app.bitrader.api.common.WampMsg
-import app.bitrader.{APIContext, AddWampMessages}
+import app.bitrader.{AppContext, AddWampMessages}
 import diode.Dispatcher
 import diode.data.{Fetch, PotStream}
 import macroid.ContextWrapper
@@ -47,7 +47,7 @@ class JawampaClient(wsuri: String, dispatcher: Dispatcher) {
         override def onError(e: Throwable): Unit = println(s"$topic sub onError $e")
 
         override def onNext(t: PubSubData): Unit = {
-          val value: Seq[WM] = APIContext.jacksonMapper.readValue[Seq[WM]](t.arguments().toString)
+          val value: Seq[WM] = AppContext.jacksonMapper.readValue[Seq[WM]](t.arguments().toString)
           dispatcher(AddWampMessages[WM](value))
         }
       })

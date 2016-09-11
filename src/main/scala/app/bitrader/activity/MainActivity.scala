@@ -197,7 +197,7 @@ trait MenuItems extends AppCompatActivity {
 }
 
 class MainActivityLayout(
-                          appCircuit: AppCircuit.type,
+                          appCircuit: ICircuit,
                           li: LayoutInflater
                         )
                         (implicit cw: ContextWrapper)

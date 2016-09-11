@@ -13,12 +13,18 @@ import scala.concurrent.Future
 /**
   * Created by Alex Afanasev
   */
-object AppCircuit extends Circuit[RootModel] {
+trait ICircuit extends Circuit[RootModel]{
+  def serviceData: ModelRW[RootModel, ServiceData]
+  def serviceContext: ModelRW[RootModel, ServiceContext]
+  def dataSubscribe[Data <: AnyRef](get: ServiceData => Data)(listen: Data => Unit): () => Unit
+}
+
+class AppCircuit extends ICircuit {
 
   def initialModel = RootModel()
 
   private def api: ApiProvider = zoom(_.selectedApi).value
-  private def apiFacade = APIContext.getService(api)
+  private def apiFacade = AppContext.getService(api)
 
   def serviceContext: ModelRW[RootModel, ServiceContext] = zoomRW(
     _.serviceContext(api))((m, newServiceContext) => m.copy(serviceContext =
@@ -29,6 +35,9 @@ object AppCircuit extends Circuit[RootModel] {
 
   def serviceData: ModelRW[RootModel, ServiceData] = serviceContext
     .zoomRW(_.serviceData)((m, v) => m.copy(serviceData = v))
+
+  def dataSubscribe[Data <: AnyRef](get: ServiceData => Data)(listen: Data => Unit) =
+    subscribe(serviceData.zoom(get))(m => listen(m.value))
 
   val selectApi = new ActionHandler(zoomRW(_.selectedApi)((m,v) => m.copy(selectedApi = v))) {
     override protected def handle = {
@@ -46,7 +55,7 @@ object AppCircuit extends Circuit[RootModel] {
     }
   }
 
-  val wampSubscription = new ActionHandler(serviceData) {
+  private val wampSubscription = new ActionHandler(serviceData) {
     override protected def handle = {
       case SubscribeToOrders(sub) =>
         apiFacade(_.wampSubscribe[sub.WampSubType](sub))
@@ -58,7 +67,7 @@ object AppCircuit extends Circuit[RootModel] {
     }
   }
 
-  val orderBookList = new ActionHandler(
+  private val orderBookList = new ActionHandler(
     serviceData.zoomRW(_.orderBook)((m, v) => m.copy(orderBook = v))
       .zoomRW(_.orders)((m, v) => m.copy(orders = v))
   ) {
@@ -69,13 +78,13 @@ object AppCircuit extends Circuit[RootModel] {
     }
   }
 
-  val uiUpdates = new ActionHandler(serviceData.zoomRW(_.chartsData)((m, v) => m.copy(chartsData = v))) {
+  private val uiUpdates = new ActionHandler(serviceData.zoomRW(_.chartsData)((m, v) => m.copy(chartsData = v))) {
     override def handle = {
       case ChartsUpdated(c) => updated(c)
     }
   }
 
-  val apiRequest = new ActionHandler(serviceData) {
+  private val apiRequest = new ActionHandler(serviceData) {
     override protected def handle = {
       case UpdateCharts(cp) =>
         val request: Future[Seq[Chart]] = apiFacade(
@@ -90,9 +99,6 @@ object AppCircuit extends Circuit[RootModel] {
     orderBookUpdatesHandler, orderBookList,
     uiUpdates, apiRequest, wampSubscription, selectApi
   )
-
-  def dataSubscribe[Data <: AnyRef](get: ServiceData => Data)(listen: Data => Unit) =
-    subscribe(serviceData.zoom(get))(m => listen(m.value))
 }
 
 

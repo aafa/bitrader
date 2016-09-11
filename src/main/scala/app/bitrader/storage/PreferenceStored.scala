@@ -13,7 +13,7 @@ trait PreferenceStored {
   val myClass: String = this.getClass.toString
 
   def save(): Unit = {
-    val json: String = APIContext.jacksonMapper.writeValueAsString(this)
+    val json: String = AppContext.jacksonMapper.writeValueAsString(this)
     ctx.saveValue(_.putString(myClass, json))
   }
 
@@ -24,7 +24,7 @@ trait PreferenceStored {
   def restore: Option[this.type] = {
     val string: String = ctx.preferences.getString(myClass, null)
     if (string != null) {
-      val me = APIContext.jacksonMapper.readValue[this.type](string)
+      val me = AppContext.jacksonMapper.readValue[this.type](string)
       Some(me)
     } else {
       None

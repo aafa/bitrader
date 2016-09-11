@@ -1,11 +1,10 @@
 package app.bitrader.activity
 
-import app.bitrader.AppCircuit
+import app.bitrader.AppContext
 
 /**
   * Created by Alex Afanasev
   */
 trait Circuitable {
-  val appCircuit = AppCircuit
-
+  val appCircuit = AppContext.diModule.appCircuit
 }

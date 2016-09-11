@@ -1,21 +1,24 @@
 package app.bitrader
 
 import android.os.Build.VERSION_CODES._
+import app.bitrader.api.apitest.ApiTest
+import app.bitrader.api.bitfinex.Bitfinex
+import app.bitrader.api.poloniex.Poloniex
 import macroid.ContextWrapper
-import org.apache.tools.ant.taskdefs.Jar.FilesetManifestConfig
 import org.joda.time.DateTime
 import org.junit.runner.RunWith
-import org.robolectric.{RobolectricTestRunner, RuntimeEnvironment}
 import org.robolectric.annotation.Config
 import org.robolectric.res.{Fs, FsFile}
+import org.robolectric.{RobolectricTestRunner, RuntimeEnvironment}
 import org.scalatest.{FlatSpec, Matchers, RobolectricSuite}
-
-import scala.reflect.io.File
 
 /**
   * Created by Alex Afanasev
   */
-@Config(sdk = Array(LOLLIPOP), constants = classOf[BuildConfig], manifest = "src/main/AndroidManifest.xml")
+@Config(sdk = Array(LOLLIPOP),
+  constants = classOf[BuildConfig],
+  manifest = "src/main/AndroidManifest.xml",
+  application = classOf[TestApplication])
 @RunWith(classOf[RobolectricTestRunner])
 abstract class AbstractSpec extends FlatSpec with Matchers with RobolectricSuite {
 
@@ -36,4 +39,20 @@ abstract class AbstractSpec extends FlatSpec with Matchers with RobolectricSuite
     }
   }
 
+}
+
+class TestApplication extends ClientApplication {
+  override val diModule = DiModuleTest
+}
+
+object DiModuleTest extends DiModule {
+  val appCircuit = new AppCircuitTest
+}
+
+class AppCircuitTest extends AppCircuit {
+  override def initialModel = RootModel(
+    ApiTest,
+    Map(
+      ApiTest -> ServiceContext(theme = R.style.MainTheme)
+    ))
 }

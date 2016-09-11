@@ -21,7 +21,7 @@ class UiSpec extends AbstractSpec {
   }
 
   it should "start activity" in {
-    assertThat(mainActivity).hasTitle("Poloniex")
+    assertThat(mainActivity).hasTitle("ApiTest")
     assertThat(mainActivity.searchView).isNotNull.isVisible
   }
 
