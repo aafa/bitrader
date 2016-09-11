@@ -43,7 +43,7 @@ object AppContext {
     jm
   }
 
-  // todo fix Bitfinex
+  // todo memoize smart
   lazy val apis: Map[ApiProvider, AbstractFacade] = Map(
     Poloniex -> NetworkFacade.factory(Poloniex),
     ApiTest -> NetworkFacade.factory(ApiTest)
