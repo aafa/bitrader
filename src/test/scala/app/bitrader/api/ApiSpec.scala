@@ -2,7 +2,6 @@ package app.bitrader.api
 
 import app.bitrader.api.poloniex.{Poloniex, PoloniexFacade}
 import app.bitrader.{AbstractSpec, ClientApplication}
-import org.robolectric.res.{Fs, FsFile}
 
 /**
   * Created by Alex Afanasev

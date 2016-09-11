@@ -5,6 +5,7 @@ import java.util.Date
 import android.content.Context
 import app.ObjectEnum
 import app.bitrader.AppCircuit
+import app.bitrader.activity.Circuitable
 import app.bitrader.api.common.CurrencyPair.CurrencyPair
 import app.bitrader.api.common.WampMsg
 import app.bitrader.api.network.{JawampaClient, WampSub}
@@ -22,13 +23,14 @@ private[bitrader] trait ApiProvider extends ApiProvider.Value {
 
 private[bitrader] object ApiProvider extends ObjectEnum[ApiProvider]
 
+// todo remove
 sealed trait Facade {
   val publicApi: Api
   val privateApi: Api
   val wampApi: JawampaClient
 }
 
-abstract class AbstractFacade(implicit ctx: Context) extends Facade {
+abstract class AbstractFacade(implicit ctx: Context) extends Circuitable{
   def nonce: String = new Date().getTime.toString
 
   // public
@@ -56,7 +58,7 @@ abstract class AbstractFacade(implicit ctx: Context) extends Facade {
   // build stuff
 
 
-  protected def buildWamp(url: String) = new JawampaClient(url, AppCircuit)
+  protected def buildWamp(url: String) = new JawampaClient(url, appCircuit)
 
 //  private class CachedRetrofitBuilder(cacheDir: File, settings: OkHttpClient => Unit = () => _)
 //    extends ScalaRetrofitBuilder(

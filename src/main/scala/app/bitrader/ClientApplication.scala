@@ -2,9 +2,8 @@ package app.bitrader
 
 import android.app.Application
 import android.content.Context
-import app.bitrader.api.poloniex.{Poloniex, PoloniexFacade}
 import app.bitrader.api._
-import app.bitrader.api.bitfinex.Bitfinex
+import app.bitrader.api.poloniex.Poloniex
 import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper}
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.fasterxml.jackson.module.scala.experimental.ScalaObjectMapper

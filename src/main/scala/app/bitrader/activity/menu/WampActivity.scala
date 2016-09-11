@@ -6,6 +6,7 @@ import android.support.v7.widget.{LinearLayoutManager, RecyclerView}
 import android.view.{View, ViewGroup}
 import android.widget.{LinearLayout, TextView}
 import app.bitrader._
+import app.bitrader.activity.Circuitable
 import app.bitrader.api.common.{CurrencyPair, OrderProcessing, OrderWampMsg}
 import app.bitrader.api.network.{JawampaClient, WampSub}
 import app.bitrader.api.poloniex.OrdersBook
@@ -20,9 +21,8 @@ import scala.collection.mutable.ArrayBuffer
 /**
   * Created by Alex Afanasev
   */
-class WampActivity extends Activity with Contexts[Activity] {
+class WampActivity extends Activity with Contexts[Activity] with Circuitable{
 
-  private val appCircuit = AppCircuit
   lazy val view = new WampView(appCircuit)
   lazy val modifyOrders = appCircuit.dataSubscribe(_.orderBook.changes)(view.modifyOrders)
   lazy val ordersList = appCircuit.dataSubscribe(_.orderBook.orders)(view.updateOrdersList)

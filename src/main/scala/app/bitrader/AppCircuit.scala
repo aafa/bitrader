@@ -1,6 +1,6 @@
 package app.bitrader
 
-import app.bitrader.api.ApiProvider
+import app.bitrader.api.{ApiProvider, apitest}
 import app.bitrader.api.bitfinex.Bitfinex
 import app.bitrader.api.common._
 import app.bitrader.api.poloniex._

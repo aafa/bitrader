@@ -45,9 +45,7 @@ import scala.util.Random
   */
 
 class MainActivity extends AppCompatActivity with Contexts[AppCompatActivity]
-  with ActivityOperations with MenuItems with DrawerSetup {
-
-  val appCircuit = AppCircuit
+  with ActivityOperations with MenuItems with DrawerSetup with Circuitable{
 
   private val chartSub = appCircuit.dataSubscribe(_.chartsData)(layout.updateChartData)
   private val contextZoom = appCircuit.serviceContext

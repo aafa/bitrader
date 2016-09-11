@@ -32,15 +32,12 @@ class ApiTestFacade(implicit ctx: Context) extends AbstractFacade {
 
   def currencies(): Map[String, Currency] = Map.empty
 
-  override def wampSubscribe[WM <: WampMsg : scala.reflect.Manifest](sub: WampSub[WM]): Unit = wampApi.openSubscription[WM](sub)
+  def wampSubscribe[WM <: WampMsg : scala.reflect.Manifest](sub: WampSub[WM]): Unit = {}
 
-  override def wampClose: Unit = wampApi.closeConnection()
+  def wampClose: Unit = {}
 
   // private
 
   def balances: Map[String, String] = Map("testBtx" -> "1")
 
-  override val publicApi: Api = _
-  override val privateApi: Api = _
-  override val wampApi: JawampaClient = _
 }

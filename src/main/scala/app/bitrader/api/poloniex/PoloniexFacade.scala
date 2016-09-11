@@ -5,7 +5,7 @@ import app.bitrader.TR
 import app.bitrader.api.common.CurrencyPair.CurrencyPair
 import app.bitrader.api.common.WampMsg
 import app.bitrader.api.network.{AuthInterceptor, JawampaClient, WampSub}
-import app.bitrader.api.{AbstractFacade, ApiProvider}
+import app.bitrader.api.{AbstractFacade, ApiProvider, apitest}
 import okhttp3.OkHttpClient
 
 import scala.collection.JavaConverters._
@@ -22,9 +22,9 @@ case object Poloniex extends ApiProvider {
 
 class PoloniexFacade(implicit ctx: Context) extends AbstractFacade {
 
-  override val wampApi: JawampaClient = buildWamp(TR.string.poloniex_wamp.value)
-  override val publicApi: PoloniexOkAPI = new PoloniexOkAPI(TR.string.poloniex_url.value)
-  override val privateApi: PoloniexOkTradingAPI = new PoloniexOkTradingAPI(TR.string.poloniex_trading_url.value)
+  private val wampApi: JawampaClient = buildWamp(TR.string.poloniex_wamp.value)
+  private val publicApi: PoloniexOkAPI = new PoloniexOkAPI(TR.string.poloniex_url.value)
+  private val privateApi: PoloniexOkTradingAPI = new PoloniexOkTradingAPI(TR.string.poloniex_trading_url.value)
 
   def returnTicket: Map[String, Ticker] = publicApi.returnTicker()
 
@@ -46,18 +46,22 @@ class PoloniexFacade(implicit ctx: Context) extends AbstractFacade {
 
   def balances: Map[String, String] = privateApi.balances()
 
-  def myTradeHistory(currencyPair: String = "all") = privateApi.returnTradeHistory(currencyPair)
+  def myTradeHistory(currencyPair: String = "all"): Seq[Map[String, Seq[TradeHistory]]] =
+    privateApi.returnTradeHistory(currencyPair)
 
-  def returnOpenOrders(currencyPair: String = "all") = privateApi.returnOpenOrders(currencyPair)
+  def returnOpenOrders(currencyPair: String = "all"): Map[String, Seq[OrderDetails]] =
+    privateApi.returnOpenOrders(currencyPair)
 
-  def buy(currencyPair: String, rate: Double, amount: Double) = privateApi.buy(currencyPair, rate, amount)
+  def buy(currencyPair: String, rate: Double, amount: Double): ActualOrder =
+    privateApi.buy(currencyPair, rate, amount)
 
-  def sell(currencyPair: String, rate: Double, amount: Double) = privateApi.sell(currencyPair, rate, amount)
+  def sell(currencyPair: String, rate: Double, amount: Double): ActualOrder =
+    privateApi.sell(currencyPair, rate, amount)
 
-  def cancelOrder(orderNumber: String) = privateApi.cancelOrder(orderNumber)
+  def cancelOrder(orderNumber: String): Map[String, Int] = privateApi.cancelOrder(orderNumber)
 
-  def returnDepositAddresses = privateApi.returnDepositAddresses()
+  def returnDepositAddresses: Map[String, String] = privateApi.returnDepositAddresses()
 
-  def returnCompleteBalances = privateApi.returnCompleteBalances()
+  def returnCompleteBalances: Map[String, CompleteBalance] = privateApi.returnCompleteBalances()
 
 }
