@@ -70,7 +70,9 @@ object Dependencies {
       "com.squareup.assertj" % "assertj-android-recyclerview-v7" % assertJ % Test,
 
       "com.geteit" %% "robotest" % "0.12" % Test,
-      "org.scalatest" %% "scalatest" % "2.2.5" % Test
+      "org.scalatest" %% "scalatest" % "2.2.5" % Test,
+
+      "org.scalacheck" %% "scalacheck" % "1.13.2" % Test
     )
 
   )
