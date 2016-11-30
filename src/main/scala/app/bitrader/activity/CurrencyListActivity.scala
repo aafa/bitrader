@@ -2,6 +2,8 @@ package app.bitrader.activity
 
 import android.os.Bundle
 import android.widget.{LinearLayout, TextView}
+import app.bitrader.activity.menu.PairsListFragment
+import app.bitrader.helpers.Id
 import com.orhanobut.logger.Logger
 import macroid.FullDsl._
 import macroid._
@@ -18,7 +20,8 @@ class CurrencyListActivity extends BaseActivity{
     Logger.d("CurrencyListActivity !")
 
     val ui: Ui[LinearLayout] = l[LinearLayout](
-      w[TextView] <~ text("test")
+      w[TextView] <~ text("test"),
+      f[PairsListFragment].framed(Id.map, Tag.map)
     )
 
     setContentView(ui.get)
