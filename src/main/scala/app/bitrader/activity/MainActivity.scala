@@ -134,6 +134,7 @@ trait DrawerSetup {
 
     lazy val actions: Map[IDrawer, () => Unit] = Map(
       itemWrapper("Wamp") -> { () => startActivity[WampActivity] },
+      itemWrapper("CurrencyListActivity") -> { () => startActivity[CurrencyListActivity] },
       itemWrapper("Read qr") -> { () => startActivity[ReadQrActivity] }
     )
 

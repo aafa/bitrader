@@ -24,8 +24,9 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="app.bitrader.activity.TabActivity"/>
+        <!--<activity android:name="app.bitrader.activity.TabActivity"/>-->
         <activity android:name=".activity.menu.WampActivity"/>
+        <activity android:name=".activity.CurrencyListActivity"/>
         <activity android:name=".activity.menu.ProfileActivity"/>
         <activity android:name=".activity.menu.ReadQrActivity"/>
         <activity android:name=".activity.TestActivity"/>

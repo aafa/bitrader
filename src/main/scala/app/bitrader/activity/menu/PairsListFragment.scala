@@ -12,7 +12,7 @@ import macroid.{ContextWrapper, Contexts}
 /**
   * Created by Alexey Afanasev on 15.02.16.
   */
-class PairsList extends Fragment with Contexts[Fragment] with PairsListLayout{
+class PairsListFragment extends Fragment with Contexts[Fragment] with PairsListLayout{
   override def onCreateView(inflater: LayoutInflater, container: ViewGroup, savedInstanceState: Bundle): View = ui
 }
 
