@@ -10,27 +10,29 @@ import app.bitrader.api.poloniex.{Chart, OrdersBook}
   * Created by Alex Afanasev
   */
 
-case class SelectApi(api: ApiProvider)
+trait MyAction extends diode.Action
 
-case class UpdateOrderBook(cp: CurrencyPair)
+case class SelectApi(api: ApiProvider) extends MyAction
 
-case class ReceiveOrderBook(ob: OrdersBook)
+case class UpdateOrderBook(cp: CurrencyPair) extends MyAction
 
-case class AddWampMessage[T <: WampMsg](m: T)
+case class ReceiveOrderBook(ob: OrdersBook) extends MyAction
 
-case class AddWampMessages[T <: WampMsg](ms: Seq[T])
+case class AddWampMessage[T <: WampMsg](m: T) extends MyAction
 
-case class ResetWampMessages[T <: WampMsg]()
+case class AddWampMessages[T <: WampMsg](ms: Seq[T]) extends MyAction
 
-case class SubscribeToOrders(t: WampSub[OrderWampMsg])
+case class ResetWampMessages[T <: WampMsg]() extends MyAction
 
-case object CloseWampChannel
+case class SubscribeToOrders(t: WampSub[OrderWampMsg]) extends MyAction
 
-case class UpdateCurrencies(api: ApiProvider)
+case object CloseWampChannel extends MyAction
 
-case class CurrenciesUpdated(api: ApiProvider)
+case class UpdateCurrencies(api: ApiProvider) extends MyAction
 
-case class UpdateCharts(cp: CurrencyPair)
+case class CurrenciesUpdated(api: ApiProvider) extends MyAction
 
-case class ChartsUpdated(c: Seq[Chart])
+case class UpdateCharts(cp: CurrencyPair) extends MyAction
+
+case class ChartsUpdated(c: Seq[Chart]) extends MyAction
 
