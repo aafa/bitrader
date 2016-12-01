@@ -22,12 +22,11 @@ trait TweaksAndGoodies extends AppStyles with AdditionalTweaks
 
 trait AppStyles extends Styles{
 
-  def cardTweak(implicit cw: ContextWrapper): Tweak[CardView] = Tweak[CardView](c => {
-    val p = 10.dp
-    c.setRadius(5.dp)
+  def cardTweak(p: Int)(implicit cw: ContextWrapper): Tweak[CardView] = Tweak[CardView](c => {
+    c.setRadius(3.dp)
     c.setCardElevation(3.dp)
     c.setContentPadding(p, p, p, p)
-  }) + margin(all = 10.dp)
+  }) + margin(all = p)
 
 
   def scrollable(cc: Ui[View]*)(implicit c: ContextWrapper): Ui[CoordinatorLayout] = {

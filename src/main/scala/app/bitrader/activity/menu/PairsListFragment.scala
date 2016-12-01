@@ -21,15 +21,13 @@ class PairsListFragment extends BaseFragment with PairsListLayout {
 
 trait PairsListLayout extends TweaksAndGoodies {
 
-
   def ui(implicit c: ContextWrapper) = {
     val p = 5.dp
 
     def card(children: Ui[View]*): Ui[W] = {
       l[W](
         children.map(_ <~ vMatchWidth): _*
-      ) <~ vMatchWidth <~ cvElevations(3.dp) <~ cvCardBackgroundColor(Color.LTGRAY) <~
-        margin(all = p) <~ cvContentPadding(p, p, p, p)
+      ) <~ vMatchWidth <~ cardTweak(p) <~ cvCardBackgroundColor(Color.LTGRAY)
     }
 
     scrollable(
