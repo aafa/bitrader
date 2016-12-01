@@ -4,3 +4,4 @@ local.xml
 target/
 .DS_Store
 .idea
+*.log
