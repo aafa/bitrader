@@ -2,6 +2,8 @@ package app.bitrader.helpers
 
 import android.graphics.drawable.Drawable
 import android.graphics.{Color, Paint}
+import android.support.design.widget.CoordinatorLayout
+import android.support.v4.widget.NestedScrollView
 import android.support.v7.widget.CardView
 import android.view.ViewGroup.LayoutParams
 import android.view.ViewGroup.LayoutParams._
@@ -27,6 +29,16 @@ trait AppStyles extends Styles{
     c.setContentPadding(p, p, p, p)
   }) + margin(all = 10.dp)
 
+
+  def scrollable(cc: Ui[View]*)(implicit c: ContextWrapper): Ui[CoordinatorLayout] = {
+    l[CoordinatorLayout](
+      l[NestedScrollView](
+        l[LinearLayout](
+          cc: _*
+        ) <~ vertical <~ vMatchParent
+      ) <~ vMatchParent
+    ) <~ vMatchParent
+  }
 }
 
 
@@ -117,5 +129,7 @@ trait Styles {
   }
 
   def emptyView(implicit c: ContextWrapper) = w[View] <~ lp[ViewGroup](0,0)
+
+
 
 }

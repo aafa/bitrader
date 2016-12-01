@@ -216,7 +216,8 @@ class MainActivityLayout(
   }
 
   lazy val img: Drawable = TR.drawable.material_flat.get
-  lazy val candleChartUi = w[CandleStickChart] <~ wire(candleStick) <~ candleStickSettings <~ vContentSizeMatchWidth(TR.dimen.chartHeight.get)
+  lazy val candleChartUi = w[CandleStickChart] <~ wire(candleStick) <~ candleStickSettings <~
+    vContentSizeMatchWidth(TR.dimen.chartHeight.get)
 
   def ui: Ui[View] = if (portrait)
     verticalLayout
