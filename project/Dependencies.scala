@@ -17,7 +17,7 @@ object Dependencies {
   private val iconify: String = "2.2.2"
   private val assertJ: String = "1.1.1"
   val macroidVersion: String = "2.0.0-M5-SNAPSHOT"
-  val androidSdk: String = "23.4.0"
+  val androidSdk: String = "25.0.0"
 
   lazy val libs: Seq[sbt.Setting[_]] = Seq(
     resolvers ++= resolverUrls,

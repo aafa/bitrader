@@ -18,7 +18,7 @@ class PairsListFragment extends BaseFragment with PairsListLayout {
 }
 
 trait PairsListLayout extends Styles {
-  def ui(implicit c: ContextWrapper) = {
+  def ui(implicit c: ContextWrapper): CoordinatorLayout = {
     l[CoordinatorLayout](
       w[TextView] <~ text("test fragment")
     ) <~ vMatchParent <~ padding(all = 20.dp)
