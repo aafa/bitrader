@@ -102,14 +102,14 @@ trait DrawerSetup {
   }
 
   lazy val providers: Seq[ApiProvider] = appCircuit.zoom(_.serviceContext).value.keys.toSeq
-  lazy val profileItems = providers zip (providers map profileWrapper) toMap
+  lazy val profileItems: Map[ApiProvider, ProfileDrawerItem] = providers zip (providers map profileWrapper) toMap
   lazy val apiKey: Map[ProfileDrawerItem, ApiProvider] = profileItems.map(_.swap)
 
   lazy val menuItems: Seq[IProfile[_]] = profileItems.values.toSeq :+
     new ProfileSettingDrawerItem().withName("Add profile").withIcon(GoogleMaterial.Icon.gmd_add)
 
 
-  def drawerSetup(mainActivity: MainActivity) = {
+  def drawerSetup(mainActivity: MainActivity): Boolean = {
     val accountHeader: AccountHeader = new AccountHeaderBuilder()
       .withActivity(mainActivity)
       .addProfiles(menuItems: _*)

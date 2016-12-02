@@ -2,6 +2,7 @@ package app
 
 import android.content.SharedPreferences.Editor
 import android.content.{Context, SharedPreferences}
+import app.bitrader.api.poloniex.Currency
 import app.bitrader.helpers.TweaksAndGoodies
 import app.bitrader.helpers.activity.ActivityOperations
 import com.github.nscala_time.time.Imports._
@@ -54,6 +55,7 @@ trait CommonTypes {
   type OrderValue = BigDecimal
   type OrderPair = (OrderKey, OrderValue)
   type OrdersMap = SortedMap[OrderKey, OrderValue]
+  type CurrenciesList = Map[String, Currency]
 
   implicit class EmptyOrderInt(k: Int) {
     implicit def convert(k : Int): OrderKey = k.toString

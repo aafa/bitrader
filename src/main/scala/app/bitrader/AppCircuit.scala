@@ -78,26 +78,32 @@ class AppCircuit extends ICircuit {
     }
   }
 
-  private val uiUpdates = new ActionHandler(serviceData.zoomRW(_.chartsData)((m, v) => m.copy(chartsData = v))) {
+  private val chartsHandler = new ActionHandler(serviceData.zoomRW(_.chartsData)((m, v) => m.copy(chartsData = v))) {
     override def handle = {
-      case ChartsUpdated(c) => updated(c)
-    }
-  }
-
-  private val apiRequest = new ActionHandler(serviceData) {
-    override protected def handle = {
       case UpdateCharts(cp) =>
         val request: Future[Seq[Chart]] = apiFacade(
           _.chartData(cp, 5.hours.ago().unixtime, DateTime.now.unixtime, 300)
         )
-        val effect: EffectSingle[ChartsUpdated] = Effect(request.map(r => ChartsUpdated(r)))
-        effectOnly(effect)
+        effectOnly(Effect(request.map(r => ChartsUpdated(r))))
+      case ChartsUpdated(c) => updated(c)
     }
   }
 
-  override val actionHandler = composeHandlers(
+  private val currenciesHandler = new ActionHandler(serviceData.zoomRW(_.currencies)((m, v) => m.copy(currencies = v))) {
+    override def handle = {
+      case UpdateCurrencies =>
+        val request: Future[Map[String, Currency]] = apiFacade(
+          _.currencies()
+        )
+        effectOnly(Effect(request.map(r => CurrenciesUpdated(r))))
+      case CurrenciesUpdated(c) => updated(c)
+    }
+  }
+
+
+  override val actionHandler: HandlerFunction = composeHandlers(
     orderBookUpdatesHandler, orderBookList,
-    uiUpdates, apiRequest, wampSubscription, selectApi
+    chartsHandler, currenciesHandler, wampSubscription, selectApi
   )
 }
 
