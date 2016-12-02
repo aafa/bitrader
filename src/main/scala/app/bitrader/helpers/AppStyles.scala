@@ -30,12 +30,10 @@ trait AppStyles extends Styles with ModifyViewLayout{
   }) + margin(all = p)
 
 
-  def scrollable(cc: Ui[View]*)(implicit c: ContextWrapper): Ui[CoordinatorLayout] = {
+  def scrollable(ll: Ui[LinearLayout])(implicit cw: ContextWrapper): Ui[CoordinatorLayout] = {
     l[CoordinatorLayout](
       l[NestedScrollView](
-        l[LinearLayout](
-          cc: _*
-        ) <~ vertical <~ vMatchParent
+        ll <~ vertical <~ vMatchParent
       ) <~ vMatchParent
     ) <~ vMatchParent
   }
