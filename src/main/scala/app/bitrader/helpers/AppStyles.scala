@@ -2,14 +2,15 @@ package app.bitrader.helpers
 
 import android.graphics.drawable.Drawable
 import android.graphics.{Color, Paint}
-import android.support.design.widget.CoordinatorLayout
+import android.support.design.widget.{AppBarLayout, CollapsingToolbarLayout, CoordinatorLayout}
 import android.support.v4.widget.NestedScrollView
 import android.support.v7.widget.CardView
 import android.view.ViewGroup.LayoutParams
 import android.view.ViewGroup.LayoutParams._
-import android.view.{View, ViewGroup}
+import android.view.{Gravity, View, ViewGroup}
 import android.widget.AdapterView.OnItemClickListener
 import android.widget._
+import app.bitrader.TR
 import macroid.FullDsl._
 import macroid._
 
@@ -20,7 +21,7 @@ import macroid._
 
 trait TweaksAndGoodies extends AppStyles with AdditionalTweaks
 
-trait AppStyles extends Styles{
+trait AppStyles extends Styles with ModifyViewLayout{
 
   def cardTweak(p: Int)(implicit cw: ContextWrapper): Tweak[CardView] = Tweak[CardView](c => {
     c.setRadius(3.dp)
@@ -38,6 +39,25 @@ trait AppStyles extends Styles{
       ) <~ vMatchParent
     ) <~ vMatchParent
   }
+
+
+  def scrollFlags = modifyLpTweak[AppBarLayout.LayoutParams](lp => {
+    lp.setScrollFlags(AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL
+      | AppBarLayout.LayoutParams.SCROLL_FLAG_EXIT_UNTIL_COLLAPSED)
+  })
+
+  //      w[FloatingActionButton] <~ drawable(AwesomeIcon(FontAwesomeIcons.fa_plus)) <~ fabTweak <~ SnackBuilding.snack("Test")
+
+  def ctlTweak(implicit cw: ContextWrapper) = Tweak[CollapsingToolbarLayout](ctl => {
+    ctl.setExpandedTitleMarginBottom(TR.dimen.appbar_overlay.get)
+  })
+
+
+  def fabTweak(implicit cw: ContextWrapper) = modifyLpTweak[CoordinatorLayout.LayoutParams](params => {
+    params.anchorGravity = Gravity.TOP | Gravity.RIGHT | Gravity.END
+    params.setAnchorId(Id.card)
+    params.setMarginEnd(20.dp)
+  })
 }
 
 

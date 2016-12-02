@@ -236,31 +236,6 @@ class MainActivityLayout(
   // style
 
 
-  def scrollFlags = modifyLpTweak[AppBarLayout.LayoutParams](lp => {
-    lp.setScrollFlags(AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL
-      | AppBarLayout.LayoutParams.SCROLL_FLAG_EXIT_UNTIL_COLLAPSED)
-  })
-
-  //      w[FloatingActionButton] <~ drawable(AwesomeIcon(FontAwesomeIcons.fa_plus)) <~ fabTweak <~ SnackBuilding.snack("Test")
-
-  def ctlTweak = Tweak[CollapsingToolbarLayout](ctl => {
-    ctl.setExpandedTitleMarginBottom(TR.dimen.appbar_overlay.get)
-  })
-
-
-  def fabTweak = modifyLpTweak[CoordinatorLayout.LayoutParams](params => {
-    params.anchorGravity = Gravity.TOP | Gravity.RIGHT | Gravity.END
-    params.setAnchorId(Id.card)
-    params.setMarginEnd(20.dp)
-  })
-
-
-  def cardTweak: Tweak[CardView] = Tweak[CardView](c => {
-    val p = 10.dp
-    c.setRadius(5.dp)
-    c.setCardElevation(2.dp)
-    c.setContentPadding(p, p, p, p)
-  }) + margin(all = 10.dp)
 
 }
 

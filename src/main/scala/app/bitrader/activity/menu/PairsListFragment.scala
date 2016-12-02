@@ -16,7 +16,10 @@ import macroid.{ContextWrapper, Ui}
   * Created by Alexey Afanasev on 15.02.16.
   */
 class PairsListFragment extends BaseFragment with PairsListLayout {
-  override def onCreateView(inflater: LayoutInflater, container: ViewGroup, savedInstanceState: Bundle): View = ui
+  override def onCreateView(inflater: LayoutInflater, container: ViewGroup, savedInstanceState: Bundle): View = {
+
+    ui
+  }
 }
 
 trait PairsListLayout extends TweaksAndGoodies {
