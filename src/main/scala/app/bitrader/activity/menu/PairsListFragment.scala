@@ -6,12 +6,13 @@ import android.support.design.widget.CoordinatorLayout
 import android.view.{LayoutInflater, View, ViewGroup}
 import android.widget.{LinearLayout, ListView, TextView}
 import app.bitrader.activity.BaseFragment
+import app.bitrader.activity.layouts.ListLayout
 import app.bitrader.api.poloniex.Currency
 import app.bitrader.helpers.TweaksAndGoodies
 import app.bitrader.{ICircuit, UpdateCurrencies, _}
 import com.fortysevendeg.macroid.extras.CardViewTweaks._
 import macroid.FullDsl.{text, _}
-import macroid.viewable.Listable
+import macroid.viewable.{Listable, SlottedListable}
 import macroid.{ContextWrapper, Ui, _}
 
 /**
@@ -27,7 +28,7 @@ class PairsListFragment extends BaseFragment {
   }
 }
 
-class PairsListLayout(appCircuit: ICircuit)(implicit cw: ContextWrapper) extends TweaksAndGoodies with PagingListable {
+class PairsListLayout(appCircuit: ICircuit)(implicit cw: ContextWrapper) extends ListLayout {
   private var content = slot[LinearLayout]
   private var listView = slot[ListView]
   private val p = 5.dp
@@ -37,7 +38,7 @@ class PairsListLayout(appCircuit: ICircuit)(implicit cw: ContextWrapper) extends
     def views: Seq[Ui[View]] = a.map { case (s, _) => tv(s) }.toSeq
     def go(p: Currency): Unit = Ui.run(toast(p.name) <~ fry)
 
-    Ui.run(listView <~ ccListable.listAdapterTweak(a.values.toSeq) <~ adapterOnClick(go))
+    Ui.run(listView <~ UserListable.listAdapterTweak(a.values.toSeq) <~ adapterOnClick(go))
   }
 
   def ui = {
@@ -50,10 +51,25 @@ class PairsListLayout(appCircuit: ICircuit)(implicit cw: ContextWrapper) extends
     children.map(_ <~ vMatchWidth): _*
   ) <~ vMatchWidth <~ cardTweak(p) <~ cvCardBackgroundColor(Color.LTGRAY)
 
-  def ccListable: Listable[Currency, TextView] = Listable[Currency] {
-    w[TextView]
-  } { view ⇒
-    currency ⇒
-      view <~ text(currency.name)
+}
+
+object UserListable extends SlottedListable[Currency] {
+  class Slots {
+    var name = slot[TextView]
+    var value = slot[TextView]
+  }
+
+  def makeSlots(viewType: Int)(implicit ctx: ContextWrapper): (Ui[View], Slots) = {
+    val slots = new Slots
+    val view = l[LinearLayout](
+      w[TextView] <~ wire(slots.name),
+      w[TextView] <~ wire(slots.value)
+    ) <~ vertical
+    (view, slots)
+  }
+
+   def fillSlots(slots: Slots, data: Currency)(implicit ctx: ContextWrapper): Ui[Any]= {
+    (slots.name <~ text(data.name)) ~
+      (slots.value <~ text(data.txFee.toString()))
   }
 }
