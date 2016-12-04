@@ -8,7 +8,7 @@ import macroid.Contexts
 /**
   * Created by Alex Afanasev
   */
-class BaseActivity extends AppCompatActivity with Contexts[AppCompatActivity]
+abstract class BaseActivity extends AppCompatActivity with Contexts[AppCompatActivity]
   with ActivityOperations with Circuitable{
 
   override def onCreate(b: Bundle): Unit = super.onCreate(b)

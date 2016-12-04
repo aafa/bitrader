@@ -18,6 +18,7 @@ import macroid.{ContextWrapper, Ui, _}
 /**
   * Created by Alexey Afanasev
   */
+
 class PairsListFragment extends BaseFragment {
   private lazy val layout = new PairsListLayout(appCircuit)
   appCircuit.dataSubscribe(_.currencies)(layout.updateData)

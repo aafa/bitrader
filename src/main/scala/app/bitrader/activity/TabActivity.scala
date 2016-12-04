@@ -9,7 +9,7 @@
 //import android.view.View.OnClickListener
 //import android.widget.{LinearLayout, TextView}
 //import app.bitrader.R
-//import app.bitrader.helpers.AwesomeIcon
+//import app.bitrader.helpers.{AwesomeIcon, Styles}
 //import com.joanzapata.iconify.fonts.MaterialIcons
 //import macroid.{Contexts, Tweak, Ui}
 //import macroid.FullDsl._
