@@ -16,7 +16,7 @@ import macroid.viewable.{Listable, SlottedListable}
 import macroid.{ContextWrapper, Ui, _}
 
 /**
-  * Created by Alexey Afanasev on 15.02.16.
+  * Created by Alexey Afanasev
   */
 class PairsListFragment extends BaseFragment {
   private lazy val layout = new PairsListLayout(appCircuit)
@@ -36,14 +36,14 @@ class PairsListLayout(appCircuit: ICircuit)(implicit cw: ContextWrapper) extends
   def updateData(a: CurrenciesList) = {
     def tv(t: String) = card(w[TextView] <~ text(t))
     def views: Seq[Ui[View]] = a.map { case (s, _) => tv(s) }.toSeq
-    def go(p: Currency): Unit = Ui.run(toast(p.name) <~ fry)
+    def go(p: Currency): Unit = showToast(p.name)
 
-    Ui.run(listView <~ UserListable.listAdapterTweak(a.values.toSeq) <~ adapterOnClick(go))
+    Ui.run(listView <~ CurrencyListable.listAdapterTweak(a.values.toSeq) <~ adapterOnClick(go))
   }
 
   def ui = {
     l[CoordinatorLayout](
-      w[ListView] <~ wire(listView)
+      w[ListView] <~ wire(listView) <~ vMatchParent
     ) <~ vMatchParent <~ padding(top = p)
   }.get
 
@@ -53,7 +53,7 @@ class PairsListLayout(appCircuit: ICircuit)(implicit cw: ContextWrapper) extends
 
 }
 
-object UserListable extends SlottedListable[Currency] {
+object CurrencyListable extends SlottedListable[Currency] {
   class Slots {
     var name = slot[TextView]
     var value = slot[TextView]
@@ -64,7 +64,7 @@ object UserListable extends SlottedListable[Currency] {
     val view = l[LinearLayout](
       w[TextView] <~ wire(slots.name),
       w[TextView] <~ wire(slots.value)
-    ) <~ vertical
+    ) <~ vertical <~ vMatchParent
     (view, slots)
   }
 

@@ -1,10 +1,12 @@
 package app.bitrader.helpers
 
 import android.support.v4.app.{Fragment, FragmentManager}
-import macroid.{FragmentBuilder, FragmentManagerContext}
+import macroid.FullDsl._
+import macroid._
+import macroid.{ContextWrapper, FragmentBuilder, FragmentManagerContext, Ui}
 
 /**
-  * Created by Alexey Afanasev on 15.02.16.
+  * Created by Alexey Afanasev
   */
 trait UiOperations {
   def replaceFragment[F <: Fragment](
@@ -14,4 +16,6 @@ trait UiOperations {
                                     (implicit managerContext: FragmentManagerContext[Fragment, FragmentManager]) = {
     builder.factory.map (managerContext.manager.beginTransaction().replace(id, _, tag.orNull).commit())
   }
+
+  def showToast(txt: String)(implicit cw: ContextWrapper): Any = Ui.run(toast(txt) <~ fry)
 }
