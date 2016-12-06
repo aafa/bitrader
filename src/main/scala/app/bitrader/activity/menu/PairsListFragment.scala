@@ -5,7 +5,7 @@ import android.os.Bundle
 import android.support.design.widget.CoordinatorLayout
 import android.view.{LayoutInflater, View, ViewGroup}
 import android.widget.{LinearLayout, ListView, TextView}
-import app.bitrader.activity.BaseFragment
+import app.bitrader.activity.{BaseFragment, CurrencyDetailsActivity}
 import app.bitrader.activity.layouts.ListLayout
 import app.bitrader.api.poloniex.Currency
 import app.bitrader.helpers.TweaksAndGoodies
@@ -37,7 +37,7 @@ class PairsListLayout(appCircuit: ICircuit)(implicit cw: ContextWrapper) extends
   def updateData(a: CurrenciesList) = {
     def tv(t: String) = card(w[TextView] <~ text(t))
     def views: Seq[Ui[View]] = a.map { case (s, _) => tv(s) }.toSeq
-    def go(p: Currency): Unit = showToast(p.name)
+    def go(p: Currency): Unit = startActivityWithParams[CurrencyDetailsActivity](p)
 
     Ui.run(listView <~ CurrencyListable.listAdapterTweak(a.values.toSeq) <~ adapterOnClick(go))
   }

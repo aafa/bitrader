@@ -8,6 +8,6 @@ import macroid.ContextWrapper
 /**
   * Created by Alex Afanasev
   */
-class BasicLayout extends TweaksAndGoodies with PagingListable with UiOperations{
+class BasicLayout extends TweaksAndGoodies  with UiOperations{
 
 }

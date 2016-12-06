@@ -30,6 +30,7 @@
         <activity android:name=".activity.menu.ProfileActivity"/>
         <activity android:name=".activity.menu.ReadQrActivity"/>
         <activity android:name=".activity.TestActivity"/>
+        <activity android:name=".activity.CurrencyDetailsActivity"/>
 
     </application>
 

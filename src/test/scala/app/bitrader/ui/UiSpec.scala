@@ -2,7 +2,7 @@ package app.bitrader.ui
 
 import android.view.Menu
 import android.widget.ListView
-import app.bitrader.activity.{Circuitable, CurrencyListActivity, MainActivity}
+import app.bitrader.activity.{Circuitable, CurrencyDetailsActivity, CurrencyListActivity, MainActivity}
 import app.bitrader.{AbstractSpec, AppCircuit, R}
 import com.github.mikephil.charting.charts.CandleStickChart
 import org.assertj.android.api.Assertions._
@@ -52,6 +52,12 @@ class UiSpec extends AbstractSpec {
     val upActivity: CurrencyListActivity = Robolectric.setupActivity(classOf[CurrencyListActivity])
     assertThat(upActivity).isNotNull
     assertThat(upActivity).hasTitle("CurrencyListActivity")
+
+  }
+
+  "CurrencyDetailsActivity" should "start" in {
+    val upActivity: CurrencyDetailsActivity = Robolectric.setupActivity(classOf[CurrencyDetailsActivity])
+    assertThat(upActivity).isNotNull
 
   }
 }
