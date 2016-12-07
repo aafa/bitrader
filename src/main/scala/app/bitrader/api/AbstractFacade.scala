@@ -23,13 +23,6 @@ private[bitrader] trait ApiProvider extends ApiProvider.Value {
 
 private[bitrader] object ApiProvider extends ObjectEnum[ApiProvider]
 
-// todo remove
-sealed trait Facade {
-  val publicApi: Api
-  val privateApi: Api
-  val wampApi: JawampaClient
-}
-
 abstract class AbstractFacade(implicit ctx: Context) extends Circuitable{
   def nonce: String = new Date().getTime.toString
 
