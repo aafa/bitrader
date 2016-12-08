@@ -5,6 +5,6 @@ import app.bitrader.activity.menu.PagingListable
 /**
   * Created by Alex Afanasev
   */
-class ListLayout extends BasicLayout with PagingListable{
+trait ListLayout extends BasicLayout with PagingListable{
 
 }

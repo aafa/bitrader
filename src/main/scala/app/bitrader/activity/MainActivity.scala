@@ -52,7 +52,7 @@ class MainActivity extends AppCompatActivity with Contexts[AppCompatActivity]
   private val selectedApiSubscription = appCircuit
     .subscribe(appCircuit.zoom(_.selectedApi))(m => updateApi(m.value))
 
-  lazy val layout = new MainActivityLayout(appCircuit, this.getLayoutInflater)
+  lazy val layout = new MainActivityLayout(this.getLayoutInflater)
 
   override def onCreate(b: Bundle): Unit = {
     this.setTheme(contextZoom.zoom(_.theme).value)
@@ -197,15 +197,9 @@ trait MenuItems extends AppCompatActivity {
 
 }
 
-class MainActivityLayout(
-                          appCircuit: ICircuit,
-                          li: LayoutInflater
-                        )
-                        (implicit cw: ContextWrapper)
+class MainActivityLayout(li: LayoutInflater)(implicit cw: ContextWrapper)
   extends MainStyles with ChartLayout with UiThreading {
 
-
-  private val zoomCurrencies = appCircuit.serviceData.zoom(_.currencies)
 
   var textSlot = slot[IconTextView]
   var btn = slot[Button]
