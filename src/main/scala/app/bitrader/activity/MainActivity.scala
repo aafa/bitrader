@@ -10,7 +10,7 @@ import android.support.v7.widget.{CardView, Toolbar}
 import android.view._
 import android.widget._
 import app.bitrader._
-import app.bitrader.activity.menu.{ReadQrActivity, WampActivity}
+import app.bitrader.activity.menu.{PairsListFragment, ReadQrActivity, WampActivity}
 import app.bitrader.api.ApiProvider
 import app.bitrader.api.poloniex.Chart
 import app.bitrader.helpers._
@@ -31,7 +31,7 @@ import TypedResource._
 import android.support.v4.app.{Fragment, FragmentManager}
 import android.support.v4.view.LayoutInflaterCompat
 import android.widget.AdapterView.OnItemClickListener
-import app.bitrader.activity.layouts.BasicLayout
+import app.bitrader.activity.layouts.{BasicLayout, ChartLayout, DrawerLayout}
 import app.bitrader.api.common.CurrencyPair
 import com.miguelcatalan.materialsearchview.MaterialSearchView
 import com.miguelcatalan.materialsearchview.MaterialSearchView.OnQueryTextListener
@@ -97,74 +97,7 @@ class MainActivity extends AppCompatActivity with Contexts[AppCompatActivity]
   }
 }
 
-class DrawerLayout(appCircuit: ICircuit)
-                  (implicit cw:ContextWrapper, managerContext: FragmentManagerContext[Fragment, FragmentManager])
-  extends BasicLayout {
 
-  def profileWrapper(k: ApiProvider): ProfileDrawerItem = {
-    new ProfileDrawerItem().withName(k.toString).withIdentifier(Random.nextLong())  // inject random id to have them distinct
-  }
-
-  lazy val providers: Seq[ApiProvider] = appCircuit.zoom(_.serviceContext).value.keys.toSeq
-  lazy val profileItems: Map[ApiProvider, ProfileDrawerItem] = providers zip (providers map profileWrapper) toMap
-  lazy val apiKey: Map[ProfileDrawerItem, ApiProvider] = profileItems.map(_.swap)
-
-  lazy val menuItems: Seq[IProfile[_]] = profileItems.values.toSeq :+
-    new ProfileSettingDrawerItem().withName("Add profile").withIcon(GoogleMaterial.Icon.gmd_add)
-
-
-  def drawerSetup(mainActivity: MainActivity): Unit = {
-    val accountHeader: AccountHeader = new AccountHeaderBuilder()
-      .withActivity(mainActivity)
-      .addProfiles(menuItems: _*)
-      .withOnAccountHeaderListener(new OnAccountHeaderListener {
-        override def onProfileChanged(view: View, item: IProfile[_], b: Boolean): Boolean = {
-          item match {
-            case p: ProfileDrawerItem => appCircuit(SelectApi(apiKey(p)))
-            case s: ProfileSettingDrawerItem => // todo settings
-          }
-
-          true
-        }
-      })
-      .withHeaderBackground(R.drawable.material_flat)
-      .build()
-
-    accountHeader.setActiveProfile(profileItems(appCircuit.zoom(_.selectedApi).value))
-
-    type IDrawer = IDrawerItem[_, _ <: ViewHolder]
-    def itemWrapper(s: String) = new PrimaryDrawerItem().withName(s)
-      .withSelectable(false).withIdentifier(Random.nextLong())
-
-    lazy val actions: Map[IDrawer, () => Unit] = Map(
-      itemWrapper("Wamp") -> { () => startActivity[WampActivity] },
-      itemWrapper("CurrencyListActivity") -> { () => startActivity[CurrencyListActivity] },
-      itemWrapper("Read qr") -> { () => startActivity[ReadQrActivity] }
-    )
-
-    val drawer: Drawer = new DrawerBuilder().withActivity(mainActivity)
-      .withToolbar(mainActivity.layout.toolbarView)
-      .withAccountHeader(accountHeader)
-      .addDrawerItems(actions.keys.toSeq: _*)
-      .withOnDrawerItemClickListener(new OnDrawerItemClickListener {
-        override def onItemClick(view: View, i: Int, item: IDrawer): Boolean = {
-          actions(item).apply()
-          true
-        }
-      })
-      .withCloseOnClick(true)
-      .build()
-
-    drawer.setSelection(-1)
-
-    def insertFragment(f: FragmentBuilder[_ <: Fragment]) = {
-      replaceFragment(
-        builder = f,
-        id = Id.mainFragment,
-        tag = Some(Tag.mainFragment))
-    }
-  }
-}
 
 trait MenuItems extends AppCompatActivity {
   self : MainActivity =>
@@ -238,48 +171,8 @@ class MainActivityLayout(li: LayoutInflater)(implicit cw: ContextWrapper)
     Ui(mainView)
   }
 
-  // style
-
-
-
 }
 
 trait MainStyles extends UiOperations with Styles with AdditionalTweaks
 
-trait ChartLayout {
-  var candleStick = slot[CandleStickChart]
 
-  def updateChartData(chartData: Seq[Chart]): Unit = if (chartData.nonEmpty) {
-    val data: CandleData = prepareChartData(chartData)
-    Ui.run(updateChartUi(data))
-  }
-
-  def prepareChartData(chartData: Seq[Chart]): CandleData = {
-    val xs: Seq[String] = chartData map (_.date.utimeFormatted)
-    val ys: Seq[CandleEntry] = chartData map (chart => new CandleEntry(chartData.indexOf(chart),
-      chart.high.floatValue(), chart.low.floatValue(), chart.open.floatValue(), chart.close.floatValue()))
-    val set = new CandleDataSet(ys.asJava, "Data")
-
-    val data: CandleData = new CandleData(xs.asJava, set)
-    data.setDrawValues(false)
-    data
-  }
-
-  // for wamp updates
-  def updateChartUi(data: CandleData): Ui[_] = {
-    candleStick <~ Tweak[CandleStickChart](cs => {
-      cs.setData(data)
-      cs.invalidate()
-    })
-  }
-
-  def candlestickData(m: ModelR[RootModel, Seq[Chart]]) = Tweak[CandleStickChart](cs => if (m.value.nonEmpty) {
-    cs.setData(prepareChartData(m.value))
-    cs.invalidate()
-  })
-
-  val candleStickSettings = Tweak[CandleStickChart](
-    _.setDescription("Bitrader data")
-
-  )
-}

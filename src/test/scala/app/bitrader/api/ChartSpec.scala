@@ -1,7 +1,7 @@
 package app.bitrader.api
 
 import app.bitrader._
-import app.bitrader.activity.ChartLayout
+import app.bitrader.activity.layouts.ChartLayout
 import app.bitrader.api.common.CurrencyPair
 import app.bitrader.api.poloniex.Chart
 import com.github.mikephil.charting.data.CandleData
