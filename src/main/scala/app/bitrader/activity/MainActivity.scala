@@ -28,8 +28,10 @@ import diode.ModelR
 import macroid.FullDsl._
 import macroid._
 import TypedResource._
+import android.support.v4.app.{Fragment, FragmentManager}
 import android.support.v4.view.LayoutInflaterCompat
 import android.widget.AdapterView.OnItemClickListener
+import app.bitrader.activity.layouts.BasicLayout
 import app.bitrader.api.common.CurrencyPair
 import com.miguelcatalan.materialsearchview.MaterialSearchView
 import com.miguelcatalan.materialsearchview.MaterialSearchView.OnQueryTextListener
@@ -45,7 +47,7 @@ import scala.util.Random
   */
 
 class MainActivity extends AppCompatActivity with Contexts[AppCompatActivity]
-  with ActivityOperations with MenuItems with DrawerSetup with Circuitable{
+  with ActivityOperations with MenuItems with Circuitable{
 
   private val chartSub = appCircuit.dataSubscribe(_.chartsData)(layout.updateChartData)
   private val contextZoom = appCircuit.serviceContext
@@ -53,6 +55,7 @@ class MainActivity extends AppCompatActivity with Contexts[AppCompatActivity]
     .subscribe(appCircuit.zoom(_.selectedApi))(m => updateApi(m.value))
 
   lazy val layout = new MainActivityLayout(this.getLayoutInflater)
+  private lazy val drawer = new DrawerLayout(appCircuit)
 
   override def onCreate(b: Bundle): Unit = {
     this.setTheme(contextZoom.zoom(_.theme).value)
@@ -72,7 +75,7 @@ class MainActivity extends AppCompatActivity with Contexts[AppCompatActivity]
     setSupportActionBar(layout.toolbarView)
     setTitle(appCircuit.zoom(_.selectedApi).value.toString)
 
-    drawerSetup(this)
+    drawer.drawerSetup(this)
   }
 
 
@@ -94,8 +97,9 @@ class MainActivity extends AppCompatActivity with Contexts[AppCompatActivity]
   }
 }
 
-trait DrawerSetup {
-  this: MainActivity =>
+class DrawerLayout(appCircuit: ICircuit)
+                  (implicit cw:ContextWrapper, managerContext: FragmentManagerContext[Fragment, FragmentManager])
+  extends BasicLayout {
 
   def profileWrapper(k: ApiProvider): ProfileDrawerItem = {
     new ProfileDrawerItem().withName(k.toString).withIdentifier(Random.nextLong())  // inject random id to have them distinct
@@ -109,7 +113,7 @@ trait DrawerSetup {
     new ProfileSettingDrawerItem().withName("Add profile").withIcon(GoogleMaterial.Icon.gmd_add)
 
 
-  def drawerSetup(mainActivity: MainActivity): Boolean = {
+  def drawerSetup(mainActivity: MainActivity): Unit = {
     val accountHeader: AccountHeader = new AccountHeaderBuilder()
       .withActivity(mainActivity)
       .addProfiles(menuItems: _*)
@@ -152,6 +156,13 @@ trait DrawerSetup {
       .build()
 
     drawer.setSelection(-1)
+
+    def insertFragment(f: FragmentBuilder[_ <: Fragment]) = {
+      replaceFragment(
+        builder = f,
+        id = Id.mainFragment,
+        tag = Some(Tag.mainFragment))
+    }
   }
 }
 

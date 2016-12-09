@@ -8,10 +8,17 @@
     android:fitsSystemWindows="true"
     tools:openDrawer="start">
 
-    <include
-        layout="@layout/activity_flexible_space"
+    <!--<include-->
+        <!--layout="@layout/activity_flexible_space"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent" />-->
+
+    <fragment
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:id="@+id/main_fragment"
+
+        />
 
     <android.support.design.widget.NavigationView
         android:id="@+id/nav_view"
@@ -21,5 +28,6 @@
         android:fitsSystemWindows="true"
         app:headerLayout="@layout/nav_header_main"
         app:menu="@menu/activity_main_drawer" />
+
 
 </android.support.v4.widget.DrawerLayout>
