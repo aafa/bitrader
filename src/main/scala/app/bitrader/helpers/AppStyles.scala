@@ -11,6 +11,8 @@ import android.view.{Gravity, View, ViewGroup}
 import android.widget.AdapterView.OnItemClickListener
 import android.widget._
 import app.bitrader.TR
+import app.bitrader.activity.menu.CurrencyListable.cardTweak
+import com.fortysevendeg.macroid.extras.CardViewTweaks.cvCardBackgroundColor
 import macroid.FullDsl._
 import macroid._
 
@@ -22,6 +24,12 @@ import macroid._
 trait TweaksAndGoodies extends AppStyles with AdditionalTweaks
 
 trait AppStyles extends Styles with ModifyViewLayout{
+
+  def card(children: Ui[View]*)(implicit cw: ContextWrapper): Ui[View] = {
+    l[CardView](
+      children.map(_ <~ vMatchWidth): _*
+    ) <~ vMatchWidth <~ cardTweak(TR.dimen.default_offset.get) <~ cvCardBackgroundColor(Color.LTGRAY)
+  }
 
   def cardTweak(p: Int)(implicit cw: ContextWrapper): Tweak[CardView] = Tweak[CardView](c => {
     c.setRadius(3.dp)

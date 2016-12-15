@@ -8,4 +8,5 @@
     <dimen name="fab_right">15dp</dimen>
     <dimen name="padding">10dp</dimen>
     <dimen name="chartHeight">200dp</dimen>
+    <dimen name="default_offset">5dp</dimen>
 </resources>
