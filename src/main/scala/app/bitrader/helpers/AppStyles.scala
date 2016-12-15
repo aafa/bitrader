@@ -28,12 +28,13 @@ trait AppStyles extends Styles with ModifyViewLayout{
   def card(children: Ui[View]*)(implicit cw: ContextWrapper): Ui[View] = {
     l[CardView](
       children.map(_ <~ vMatchWidth): _*
-    ) <~ vMatchWidth <~ cardTweak(TR.dimen.default_offset.get) <~ cvCardBackgroundColor(Color.LTGRAY)
+    ) <~ vMatchWidth <~ cardTweak(TR.dimen.default_offset.get) <~
+      cvCardBackgroundColor(TR.color.md_blue_grey_50.get)
   }
 
   def cardTweak(p: Int)(implicit cw: ContextWrapper): Tweak[CardView] = Tweak[CardView](c => {
     c.setRadius(3.dp)
-    c.setCardElevation(3.dp)
+    c.setCardElevation(2.dp)
     c.setContentPadding(p, p, p, p)
   }) + margin(all = p)
 

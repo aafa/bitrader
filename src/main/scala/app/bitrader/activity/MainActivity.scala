@@ -8,7 +8,7 @@ import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.RecyclerView.ViewHolder
 import android.support.v7.widget.{CardView, Toolbar}
 import android.view._
-import android.widget._
+import android.widget.{FrameLayout, _}
 import app.bitrader._
 import app.bitrader.activity.menu.{PairsListFragment, ReadQrActivity, WampActivity}
 import app.bitrader.api.ApiProvider
@@ -33,6 +33,8 @@ import android.support.v4.view.LayoutInflaterCompat
 import android.widget.AdapterView.OnItemClickListener
 import app.bitrader.activity.layouts.{BasicLayout, ChartLayout, DrawerLayout}
 import app.bitrader.api.common.CurrencyPair
+import com.fortysevendeg.macroid.extras.DrawerLayoutTweaks.dlCloseDrawer
+import com.fortysevendeg.macroid.extras.ToolbarTweaks.tbTitle
 import com.miguelcatalan.materialsearchview.MaterialSearchView
 import com.miguelcatalan.materialsearchview.MaterialSearchView.OnQueryTextListener
 import com.mikepenz.iconics.context.IconicsLayoutInflater
@@ -54,7 +56,7 @@ class MainActivity extends AppCompatActivity with Contexts[AppCompatActivity]
   private val selectedApiSubscription = appCircuit
     .subscribe(appCircuit.zoom(_.selectedApi))(m => updateApi(m.value))
 
-  lazy val layout = new MainActivityLayout(this.getLayoutInflater)
+  lazy val layout = new MainActivityLayoutInflated(this.getLayoutInflater)
   private lazy val drawer = new DrawerLayout(appCircuit)
 
   override def onCreate(b: Bundle): Unit = {
@@ -102,7 +104,7 @@ class MainActivity extends AppCompatActivity with Contexts[AppCompatActivity]
 trait MenuItems extends AppCompatActivity {
   self : MainActivity =>
 
-  lazy val searchView: MaterialSearchView = layout.mainView.findView(TR.search_view)
+  lazy val searchView: MaterialSearchView = layout.search_view
 
   override def onOptionsItemSelected(item: MenuItem): Boolean = {
     super.onOptionsItemSelected(item)
@@ -141,12 +143,10 @@ trait MenuItems extends AppCompatActivity {
 
 }
 
-class MainActivityLayout(li: LayoutInflater)(implicit cw: ContextWrapper)
+class MainActivityLayoutInflated(li: LayoutInflater)
+                                (implicit cw: ContextWrapper,
+                                 managerContext: FragmentManagerContext[Fragment, FragmentManager])
   extends MainStyles with ChartLayout with UiThreading {
-
-
-  var textSlot = slot[IconTextView]
-  var btn = slot[Button]
 
   val longString: String = {
     def gen: Stream[String] = Stream.cons("I {fa-heart-o} to {fa-code} on {fa-android}", gen)
@@ -162,15 +162,78 @@ class MainActivityLayout(li: LayoutInflater)(implicit cw: ContextWrapper)
   else
     candleChartUi <~ vMatchParent
 
-  val mainView: CoordinatorLayout = li.inflate(TR.layout.activity_flexible_space)
-  val toolbarView: Toolbar = mainView.findView(TR.flexible_example_toolbar)
+  val mainView: CoordinatorLayout = li.inflate(TR.layout.activity_flexible_fragment)
+  val toolbarView: Toolbar = mainView.findView(TR.flexible_toolbar)
   val graphSlot: LinearLayout = mainView.findView(TR.graphSlot)
+  var search_view = mainView.findView(TR.search_view)
 
   def verticalLayout: Ui[View] = {
-    graphSlot.addView(candleChartUi.get)
+    insertFragment(f[PairsListFragment])
     Ui(mainView)
   }
 
+
+  def insertFragment(f: FragmentBuilder[_ <: Fragment]) = {
+    replaceFragment(
+      builder = f,
+      id = TR.flexible_toolbar.id,
+      tag = Some(Tag.mainFragment))
+  }
+}
+
+
+class MainActivityLayout(implicit cw: ContextWrapper,
+                         managerContext: FragmentManagerContext[Fragment, FragmentManager])
+  extends MainStyles with ChartLayout with UiThreading {
+
+  lazy val img: Drawable = TR.drawable.material_flat.get
+  lazy val candleChartUi = w[CandleStickChart] <~ wire(candleStick) <~ candleStickSettings <~
+    vContentSizeMatchWidth(TR.dimen.chartHeight.get)
+
+  def ui: Ui[View] = if (portrait)
+    verticalLayout
+  else
+    candleChartUi <~ vMatchParent
+
+  var toolbarView: Option[Toolbar] = slot[Toolbar]
+  var fragmentContent = slot[FrameLayout]
+  var materialSearchView = slot[MaterialSearchView]
+
+  def verticalLayout: Ui[View] = {
+    l[CoordinatorLayout](
+      l[LinearLayout](
+        l[AppBarLayout](
+          w[Toolbar] <~ wire(toolbarView),
+          w[MaterialSearchView] <~ wire(materialSearchView)
+        ) <~ vMatchWidth,
+        l[FrameLayout]() <~ wire(fragmentContent) <~ id(Id.mainFragment) <~ vMatchParent
+      ) <~ vMatchParent <~ vertical
+    ) <~ vMatchParent <~ fits
+  }
+
+  def insertFragment(f: FragmentBuilder[_ <: Fragment]) = {
+    replaceFragment(
+      builder = f,
+      id = Id.mainFragment,
+      tag = Some(Tag.mainFragment))
+  }
+
+  def itemSelected(drawerMenuItem: DrawerMenuItem) {
+    Ui.run(
+      (toolbarView <~ tbTitle(drawerMenuItem.actualToolbarTitle)) //~
+//        (drawerLayout <~ dlCloseDrawer(drawerMenu))
+    )
+
+    itemAction(drawerMenuItem)
+  }
+
+  def itemAction(drawerMenuItem: DrawerMenuItem) : Unit = drawerMenuItem.action()
+
+  case class DrawerMenuItem(title: String, toolbarTitle: Option[String] = None,
+                            fragment: Option[FragmentBuilder[_ <: Fragment]] = None,
+                            action: () => Any = () => ()){
+    def actualToolbarTitle = toolbarTitle.getOrElse(title)
+  }
 }
 
 trait MainStyles extends UiOperations with Styles with AdditionalTweaks

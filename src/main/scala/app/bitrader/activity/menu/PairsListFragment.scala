@@ -1,7 +1,6 @@
 package app.bitrader.activity.menu
 
 import android.os.Bundle
-import android.support.design.widget.CoordinatorLayout
 import android.view.{LayoutInflater, View, ViewGroup}
 import android.widget.{LinearLayout, ListView, TextView}
 import app.bitrader.activity.layouts.ListLayout
@@ -38,9 +37,8 @@ class PairsListLayout(appCircuit: ICircuit)(implicit cw: ContextWrapper) extends
   }
 
   def ui = {
-    l[CoordinatorLayout](
-      w[ListView] <~ wire(listView) <~ vMatchParent <~ ListTweaks.noDivider
-    ) <~ vMatchParent <~ padding(top = TR.dimen.default_offset.get)
+    w[ListView] <~ wire(listView) <~ vMatchParent <~ ListTweaks.noDivider <~
+      padding(top = TR.dimen.default_offset.get)
   }.get
 
 }

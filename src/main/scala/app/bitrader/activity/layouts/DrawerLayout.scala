@@ -82,11 +82,5 @@ class DrawerLayout(appCircuit: ICircuit)
 
     drawer.setSelection(-1)
 
-    def insertFragment(f: FragmentBuilder[_ <: Fragment]) = {
-      replaceFragment(
-        builder = f,
-        id = Id.mainFragment,
-        tag = Some(Tag.mainFragment))
-    }
   }
 }
