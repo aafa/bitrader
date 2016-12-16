@@ -17,10 +17,9 @@ class CurrencyListActivity extends BaseActivity with Styles{
     super.onCreate(b)
 
     setTitle("CurrencyListActivity")
-    Logger.d("CurrencyListActivity !")
 
     val ui: Ui[LinearLayout] = l[LinearLayout](
-      f[PairsListFragment].framed(Id.map, Tag.map) <~ vMatchParent
+      f[PairsListFragment].ui <~ vMatchParent
     ) <~ vMatchParent
 
     setContentView(ui.get)

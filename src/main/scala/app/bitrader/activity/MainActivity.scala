@@ -169,7 +169,6 @@ class MainActivityLayoutInflated(li: LayoutInflater)
   var search_view = mainView.findView(TR.search_view)
 
   def verticalLayout: Ui[View] = {
-//    graphSlot.addView(f[PairsListFragment].ui.get)
     Ui(mainView)
   }
 
