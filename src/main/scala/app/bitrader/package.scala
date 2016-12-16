@@ -3,13 +3,15 @@ package app
 import android.content.SharedPreferences.Editor
 import android.content.{Context, SharedPreferences}
 import app.bitrader.api.poloniex.Currency
-import app.bitrader.helpers.TweaksAndGoodies
+import app.bitrader.helpers.{Id, TweaksAndGoodies}
 import app.bitrader.helpers.activity.ActivityOperations
 import com.github.nscala_time.time.Imports._
-import macroid.ContextWrapper
+import macroid.contrib.Layouts.RootFrameLayout
+import macroid.{ContextWrapper, FragmentBuilder, FragmentManagerContext, Tag, Ui}
 
 import scala.collection.SortedMap
 import scala.language.implicitConversions
+import scala.util.Random
 
 /**
   * Created by Alexey Afanasev on 17.04.16.
@@ -21,6 +23,11 @@ package object bitrader extends ActivityOperations with TweaksAndGoodies with Jo
       tr.value(ev, c.bestAvailable).asInstanceOf[ev.T]
   }
 
+  implicit class FragmentBuilderWrapper[F](f: FragmentBuilder[F]){
+    def ui[M](implicit managerCtx: FragmentManagerContext[F, M]): Ui[RootFrameLayout] = {
+      f.framed(Random.nextInt(1000), Tag.fragment)
+    }
+  }
 
   implicit class ContextHelper(ctx: Context) {
     def preferences: SharedPreferences = {

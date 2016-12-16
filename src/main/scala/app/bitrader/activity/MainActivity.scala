@@ -30,6 +30,7 @@ import macroid._
 import TypedResource._
 import android.support.v4.app.{Fragment, FragmentManager}
 import android.support.v4.view.LayoutInflaterCompat
+import android.support.v4.widget.NestedScrollView
 import android.widget.AdapterView.OnItemClickListener
 import app.bitrader.activity.layouts.{BasicLayout, ChartLayout, DrawerLayout}
 import app.bitrader.api.common.CurrencyPair
@@ -164,14 +165,13 @@ class MainActivityLayoutInflated(li: LayoutInflater)
 
   val mainView: CoordinatorLayout = li.inflate(TR.layout.activity_flexible_fragment)
   val toolbarView: Toolbar = mainView.findView(TR.flexible_toolbar)
-  val graphSlot: LinearLayout = mainView.findView(TR.graphSlot)
+  val graphSlot: NestedScrollView = mainView.findView(TR.nested_scroll)
   var search_view = mainView.findView(TR.search_view)
 
   def verticalLayout: Ui[View] = {
-    insertFragment(f[PairsListFragment])
+//    graphSlot.addView(f[PairsListFragment].ui.get)
     Ui(mainView)
   }
-
 
   def insertFragment(f: FragmentBuilder[_ <: Fragment]) = {
     replaceFragment(
