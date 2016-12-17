@@ -40,13 +40,13 @@
         </android.support.design.widget.CollapsingToolbarLayout>
     </android.support.design.widget.AppBarLayout>
 
-
-        <fragment
-            android:id="@+id/internal_fragment"
-            android:layout_marginTop="@dimen/toolbar_height"
-            android:name="app.bitrader.activity.fragments.PairsListFragment"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+    <FrameLayout
+        android:id="@+id/content_frame"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="@dimen/toolbar_height"
+        >
+    </FrameLayout>
 
 
 </android.support.design.widget.CoordinatorLayout>

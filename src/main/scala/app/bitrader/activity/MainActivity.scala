@@ -9,8 +9,10 @@ import android.support.v4.view.LayoutInflaterCompat
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.Toolbar
 import android.view._
+import android.widget.FrameLayout
 import app.bitrader.TypedResource._
 import app.bitrader._
+import app.bitrader.activity.fragments.PairsListFragment
 import app.bitrader.activity.layouts.{ChartLayout, DrawerLayout}
 import app.bitrader.api.ApiProvider
 import app.bitrader.api.common.CurrencyPair
@@ -31,7 +33,7 @@ import scala.language.postfixOps
   */
 
 class MainActivity extends AppCompatActivity with Contexts[AppCompatActivity]
-  with ActivityOperations with MenuItems with Circuitable{
+  with ActivityOperations with MenuItems with Circuitable {
 
   private val chartSub = appCircuit.dataSubscribe(_.chartsData)(layout.updateChartData)
   private val contextZoom = appCircuit.serviceContext
@@ -47,6 +49,7 @@ class MainActivity extends AppCompatActivity with Contexts[AppCompatActivity]
 
     super.onCreate(b)
     setContentView(layout.ui.get)
+    layout.insertFragment(f[PairsListFragment])
 
     Logger.d("main!")
 
@@ -82,9 +85,8 @@ class MainActivity extends AppCompatActivity with Contexts[AppCompatActivity]
 }
 
 
-
 trait MenuItems extends AppCompatActivity {
-  self : MainActivity =>
+  self: MainActivity =>
 
   lazy val searchView: MaterialSearchView = layout.search_view
 
@@ -132,6 +134,7 @@ class MainActivityLayoutInflated(li: LayoutInflater)
 
   val longString: String = {
     def gen: Stream[String] = Stream.cons("I {fa-heart-o} to {fa-code} on {fa-android}", gen)
+
     gen.take(300) mkString " "
   }
 
@@ -146,21 +149,23 @@ class MainActivityLayoutInflated(li: LayoutInflater)
 
   val mainView: CoordinatorLayout = li.inflate(TR.layout.activity_flexible_fragment)
   val toolbarView: Toolbar = mainView.findView(TR.flexible_toolbar)
-  var search_view = mainView.findView(TR.search_view)
+  val search_view = mainView.findView(TR.search_view)
+  val contentFrame: FrameLayout = mainView.findView(TR.content_frame)
 
   def verticalLayout: Ui[View] = {
     Ui(mainView)
   }
 
   def insertFragment(f: FragmentBuilder[_ <: Fragment]) = {
-    replaceFragment(
-      builder = f,
-      id = R.id.internal_fragment,
-      tag = Some(Tag.internal_fragment))
+    Ui.run(
+      replaceFragment(
+        builder = f,
+        id = TR.content_frame.id,
+        tag = Some(Tag.internal_fragment))
+    )
   }
+
 }
-
-
 
 
 trait MainStyles extends UiOperations with Styles with AdditionalTweaks
