@@ -42,9 +42,9 @@
 
 
         <fragment
-            android:layout_marginTop="@dimen/toolbar_height"
-            android:name="app.bitrader.activity.menu.PairsListFragment"
             android:id="@+id/internal_fragment"
+            android:layout_marginTop="@dimen/toolbar_height"
+            android:name="app.bitrader.activity.fragments.PairsListFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 

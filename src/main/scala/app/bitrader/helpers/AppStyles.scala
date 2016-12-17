@@ -11,7 +11,7 @@ import android.view.{Gravity, View, ViewGroup}
 import android.widget.AdapterView.OnItemClickListener
 import android.widget._
 import app.bitrader.TR
-import app.bitrader.activity.menu.CurrencyListable.cardTweak
+import app.bitrader.activity.fragments.CurrencyListable.cardTweak
 import com.fortysevendeg.macroid.extras.CardViewTweaks.cvCardBackgroundColor
 import macroid.FullDsl._
 import macroid._

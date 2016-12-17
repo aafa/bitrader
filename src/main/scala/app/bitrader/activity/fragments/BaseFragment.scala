@@ -1,8 +1,9 @@
-package app.bitrader.activity
+package app.bitrader.activity.fragments
 
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.view.{LayoutInflater, View, ViewGroup}
+import app.bitrader.activity.Circuitable
 import macroid.Contexts
 
 /**

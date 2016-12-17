@@ -1,10 +1,10 @@
-package app.bitrader.activity.menu
+package app.bitrader.activity.fragments
 
 import android.os.Bundle
 import android.view.{LayoutInflater, View, ViewGroup}
 import android.widget.{LinearLayout, ListView, TextView}
 import app.bitrader.activity.layouts.ListLayout
-import app.bitrader.activity.{BaseFragment, CurrencyDetailsActivity}
+import app.bitrader.activity.CurrencyDetailsActivity
 import app.bitrader.api.poloniex.Currency
 import app.bitrader.helpers.TweaksAndGoodies
 import app.bitrader.{ICircuit, UpdateCurrencies, _}

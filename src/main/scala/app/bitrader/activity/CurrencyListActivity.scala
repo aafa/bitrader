@@ -2,7 +2,7 @@ package app.bitrader.activity
 
 import android.os.Bundle
 import android.widget.{LinearLayout, TextView}
-import app.bitrader.activity.menu.PairsListFragment
+import app.bitrader.activity.fragments.PairsListFragment
 import app.bitrader.helpers.{Id, Styles}
 import com.orhanobut.logger.Logger
 import macroid.FullDsl._
