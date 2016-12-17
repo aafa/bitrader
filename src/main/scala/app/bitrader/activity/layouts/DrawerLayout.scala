@@ -40,7 +40,7 @@ class DrawerLayout(appCircuit: ICircuit, l: MainActivityLayoutInflated)
     new ProfileSettingDrawerItem().withName("Add profile").withIcon(GoogleMaterial.Icon.gmd_add)
 
 
-  def drawerSetup(mainActivity: MainActivity): Unit = {
+  def drawerSetup(mainActivity: MainActivity): Drawer = {
     val accountHeader: AccountHeader = new AccountHeaderBuilder()
       .withActivity(mainActivity)
       .addProfiles(profiles: _*)
@@ -84,8 +84,8 @@ class DrawerLayout(appCircuit: ICircuit, l: MainActivityLayoutInflated)
       .withDelayDrawerClickEvent(5)
       .build()
 
-    drawer.setSelection(-1)
-
+    drawer.setSelection(1)
+    drawer
   }
 
   case class DrawerMenuItem(item: IDrawer,

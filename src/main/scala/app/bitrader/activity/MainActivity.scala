@@ -48,6 +48,7 @@ class MainActivity extends AppCompatActivity with Contexts[AppCompatActivity]
     LayoutInflaterCompat.setFactory(getLayoutInflater, new IconicsLayoutInflater(getDelegate))
 
     super.onCreate(b)
+
     setContentView(layout.ui.get)
     layout.insertFragment(f[PairsListFragment])
 
@@ -63,7 +64,7 @@ class MainActivity extends AppCompatActivity with Contexts[AppCompatActivity]
     setSupportActionBar(layout.toolbarView)
     setTitle(appCircuit.zoom(_.selectedApi).value.toString)
 
-    drawer.drawerSetup(this)
+    val drawerSetup = drawer.drawerSetup(this)
   }
 
 
