@@ -1,10 +1,12 @@
 package app.bitrader
 
+import android.support.v4.app.Fragment
 import app.bitrader.api.ApiProvider
 import app.bitrader.api.common.CurrencyPair.CurrencyPair
 import app.bitrader.api.common.{OrderWampMsg, WampMsg}
 import app.bitrader.api.network.WampSub
 import app.bitrader.api.poloniex.{Chart, Currency, OrdersBook}
+import macroid.FragmentBuilder
 
 /**
   * Created by Alex Afanasev
@@ -35,4 +37,6 @@ case class CurrenciesUpdated(cl: CurrenciesList) extends Action
 case class UpdateCharts(cp: CurrencyPair) extends Action
 
 case class ChartsUpdated(c: Seq[Chart]) extends Action
+
+case class SetMainFragment(f: FragmentBuilder[_ <: Fragment]) extends Action
 

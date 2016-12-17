@@ -1,11 +1,15 @@
 package app.bitrader
 
-import app.bitrader.api.{ApiProvider, apitest}
+import android.support.v4.app.Fragment
+import app.bitrader.activity.fragments.PairsListFragment
+import app.bitrader.api.ApiProvider
 import app.bitrader.api.bitfinex.Bitfinex
 import app.bitrader.api.common._
 import app.bitrader.api.poloniex._
 import com.github.nscala_time.time.Imports._
 import diode._
+import macroid.FragmentBuilder
+import macroid.FullDsl._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -13,9 +17,11 @@ import scala.concurrent.Future
 /**
   * Created by Alex Afanasev
   */
-trait ICircuit extends Circuit[RootModel]{
+trait ICircuit extends Circuit[RootModel] {
   def serviceData: ModelRW[RootModel, ServiceData]
+
   def serviceContext: ModelRW[RootModel, ServiceContext]
+
   def dataSubscribe[Data <: AnyRef](get: ServiceData => Data)(listen: Data => Unit): () => Unit
 }
 
@@ -24,6 +30,7 @@ class AppCircuit extends ICircuit {
   def initialModel = RootModel()
 
   private def api: ApiProvider = zoom(_.selectedApi).value
+
   private def apiFacade = AppContext.getService(api)
 
   def serviceContext: ModelRW[RootModel, ServiceContext] = zoomRW(
@@ -39,7 +46,7 @@ class AppCircuit extends ICircuit {
   def dataSubscribe[Data <: AnyRef](get: ServiceData => Data)(listen: Data => Unit) =
     subscribe(serviceData.zoom(get))(m => listen(m.value))
 
-  val selectApi = new ActionHandler(zoomRW(_.selectedApi)((m,v) => m.copy(selectedApi = v))) {
+  val selectApi = new ActionHandler(zoomRW(_.selectedApi)((m, v) => m.copy(selectedApi = v))) {
     override protected def handle = {
       case SelectApi(api) => updated(api)
     }
@@ -101,8 +108,14 @@ class AppCircuit extends ICircuit {
   }
 
 
+  private val uiStateHandler = new ActionHandler(zoomRW(_.uiState)((m, v) => m.copy(uiState = v))) {
+    override def handle = {
+      case SetMainFragment(f) => updated(UiState(Option(f)))
+    }
+  }
+
   override val actionHandler: HandlerFunction = composeHandlers(
-    orderBookUpdatesHandler, orderBookList,
+    orderBookUpdatesHandler, orderBookList, uiStateHandler,
     chartsHandler, currenciesHandler, wampSubscription, selectApi
   )
 }
@@ -112,12 +125,16 @@ class AppCircuit extends ICircuit {
 
 case class RootModel(
                       selectedApi: ApiProvider = Poloniex,
+                      uiState: UiState = UiState(),
                       serviceContext: Map[ApiProvider, ServiceContext] = Map(
                         Poloniex -> ServiceContext(theme = R.style.MainTheme),
                         Bitfinex -> ServiceContext(theme = R.style.GreenTheme)
                       )
                     )
 
+case class UiState(
+                    mainFragment: Option[FragmentBuilder[_ <: Fragment]] = None
+                  )
 
 case class ServiceContext(
                            theme: Int,

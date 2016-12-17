@@ -4,9 +4,9 @@ import android.support.v4.app.{Fragment, FragmentManager}
 import android.support.v7.widget.RecyclerView.ViewHolder
 import android.view._
 import app.bitrader._
-import app.bitrader.activity.fragments.TestFragment
+import app.bitrader.activity.fragments.{PairsListFragment, TestFragment}
 import app.bitrader.activity.menu.{ReadQrActivity, WampActivity}
-import app.bitrader.activity.{CurrencyListActivity, MainActivity, MainActivityLayoutInflated}
+import app.bitrader.activity.{MainActivity, MainActivityLayoutInflated}
 import app.bitrader.api.ApiProvider
 import com.mikepenz.google_material_typeface_library.GoogleMaterial
 import com.mikepenz.materialdrawer.AccountHeader.OnAccountHeaderListener
@@ -61,13 +61,13 @@ class DrawerLayout(appCircuit: ICircuit, l: MainActivityLayoutInflated)
 
 
     def item(s: String): PrimaryDrawerItem = new PrimaryDrawerItem().withName(s)
-      .withSelectable(false).withIdentifier(Random.nextLong())
+      .withSelectable(true).withIdentifier(Random.nextLong())
 
     val menuItems: Array[DrawerMenuItem] = Array(
-      DrawerMenuItem(item("Wamp"), () => startActivity[WampActivity]),
-      DrawerMenuItem(item("Test"), () => l.insertFragment(f[TestFragment])),
-      DrawerMenuItem(item("CurrencyListActivity"), () => startActivity[CurrencyListActivity]),
-      DrawerMenuItem(item("Read qr"), () => startActivity[ReadQrActivity])
+      DrawerMenuItem(item("Wamp"), action = () => startActivity[WampActivity]),
+      DrawerMenuItem(item("Test"), f[TestFragment]),
+      DrawerMenuItem(item("CurrencyListActivity"), f[PairsListFragment]),
+      DrawerMenuItem(item("Read qr"), action = () => startActivity[ReadQrActivity])
     )
 
     val drawer: Drawer = new DrawerBuilder().withActivity(mainActivity)
@@ -76,11 +76,12 @@ class DrawerLayout(appCircuit: ICircuit, l: MainActivityLayoutInflated)
       .addDrawerItems(menuItems.map(_.item): _*)
       .withOnDrawerItemClickListener(new OnDrawerItemClickListener {
         override def onItemClick(view: View, i: Int, item: IDrawer): Boolean = {
-          menuItems(i-1).action()
+          menuItems(i - 1).call()
           true
         }
       })
       .withCloseOnClick(true)
+      .withDelayDrawerClickEvent(5)
       .build()
 
     drawer.setSelection(-1)
@@ -88,9 +89,14 @@ class DrawerLayout(appCircuit: ICircuit, l: MainActivityLayoutInflated)
   }
 
   case class DrawerMenuItem(item: IDrawer,
-                            action: () => Unit,
-                            fragment: Option[FragmentBuilder[_ <: Fragment]] = None
+                            f: FragmentBuilder[_ <: Fragment] = null,
+                            action: () => Unit = () => ()
                            ) {
+    def call() = {
+      appCircuit(SetMainFragment(f))
+      action()
+    }
+
     def title: String = ???
   }
 

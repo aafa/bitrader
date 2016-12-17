@@ -58,6 +58,7 @@ class MainActivity extends AppCompatActivity with Contexts[AppCompatActivity]
     //    APIContext.poloniexService(_.currencies()) map layout.updateData
     layout.updateChartData(appCircuit.serviceData.zoom(_.chartsData).value)
     appCircuit(UpdateCharts(CurrencyPair.BTC_ETH))
+    appCircuit.subscribe(appCircuit.zoom(_.uiState.mainFragment))(r => r.value map layout.insertFragment)
 
     setSupportActionBar(layout.toolbarView)
     setTitle(appCircuit.zoom(_.selectedApi).value.toString)
