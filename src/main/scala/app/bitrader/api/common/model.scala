@@ -2,15 +2,14 @@ package app.bitrader.api.common
 
 import app.bitrader._
 import app.bitrader.api.poloniex.OrdersBook
-import com.fasterxml.jackson.annotation.{JsonCreator, JsonProperty}
+import json.accessor
 
 /**
   * Created by Alex Afanasev
   */
-@JsonCreator
-case class Order(@JsonProperty("type") tpe: String, @JsonProperty("rate") rate: OrderKey, @JsonProperty("amount") amount: Option[OrderValue])
+@accessor case class Order( tpe: String,  rate: OrderKey,  amount: Option[OrderValue])
 
-case class OrderBookContainer(orders: OrdersBook, changes: Seq[OrderWampMsg])
+@accessor case class OrderBookContainer(orders: OrdersBook, changes: Seq[OrderWampMsg])
 
 
 // wamp
@@ -32,10 +31,10 @@ trait OrderProcessing {
 }
 
 
-@JsonCreator
+@accessor
 case class OrderWampMsg(
-                         @JsonProperty("type") var tpe: String,
-                         @JsonProperty("data") var data: Order
+                          var tpe: String,
+                          var data: Order
                        ) extends WampMsg {
   def process(f: OrderProcessing) = {
     tpe match {
@@ -58,11 +57,11 @@ case class OrderWampMsg(
   }
 }
 
-case class ChatWampMsg(@JsonProperty("type") tpe: String,
-                       @JsonProperty("messageNumber") messageNumber: Long,
-                       @JsonProperty("username") username: String,
-                       @JsonProperty("message") message: String,
-                       @JsonProperty("reputation") reputation: Int
+@accessor case class ChatWampMsg( tpe: String,
+                        messageNumber: Long,
+                        username: String,
+                        message: String,
+                        reputation: Int
                       ) extends WampMsg
 
 

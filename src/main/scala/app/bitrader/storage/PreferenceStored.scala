@@ -2,6 +2,7 @@ package app.bitrader.storage
 
 import android.content.Context
 import app.bitrader._
+import json.JValue
 
 
 /**

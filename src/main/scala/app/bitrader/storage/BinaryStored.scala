@@ -1,7 +1,6 @@
 package app.bitrader.storage
 
 import android.content.Context
-import boopickle.Default._
 
 /**
   * Created by Alex Afanasev
