@@ -49,7 +49,7 @@ object Dependencies {
 
       "ws.wamp.jawampa" % "jawampa-netty" % "0.4.1",
       "me.chrons" %% "diode" % "1.1.0",
-      "me.chrons" %% "boopickle" % "1.1.3",
+//      "me.chrons" %% "boopickle" % "1.1.3",
       "com.github.nscala-time" %% "nscala-time" % "2.12.0",
       "com.github.PhilJay" % "MPAndroidChart" % "v2.2.4",
 
