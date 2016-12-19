@@ -4,7 +4,7 @@ import java.util.Date
 
 import android.content.Context
 import app.ObjectEnum
-import app.bitrader.AppCircuit
+import app.bitrader._
 import app.bitrader.activity.Circuitable
 import app.bitrader.api.common.CurrencyPair.CurrencyPair
 import app.bitrader.api.common.WampMsg
@@ -46,7 +46,7 @@ abstract class AbstractFacade(implicit ctx: Context) extends Circuitable{
 
   // private
 
-  def balances: Map[String, String]
+  def balances: BalancesList
 
   // build stuff
 

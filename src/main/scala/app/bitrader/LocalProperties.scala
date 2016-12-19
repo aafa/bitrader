@@ -10,7 +10,8 @@ object LocalProperties {
 
   val prop = {
     val p = new Properties()
-    p.load(new FileInputStream("local.properties"))
+    val resourceAsStream = this.getClass.getClassLoader.getResourceAsStream("local.properties")
+    p.load(resourceAsStream)
     p
   }
 

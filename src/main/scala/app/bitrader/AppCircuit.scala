@@ -107,6 +107,19 @@ class AppCircuit extends ICircuit {
     }
   }
 
+  private val balancesHandler = new ActionHandler(serviceData.zoomRW(_.balance)((m, v) => m.copy(balance = v))) {
+    override def handle = {
+      case UpdateBalances =>
+        val request: Future[BalancesList] = apiFacade(_.balances)
+        def hasMoney(a: BalancesList): BalancesList = a.filter {
+          case (coin, amout) => amout.toDouble > 0
+        }
+
+        effectOnly(Effect(request.map(r => BalancesUpdated(hasMoney(r)))))
+      case BalancesUpdated(c) => updated(Some(c))
+    }
+  }
+
 
   private val uiStateHandler = new ActionHandler(zoomRW(_.uiState)((m, v) => m.copy(uiState = v))) {
     override def handle = {
@@ -115,7 +128,7 @@ class AppCircuit extends ICircuit {
   }
 
   override val actionHandler: HandlerFunction = composeHandlers(
-    orderBookUpdatesHandler, orderBookList, uiStateHandler,
+    orderBookUpdatesHandler, orderBookList, uiStateHandler, balancesHandler,
     chartsHandler, currenciesHandler, wampSubscription, selectApi
   )
 }
@@ -147,6 +160,7 @@ case class ServiceData(
                         OrderBookContainer(
                           orders = OrdersBook(Seq.empty, Seq.empty, "0", 0),
                           changes = Seq.empty),
+                        balance: Option[BalancesList] = None,
                         currencies: Map[String, Currency] = Map.empty,
                         chartsData: Seq[Chart] = Seq.empty
                       )

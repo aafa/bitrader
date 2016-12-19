@@ -1,7 +1,7 @@
 package app.bitrader.api.poloniex
 
 import android.content.Context
-import app.bitrader.TR
+import app.bitrader.{BalancesList, TR}
 import app.bitrader.api.common.CurrencyPair.CurrencyPair
 import app.bitrader.api.common.WampMsg
 import app.bitrader.api.network.{AuthInterceptor, JawampaClient, WampSub}
@@ -44,7 +44,7 @@ class PoloniexFacade(implicit ctx: Context) extends AbstractFacade {
 
   // private
 
-  def balances: Map[String, String] = privateApi.balances()
+  def balances: BalancesList = privateApi.balances()
 
   def myTradeHistory(currencyPair: String = "all"): Seq[Map[String, Seq[TradeHistory]]] =
     privateApi.returnTradeHistory(currencyPair)

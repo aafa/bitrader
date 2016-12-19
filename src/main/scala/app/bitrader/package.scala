@@ -63,6 +63,8 @@ trait CommonTypes {
   type OrderPair = (OrderKey, OrderValue)
   type OrdersMap = SortedMap[OrderKey, OrderValue]
   type CurrenciesList = Map[String, Currency]
+  type BalancesList = Map[String, String]
+  type Balance = (String, String)
 
   implicit class EmptyOrderInt(k: Int) {
     implicit def convert(k : Int): OrderKey = k.toString

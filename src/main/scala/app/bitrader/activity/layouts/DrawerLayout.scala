@@ -4,7 +4,7 @@ import android.support.v4.app.{Fragment, FragmentManager}
 import android.support.v7.widget.RecyclerView.ViewHolder
 import android.view._
 import app.bitrader._
-import app.bitrader.activity.fragments.{PairsListFragment, TestFragment}
+import app.bitrader.activity.fragments.{PairsListFragment, PortfolioFragment, TestFragment}
 import app.bitrader.activity.menu.{ReadQrActivity, WampActivity}
 import app.bitrader.activity.{MainActivity, MainActivityLayoutInflated}
 import app.bitrader.api.ApiProvider
@@ -67,6 +67,7 @@ class DrawerLayout(appCircuit: ICircuit, l: MainActivityLayoutInflated)
       DrawerMenuItem(item("Wamp"), action = () => startActivity[WampActivity]),
       DrawerMenuItem(item("Test"), f[TestFragment]),
       DrawerMenuItem(item("CurrencyListActivity"), f[PairsListFragment]),
+      DrawerMenuItem(item("Balances"), f[PortfolioFragment]),
       DrawerMenuItem(item("Read qr"), action = () => startActivity[ReadQrActivity])
     )
 

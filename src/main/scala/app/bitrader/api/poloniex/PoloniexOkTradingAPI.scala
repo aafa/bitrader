@@ -1,5 +1,6 @@
 package app.bitrader.api.poloniex
 
+import app.bitrader._
 import app.bitrader.api.AbstractApi
 import app.bitrader.api.network.AuthInterceptor
 import okhttp3.OkHttpClient
@@ -12,7 +13,7 @@ class PoloniexOkTradingAPI(url: String) extends AbstractApi(url) {
     .addInterceptor(new AuthInterceptor())
     .build()
 
-  def balances(): Map[String, String] = post[Map[String, String]](Map(
+  def balances(): BalancesList = post[Map[String, String]](Map(
     "command" -> "returnBalances"
   ))
 

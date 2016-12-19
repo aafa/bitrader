@@ -40,3 +40,7 @@ case class ChartsUpdated(c: Seq[Chart]) extends Action
 
 case class SetMainFragment(f: FragmentBuilder[_ <: Fragment]) extends Action
 
+case object UpdateBalances extends Action
+
+case class BalancesUpdated(bb: BalancesList) extends Action
+
