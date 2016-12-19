@@ -24,7 +24,7 @@ abstract class AbstractSpec extends FlatSpec with Matchers with RobolectricSuite
 
   // todo https://philio.me/android-data-binding-with-robolectric-3/
 
-  override val aarsDir: FsFile = Fs.fileFromPath("/Users/aafa/.android/sbt/exploded-aars")
+//  override val aarsDir: FsFile = Fs.fileFromPath("/Users/aafa/.android/sbt/exploded-aars")
 
   implicit val cw = ContextWrapper(RuntimeEnvironment.application)
   implicit val c = RuntimeEnvironment.application
@@ -52,6 +52,7 @@ object DiModuleTest extends DiModule {
 class AppCircuitTest extends AppCircuit {
   override def initialModel = RootModel(
     ApiTest,
+    UiState(),
     Map(
       ApiTest -> ServiceContext(theme = R.style.MainTheme)
     ))
