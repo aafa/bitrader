@@ -65,13 +65,15 @@ object AppContext {
   def get(api: ApiProvider): AbstractFacade = apis(api)
 
   def onCreate = {
-    val debugAcc = Account(Poloniex, ApiContext(theme = R.style.MainTheme,
-      auth = UserProfile(authData = Some(AuthData(
-        apiKey = LocalProperties.apiKey,
-        apiSecret = LocalProperties.apiSecret
-      )))))
+    if (LocalProperties.hasDebugKeys) {
+      val debugAcc = Account(Poloniex, ApiContext(theme = R.style.MainTheme,
+        auth = UserProfile(authData = Some(AuthData(
+          apiKey = LocalProperties.apiKey,
+          apiSecret = LocalProperties.apiSecret
+        )))))
 
-    diModule.appCircuit(AddAccount(debugAcc))
+      diModule.appCircuit(AddAccount(debugAcc))
+    }
   }
 
   object LocalProperties {
@@ -81,6 +83,8 @@ object AppContext {
       p.load(resourceAsStream)
       p
     }
+
+    def hasDebugKeys = apiKey.nonEmpty
 
     val apiKey = prop.getProperty("apiKey")
     val apiSecret = prop.getProperty("apiSecret")
