@@ -15,7 +15,7 @@ import app.bitrader.api.poloniex._
   * Created by Alex Afanasev
   */
 
-private[bitrader] trait ApiProvider extends ApiProvider.Value {
+trait ApiProvider extends ApiProvider.Value {
   type ApiFacade
 
   def facade(implicit ctx: Context): ApiFacade

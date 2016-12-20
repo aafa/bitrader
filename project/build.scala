@@ -28,7 +28,7 @@ object Build extends android.AutoBuild {
     buildTypes in Android +=("release", Seq(
       useProguardInDebug in Android := true,
       proguardOptions in Android ++= Settings.proguardRelease,
-//      proguardConfig ++= file("project/proguard.pro").  getLines().toSeq,
+//      proguardConfig ++= file("project/proguard.pro").getLines.toSeq,
       scalacOptions ++= Seq("-feature", "-optimise"),
       minSdkVersion in Android := "14"
     )),

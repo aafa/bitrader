@@ -20,7 +20,7 @@ import scala.concurrent.Future
 trait ICircuit extends Circuit[RootModel] {
   def serviceData: ModelRW[RootModel, ServiceData]
 
-  def serviceContext: ModelRW[RootModel, ServiceContext]
+  def serviceContext: ModelRW[RootModel, ApiContext]
 
   def dataSubscribe[Data <: AnyRef](get: ServiceData => Data)(listen: Data => Unit): () => Unit
 }
@@ -29,16 +29,13 @@ class AppCircuit extends ICircuit {
 
   def initialModel = RootModel()
 
-  private def api: ApiProvider = zoom(_.selectedApi).value
+  private def selectedAccount: ModelRW[RootModel, Account] = zoomRW(_.selectedAccount)((model: RootModel, account: Account) =>
+    model.copy(selectedAccount = model.selectedAccount))
 
-  private def apiFacade = AppContext.getService(api)
+  private def apiFacade = AppContext.getService(selectedAccount.zoom(_.api).value)
 
-  def serviceContext: ModelRW[RootModel, ServiceContext] = zoomRW(
-    _.serviceContext(api))((m, newServiceContext) => m.copy(serviceContext =
-    m.serviceContext.map {
-      case (k, v) if k == api => (api, newServiceContext)
-      case a => a
-    }))
+  def serviceContext: ModelRW[RootModel, ApiContext] = selectedAccount.zoomRW(
+    _.context)((m, newServiceContext) => m.copy(context = newServiceContext))
 
   def serviceData: ModelRW[RootModel, ServiceData] = serviceContext
     .zoomRW(_.serviceData)((m, v) => m.copy(serviceData = v))
@@ -46,7 +43,7 @@ class AppCircuit extends ICircuit {
   def dataSubscribe[Data <: AnyRef](get: ServiceData => Data)(listen: Data => Unit) =
     subscribe(serviceData.zoom(get))(m => listen(m.value))
 
-  val selectApi = new ActionHandler(zoomRW(_.selectedApi)((m, v) => m.copy(selectedApi = v))) {
+  val selectApi = new ActionHandler(zoomRW(_.selectedAccount)((m, v) => m.copy(selectedAccount = v))) {
     override protected def handle = {
       case SelectApi(api) => updated(api)
     }
@@ -137,19 +134,20 @@ class AppCircuit extends ICircuit {
 // root model
 
 case class RootModel(
-                      selectedApi: ApiProvider = Poloniex,
+                      selectedAccount: Account = AppContext.accounts.head,
                       uiState: UiState = UiState(),
-                      serviceContext: Map[ApiProvider, ServiceContext] = Map(
-                        Poloniex -> ServiceContext(theme = R.style.MainTheme),
-                        Bitfinex -> ServiceContext(theme = R.style.GreenTheme)
-                      )
+                      serviceContext: Seq[Account] = AppContext.accounts
                     )
+
+case class Account(api: ApiProvider, context: ApiContext) {
+  def name: String = api.toString
+}
 
 case class UiState(
                     mainFragment: Option[FragmentBuilder[_ <: Fragment]] = None
                   )
 
-case class ServiceContext(
+case class ApiContext(
                            theme: Int,
                            auth: UserProfile = UserProfile(),
                            serviceData: ServiceData = ServiceData()

@@ -1,5 +1,7 @@
 package app.bitrader.activity
 
+import java.util.Properties
+
 import android.content.res.Resources
 import android.graphics.drawable.Drawable
 import android.os.Bundle
@@ -38,7 +40,7 @@ class MainActivity extends AppCompatActivity with Contexts[AppCompatActivity]
   private val chartSub = appCircuit.dataSubscribe(_.chartsData)(layout.updateChartData)
   private val contextZoom = appCircuit.serviceContext
   private val selectedApiSubscription = appCircuit
-    .subscribe(appCircuit.zoom(_.selectedApi))(m => updateApi(m.value))
+    .subscribe(appCircuit.zoom(_.selectedAccount))(m => updateApi(m.value.api))
 
   lazy val layout = new MainActivityLayoutInflated(this.getLayoutInflater)
   private lazy val drawer = new DrawerLayout(appCircuit, layout)
@@ -62,7 +64,7 @@ class MainActivity extends AppCompatActivity with Contexts[AppCompatActivity]
     appCircuit.subscribe(appCircuit.zoom(_.uiState.mainFragment))(r => r.value map layout.insertFragment)
 
     setSupportActionBar(layout.toolbarView)
-    setTitle(appCircuit.zoom(_.selectedApi).value.toString)
+    setTitle(appCircuit.zoom(_.selectedAccount).value.name)
 
     val drawerSetup = drawer.drawerSetup(this)
   }

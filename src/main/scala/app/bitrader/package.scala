@@ -2,6 +2,8 @@ package app
 
 import android.content.SharedPreferences.Editor
 import android.content.{Context, SharedPreferences}
+import app.bitrader.ApiContext
+import app.bitrader.api.ApiProvider
 import app.bitrader.api.poloniex.Currency
 import app.bitrader.helpers.{Id, TweaksAndGoodies}
 import app.bitrader.helpers.activity.ActivityOperations

@@ -1,9 +1,13 @@
 package app.bitrader
 
+import java.util.Properties
+
 import android.app.Application
 import android.content.Context
 import app.bitrader.api._
 import app.bitrader.api.apitest.ApiTest
+import app.bitrader.api.bitfinex.Bitfinex
+import app.bitrader.api.common.{AuthData, UserProfile}
 import app.bitrader.api.poloniex.Poloniex
 import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper}
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
@@ -34,7 +38,7 @@ class ClientApplication extends Application {
 object AppContext {
 
   implicit var appContext: Context = _
-  var diModule : DiModule  = _
+  var diModule: DiModule = _
 
   lazy val jacksonMapper = {
     val jm = new ObjectMapper() with ScalaObjectMapper
@@ -47,17 +51,42 @@ object AppContext {
   lazy val apis: Map[ApiProvider, AbstractFacade] = Map(
     Poloniex -> NetworkFacade.factory(Poloniex),
     ApiTest -> NetworkFacade.factory(ApiTest)
-//    Bitfinex -> NetworkFacade.factory(Bitfinex)
+    //    Bitfinex -> NetworkFacade.factory(Bitfinex)
   )
 
+  lazy val accounts: Seq[Account] = Seq(
+    Account(Poloniex, ApiContext(theme = R.style.MainTheme,
+      auth = UserProfile(authData = Some(AuthData(
+        apiKey = LocalProperties.apiKey,
+        apiSecret = LocalProperties.apiSecret
+      ))))),
+    Account(Bitfinex, ApiContext(theme = R.style.GreenTheme))
+  )
+
+
   def getService(api: ApiProvider): UiService[AbstractFacade] = new UiService(get(api))
+
   def get(api: ApiProvider): AbstractFacade = apis(api)
+
+  object LocalProperties {
+    val prop = {
+      val p = new Properties()
+      val resourceAsStream = appContext.getAssets.open("local.properties")
+      p.load(resourceAsStream)
+      p
+    }
+
+    val apiKey = prop.getProperty("apiKey")
+    val apiSecret = prop.getProperty("apiSecret")
+
+  }
+
 }
 
 trait DiModule {
-  val appCircuit : ICircuit
+  val appCircuit: ICircuit
 }
 
-object DiModuleProd extends DiModule{
+object DiModuleProd extends DiModule {
   val appCircuit = new AppCircuit
 }

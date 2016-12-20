@@ -21,6 +21,7 @@ object Settings {
   lazy val proguardRelease = Seq(
     "-optimizations class/*,field/*,method/*,code/*",
     "-mergeinterfacesaggressively",
+    "-dontwarn",
     "-optimizationpasses 5"
   ) 
 

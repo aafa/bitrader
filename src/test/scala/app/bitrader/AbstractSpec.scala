@@ -54,6 +54,6 @@ class AppCircuitTest extends AppCircuit {
     ApiTest,
     UiState(),
     Map(
-      ApiTest -> ServiceContext(theme = R.style.MainTheme)
+      ApiTest -> ApiContext(theme = R.style.MainTheme)
     ))
 }

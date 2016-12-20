@@ -28,13 +28,13 @@ class DrawerLayout(appCircuit: ICircuit, l: MainActivityLayoutInflated)
   extends BasicLayout {
   type IDrawer = IDrawerItem[_, _ <: ViewHolder]
 
-  def profileWrapper(k: ApiProvider): ProfileDrawerItem = {
-    new ProfileDrawerItem().withName(k.toString).withIdentifier(Random.nextLong()) // inject random id to have them distinct
+  def profileWrapper(acc: Account): ProfileDrawerItem = {
+    new ProfileDrawerItem().withName(acc.name).withIdentifier(Random.nextLong()) // inject random id to have them distinct
   }
 
-  lazy val providers: Seq[ApiProvider] = appCircuit.zoom(_.serviceContext).value.keys.toSeq
-  lazy val profileItems: Map[ApiProvider, ProfileDrawerItem] = providers zip (providers map profileWrapper) toMap
-  lazy val apiKey: Map[ProfileDrawerItem, ApiProvider] = profileItems.map(_.swap)
+  lazy val providers: Seq[Account] = appCircuit.zoom(_.serviceContext).value
+  lazy val profileItems: Map[Account, ProfileDrawerItem] = providers zip (providers map profileWrapper) toMap
+  lazy val apiKey: Map[ProfileDrawerItem, Account] = profileItems.map(_.swap)
 
   lazy val profiles: Seq[IProfile[_]] = profileItems.values.toSeq :+
     new ProfileSettingDrawerItem().withName("Add profile").withIcon(GoogleMaterial.Icon.gmd_add)
@@ -57,7 +57,7 @@ class DrawerLayout(appCircuit: ICircuit, l: MainActivityLayoutInflated)
       .withHeaderBackground(R.drawable.material_flat)
       .build()
 
-    accountHeader.setActiveProfile(profileItems(appCircuit.zoom(_.selectedApi).value))
+    accountHeader.setActiveProfile(profileItems(appCircuit.zoom(_.selectedAccount).value))
 
 
     def item(s: String): PrimaryDrawerItem = new PrimaryDrawerItem().withName(s)
