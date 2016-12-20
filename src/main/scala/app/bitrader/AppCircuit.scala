@@ -45,7 +45,14 @@ class AppCircuit extends ICircuit {
 
   val selectApi = new ActionHandler(zoomRW(_.selectedAccount)((m, v) => m.copy(selectedAccount = v))) {
     override protected def handle = {
-      case SelectApi(api) => updated(api)
+      case SelectAccount(api) => updated(api)
+    }
+  }
+
+  val updateAccounts = new ActionHandler(zoomRW(_.accounts)((model: RootModel, accounts: Seq[Account]) =>
+    model.copy(accounts = accounts))) {
+    override protected def handle = {
+      case AddAccount(a) => updated(a +: value)
     }
   }
 
@@ -126,7 +133,7 @@ class AppCircuit extends ICircuit {
 
   override val actionHandler: HandlerFunction = composeHandlers(
     orderBookUpdatesHandler, orderBookList, uiStateHandler, balancesHandler,
-    chartsHandler, currenciesHandler, wampSubscription, selectApi
+    chartsHandler, currenciesHandler, wampSubscription, selectApi, updateAccounts
   )
 }
 
@@ -136,7 +143,7 @@ class AppCircuit extends ICircuit {
 case class RootModel(
                       selectedAccount: Account = AppContext.accounts.head,
                       uiState: UiState = UiState(),
-                      serviceContext: Seq[Account] = AppContext.accounts
+                      accounts: Seq[Account] = AppContext.accounts
                     )
 
 case class Account(api: ApiProvider, context: ApiContext) {

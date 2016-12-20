@@ -31,12 +31,12 @@ class ClientApplication extends Application {
 
     AppContext.appContext = getApplicationContext
     AppContext.diModule = diModule
+    AppContext.onCreate
   }
 
 }
 
 object AppContext {
-
   implicit var appContext: Context = _
   var diModule: DiModule = _
 
@@ -55,21 +55,27 @@ object AppContext {
   )
 
   lazy val accounts: Seq[Account] = Seq(
-    Account(Poloniex, ApiContext(theme = R.style.MainTheme,
-      auth = UserProfile(authData = Some(AuthData(
-        apiKey = LocalProperties.apiKey,
-        apiSecret = LocalProperties.apiSecret
-      ))))),
+    Account(Poloniex, ApiContext(theme = R.style.MainTheme)),
     Account(Bitfinex, ApiContext(theme = R.style.GreenTheme))
   )
 
-
   def getService(api: ApiProvider): UiService[AbstractFacade] = new UiService(get(api))
+
 
   def get(api: ApiProvider): AbstractFacade = apis(api)
 
+  def onCreate = {
+    val debugAcc = Account(Poloniex, ApiContext(theme = R.style.MainTheme,
+      auth = UserProfile(authData = Some(AuthData(
+        apiKey = LocalProperties.apiKey,
+        apiSecret = LocalProperties.apiSecret
+      )))))
+
+    diModule.appCircuit(AddAccount(debugAcc))
+  }
+
   object LocalProperties {
-    val prop = {
+    lazy val prop = {
       val p = new Properties()
       val resourceAsStream = appContext.getAssets.open("local.properties")
       p.load(resourceAsStream)

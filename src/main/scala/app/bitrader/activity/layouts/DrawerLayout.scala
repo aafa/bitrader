@@ -32,7 +32,7 @@ class DrawerLayout(appCircuit: ICircuit, l: MainActivityLayoutInflated)
     new ProfileDrawerItem().withName(acc.name).withIdentifier(Random.nextLong()) // inject random id to have them distinct
   }
 
-  lazy val providers: Seq[Account] = appCircuit.zoom(_.serviceContext).value
+  lazy val providers: Seq[Account] = appCircuit.zoom(_.accounts).value
   lazy val profileItems: Map[Account, ProfileDrawerItem] = providers zip (providers map profileWrapper) toMap
   lazy val apiKey: Map[ProfileDrawerItem, Account] = profileItems.map(_.swap)
 
@@ -47,7 +47,7 @@ class DrawerLayout(appCircuit: ICircuit, l: MainActivityLayoutInflated)
       .withOnAccountHeaderListener(new OnAccountHeaderListener {
         override def onProfileChanged(view: View, item: IProfile[_], b: Boolean): Boolean = {
           item match {
-            case p: ProfileDrawerItem => appCircuit(SelectApi(apiKey(p)))
+            case p: ProfileDrawerItem => appCircuit(SelectAccount(apiKey(p)))
             case s: ProfileSettingDrawerItem => // todo settings
           }
 

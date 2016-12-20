@@ -14,7 +14,9 @@ import macroid.FragmentBuilder
 
 trait Action extends diode.Action
 
-case class SelectApi(api: Account) extends Action
+case class SelectAccount(api: Account) extends Action
+
+case class AddAccount(api: Account) extends Action
 
 case class UpdateOrderBook(cp: CurrencyPair) extends Action
 
