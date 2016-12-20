@@ -39,8 +39,8 @@ class MainActivity extends AppCompatActivity with Contexts[AppCompatActivity]
 
   private val chartSub = appCircuit.dataSubscribe(_.chartsData)(layout.updateChartData)
   private val contextZoom = appCircuit.serviceContext
-  private val selectedApiSubscription = appCircuit
-    .subscribe(appCircuit.zoom(_.selectedAccount))(m => updateApi(m.value.api))
+//  private val selectedApiSubscription = appCircuit
+//    .subscribe(appCircuit.zoom(_.selectedAccount))(m => updateApi(m.value.api))
 
   lazy val layout = new MainActivityLayoutInflated(this.getLayoutInflater)
   private lazy val drawer = new DrawerLayout(appCircuit, layout)
@@ -78,7 +78,7 @@ class MainActivity extends AppCompatActivity with Contexts[AppCompatActivity]
   override def onPause(): Unit = {
     super.onPause()
     chartSub.apply()
-    selectedApiSubscription.apply()
+//    selectedApiSubscription.apply()
   }
 
 
