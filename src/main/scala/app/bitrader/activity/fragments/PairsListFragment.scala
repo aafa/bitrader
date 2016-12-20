@@ -19,10 +19,13 @@ import macroid.{ContextWrapper, Ui, _}
 
 class PairsListFragment extends BaseFragment {
   private lazy val layout = new PairsListLayout(appCircuit)
-  appCircuit.dataSubscribe(_.currencies)(layout.updateData)
+  private val subscribe = appCircuit.dataSubscribe(_.currencies)(layout.updateData)
 
   override def onCreateView(inflater: LayoutInflater, container: ViewGroup, savedInstanceState: Bundle): View = {
     appCircuit(UpdateCurrencies)
+    appCircuit.serviceData.value
+    val account = appCircuit.zoom(_.selectedAccount).value
+
     layout.ui
   }
 }
@@ -30,7 +33,7 @@ class PairsListFragment extends BaseFragment {
 class PairsListLayout(appCircuit: ICircuit)(implicit cw: ContextWrapper) extends ListLayout {
   private var listView = slot[ListView]
 
-  def updateData(a: CurrenciesList) = {
+  def updateData(a: CurrenciesList) : Unit = {
     def go(p: Currency): Unit = startActivityWithParams[CurrencyDetailsActivity](p)
 
     Ui.run(listView <~ CurrencyListable.listAdapterTweak(a.values.toSeq) <~ adapterOnClick(go))

@@ -57,11 +57,11 @@ class MainActivity extends AppCompatActivity with Contexts[AppCompatActivity]
     Logger.d("main!")
 
     //todo setup charts wamp update
-
+    // todo move chart in a separate frame
     //    APIContext.poloniexService(_.currencies()) map layout.updateData
-    layout.updateChartData(appCircuit.serviceData.zoom(_.chartsData).value)
-    appCircuit(UpdateCharts(CurrencyPair.BTC_ETH))
-    appCircuit.subscribe(appCircuit.zoom(_.uiState.mainFragment))(r => r.value map layout.insertFragment)
+//    layout.updateChartData(appCircuit.serviceData.zoom(_.chartsData).value)
+//    appCircuit(UpdateCharts(CurrencyPair.BTC_ETH))
+//    appCircuit.subscribe(appCircuit.zoom(_.uiState.mainFragment))(r => r.value map layout.insertFragment)
 
     setSupportActionBar(layout.toolbarView)
     setTitle(appCircuit.zoom(_.selectedAccount).value.name)

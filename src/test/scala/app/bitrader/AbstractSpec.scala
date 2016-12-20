@@ -50,10 +50,13 @@ object DiModuleTest extends DiModule {
 }
 
 class AppCircuitTest extends AppCircuit {
-  override def initialModel = RootModel(
-    ApiTest,
-    UiState(),
-    Map(
-      ApiTest -> ApiContext(theme = R.style.MainTheme)
-    ))
+  override def initialModel = {
+    val testAcc = Account(ApiTest, ApiContext(theme = R.style.MainTheme))
+
+    RootModel(
+      testAcc,
+      UiState(),
+      Seq(testAcc)
+    )
+  }
 }

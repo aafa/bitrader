@@ -22,7 +22,7 @@ trait ICircuit extends Circuit[RootModel] {
 
   def serviceContext: ModelRW[RootModel, ApiContext]
 
-  def dataSubscribe[Data <: AnyRef](get: ServiceData => Data)(listen: Data => Unit): () => Unit
+  def dataSubscribe[Data <: AnyRef](get: ServiceData => Data)(listen: Data => Any): () => Unit
 }
 
 class AppCircuit extends ICircuit {
@@ -30,7 +30,7 @@ class AppCircuit extends ICircuit {
   def initialModel = RootModel()
 
   private def selectedAccount: ModelRW[RootModel, Account] = zoomRW(_.selectedAccount)((model: RootModel, account: Account) =>
-    model.copy(selectedAccount = model.selectedAccount))
+    model.copy(selectedAccount = account))
 
   private def apiFacade = AppContext.getService(selectedAccount.zoom(_.api).value)
 
@@ -40,7 +40,7 @@ class AppCircuit extends ICircuit {
   def serviceData: ModelRW[RootModel, ServiceData] = serviceContext
     .zoomRW(_.serviceData)((m, v) => m.copy(serviceData = v))
 
-  def dataSubscribe[Data <: AnyRef](get: ServiceData => Data)(listen: Data => Unit) =
+  def dataSubscribe[Data <: AnyRef](get: ServiceData => Data)(listen: Data => Any) =
     subscribe(serviceData.zoom(get))(m => listen(m.value))
 
   val selectApi = new ActionHandler(zoomRW(_.selectedAccount)((m, v) => m.copy(selectedAccount = v))) {
@@ -49,8 +49,8 @@ class AppCircuit extends ICircuit {
     }
   }
 
-  val updateAccounts = new ActionHandler(zoomRW(_.accounts)((model: RootModel, accounts: Seq[Account]) =>
-    model.copy(accounts = accounts))) {
+  val updateAccounts = new ActionHandler(zoomRW(_.accounts)((m: RootModel, acc: Seq[Account]) =>
+    m.copy(accounts = acc))) {
     override protected def handle = {
       case AddAccount(a) => updated(a +: value)
     }
