@@ -1,7 +1,7 @@
 package app.bitrader.unit
 
 import android.os.Build.VERSION_CODES.LOLLIPOP
-import app.bitrader.{AbstractSpec, LocalProperties, R}
+import app.bitrader.{AbstractSpec, AppContext, R}
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
 
@@ -9,7 +9,7 @@ import org.robolectric.annotation.Config
 class LocalPropsSpec extends AbstractSpec  {
 
   "LocalProperties" should "work" in {
-    assert(LocalProperties.prop.getProperty("testKey") == "ok")
+    assert(AppContext.LocalProperties.prop.getProperty("testKey") == "ok")
   }
 
 }

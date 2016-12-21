@@ -20,14 +20,14 @@ class WampSpec extends AbstractSpec{
     def orders = messages.orders
 
     def get(key: Int): (Any, Any) = {
-      orders.find { case (k, v) => k == key }.get
+      orders.find { case (k, v) => k == key.toString }.get
     }
 
     messages.updateOrderList(SortedMap(bd(1,5), bd(5,1), bd(2,3)))
 
     assert(orders.size == 3)
-    assert(orders.keys.toSeq == Seq(1,2,5))
-    assert(orders.values.toSeq == Seq(5,3,1))
+    assert(orders.keys.toSeq == Seq("1","2","5"))
+    assert(orders.values.toSeq == Seq[OrderValue](5,3,1))
 
     messages.removeOrder(1.emptyPair)
 

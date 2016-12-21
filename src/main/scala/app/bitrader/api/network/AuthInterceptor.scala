@@ -4,15 +4,11 @@ import java.nio.charset.Charset
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
 
-import android.content.Context
-import android.net.Credentials
-import app.bitrader.LocalProperties
 import app.bitrader.activity.Circuitable
 import app.bitrader.api.common.AuthData
-import com.orhanobut.logger.Logger
-import okhttp3.{Interceptor, Request, Response}
 import okhttp3.Interceptor.Chain
-import okio.{Buffer, BufferedSink}
+import okhttp3.{Interceptor, Request, Response}
+import okio.Buffer
 
 /**
   * Created by Alex Afanasev
